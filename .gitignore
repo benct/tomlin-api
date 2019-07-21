@@ -11,3 +11,6 @@ out/
 *.iws
 *.iml
 *.ipr
+
+application-dev.*
+application-prod.*

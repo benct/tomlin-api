@@ -1,6 +1,15 @@
 spring:
+  profiles:
+    active: prod
   http:
     encoding:
       charset: UTF-8
       enabled: true
       force: true
+  jpa:
+    hibernate:
+      ddl-auto: none
+  datasource:
+    url: jdbc:mysql://hostname/database?serverTimezone=UTC
+    username: xxxxxxxxx
+    password: xxxxxxxxx
