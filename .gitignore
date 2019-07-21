@@ -1,0 +1,13 @@
+.gradle
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**
+!**/src/test/**
+
+build/
+out/
+
+.vscode/
+.idea
+*.iws
+*.iml
+*.ipr
