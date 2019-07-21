@@ -7,7 +7,7 @@ import org.springframework.test.context.junit4.SpringRunner
 
 @RunWith(SpringRunner::class)
 @SpringBootTest
-class TomlinApiApplicationTests {
+class ApiApplicationTests {
 
     @Test
     fun contextLoads() {
