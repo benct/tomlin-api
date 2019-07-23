@@ -13,3 +13,10 @@ spring:
     url: jdbc:mysql://hostname/database?serverTimezone=UTC
     username: xxxxxxxxx
     password: xxxxxxxxx
+  security:
+    user:
+      name: xxxxxxxxx
+      password: xxxxxxxxx
+      roles:
+        - USER
+        - ADMIN
