@@ -8,7 +8,7 @@ spring:
     hibernate:
       ddl-auto: none
   datasource:
-    url: jdbc:mysql://hostname/database?serverTimezone=UTC
+    url: jdbc:mysql://hostname/database?serverTimezone=UTC&useServerPrepStmts=false&rewriteBatchedStatements=true
     username: xxxxxxxxx
     password: xxxxxxxxx
   security:
