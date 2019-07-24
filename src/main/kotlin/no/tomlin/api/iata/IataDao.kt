@@ -15,6 +15,18 @@ class IataDao {
     @Autowired
     private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
 
+    fun getAirlines(code: String): List<Airline> =
+        jdbcTemplate.query(
+            "SELECT * FROM $TABLE_AIRLINE WHERE iataCode = :code",
+            mapOf("code" to code)
+        ) { resultSet, _ -> Airline(resultSet) }
+
+    fun getLocations(code: String): List<Location> =
+        jdbcTemplate.query(
+            "SELECT * FROM $TABLE_LOCATION WHERE iataCode = :code OR cityCode = :code ORDER BY `type`",
+            mapOf("code" to code)
+        ) { resultSet, _ -> Location(resultSet) }
+
     fun batchAirlines(airlines: List<Airline>) =
         jdbcTemplate.batchUpdate(
             "INSERT INTO $TABLE_AIRLINE (id, iataCode, icaoCode, name, alias, type, started, ended, wiki) " +

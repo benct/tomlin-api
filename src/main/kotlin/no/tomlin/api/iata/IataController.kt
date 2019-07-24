@@ -6,10 +6,10 @@ import no.tomlin.api.entity.Airline
 import no.tomlin.api.entity.Location
 import no.tomlin.api.http.HttpFetcher
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.security.access.annotation.Secured
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import javax.servlet.http.HttpServletResponse
 
 @RestController
 @RequestMapping("/iata")
@@ -19,6 +19,22 @@ class IataController {
     private lateinit var iataDao: IataDao
 
     private val fetcher = HttpFetcher.fetcher(OPTD_URL)
+
+    @GetMapping("/search/{query}")
+    fun search(@PathVariable query: String, response: HttpServletResponse): List<Any> {
+        val value = query.trim().toUpperCase()
+
+        val results = when (value.length) {
+            2 -> iataDao.getAirlines(value)
+            3 -> iataDao.getLocations(value)
+            else -> emptyList()
+        }
+
+        if (results.isEmpty()) {
+            response.status = NO_CONTENT.value()
+        }
+        return results
+    }
 
     @Secured(ADMIN)
     @PostMapping("/airlines")
