@@ -2,6 +2,7 @@ package no.tomlin.api.admin
 
 import no.tomlin.api.common.Constants.TABLE_AIRLINE
 import no.tomlin.api.common.Constants.TABLE_EPISODE
+import no.tomlin.api.common.Constants.TABLE_FLIGHT
 import no.tomlin.api.common.Constants.TABLE_HASS
 import no.tomlin.api.common.Constants.TABLE_LOCATION
 import no.tomlin.api.common.Constants.TABLE_LOG
@@ -10,6 +11,7 @@ import no.tomlin.api.common.Constants.TABLE_NOTE
 import no.tomlin.api.common.Constants.TABLE_SEASON
 import no.tomlin.api.common.Constants.TABLE_TRACK
 import no.tomlin.api.common.Constants.TABLE_TV
+import no.tomlin.api.entity.Flight
 import no.tomlin.api.entity.Log
 import no.tomlin.api.entity.Note
 import no.tomlin.api.entity.Visit
@@ -68,6 +70,18 @@ class AdminDao {
         )
 
     fun deleteNote(id: Int) = jdbcTemplate.update("DELETE FROM $TABLE_NOTE WHERE id = :id", mapOf("id" to id))
+
+    fun getFlights(): List<Flight> =
+        jdbcTemplate.query("SELECT * FROM $TABLE_FLIGHT ORDER BY departure ASC") { resultSet, _ -> Flight(resultSet) }
+
+    fun saveFlight(flight: Flight) =
+        jdbcTemplate.update(
+            "INSERT INTO $TABLE_FLIGHT (id, title, content) VALUES (:id, :title, :content) " +
+                "ON DUPLICATE KEY UPDATE title = :title, content = :content",
+            flight.asDaoMap()
+        )
+
+    fun deleteFlight(id: Int) = jdbcTemplate.update("DELETE FROM $TABLE_FLIGHT WHERE id = :id", mapOf("id" to id))
 
     private fun countQuery(table: String): Int? =
         jdbcTemplate.queryForObject("SELECT COUNT(id) FROM $table", EmptySqlParameterSource.INSTANCE, Int::class.java)

@@ -2,9 +2,11 @@ package no.tomlin.api.admin
 
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
+import no.tomlin.api.entity.Flight
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("/admin")
@@ -41,6 +43,44 @@ class AdminController {
     @Secured(ADMIN)
     @DeleteMapping("/notes/{id}")
     fun deleteNote(@PathVariable id: Int) = adminDao.deleteNote(id)
+
+    @Secured(USER, ADMIN)
+    @GetMapping("/flights")
+    fun getFlights(): List<List<Flight>> {
+        val grouped = mutableMapOf<String, MutableList<Flight>>()
+
+        adminDao.getFlights().forEach {
+            grouped.putIfAbsent(it.reference, mutableListOf(it))?.add(it)
+        }
+
+        return grouped.values
+            .sortedByDescending { it.first().departure }
+            .toList()
+    }
+
+    @Secured(ADMIN)
+    @PostMapping("/flights")
+    fun saveFlight(
+        @RequestParam id: Int?,
+        @RequestParam origin: String,
+        @RequestParam destination: String,
+        @RequestParam departure: LocalDateTime,
+        @RequestParam arrival: LocalDateTime,
+        @RequestParam carrier: String,
+        @RequestParam number: String,
+        @RequestParam cabin: String?,
+        @RequestParam aircraft: String?,
+        @RequestParam seat: String?,
+        @RequestParam reference: String,
+        @RequestParam info: String?
+    ) =
+        adminDao.saveFlight(
+            Flight(id, origin, destination, departure, arrival, carrier, number, cabin, aircraft, seat, reference, info)
+        )
+
+    @Secured(ADMIN)
+    @DeleteMapping("/flights/{id}")
+    fun deleteFlight(@PathVariable id: Int) = adminDao.deleteFlight(id)
 
     companion object {
         private const val DEFAULT_VISITS = 100
