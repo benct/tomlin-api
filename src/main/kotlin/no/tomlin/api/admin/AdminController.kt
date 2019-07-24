@@ -26,8 +26,21 @@ class AdminController {
     fun getLogs(@PathVariable limit: Int?) = adminDao.getLogs(limit ?: DEFAULT_LOGS)
 
     @Secured(ADMIN)
-    @PostMapping("/logs/delete")
+    @DeleteMapping("/logs")
     fun deleteLogs() = adminDao.deleteLogs()
+
+    @Secured(USER, ADMIN)
+    @GetMapping("/notes")
+    fun getNotes() = adminDao.getNotes()
+
+    @Secured(ADMIN)
+    @PostMapping("/notes")
+    fun saveNote(@RequestParam id: Int?, @RequestParam title: String, @RequestParam content: String?) =
+        adminDao.saveNote(id, title, content)
+
+    @Secured(ADMIN)
+    @DeleteMapping("/notes/{id}")
+    fun deleteNote(@PathVariable id: Int) = adminDao.deleteNote(id)
 
     companion object {
         private const val DEFAULT_VISITS = 100
