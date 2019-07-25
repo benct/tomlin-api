@@ -2,8 +2,8 @@ package no.tomlin.api.iata
 
 import no.tomlin.api.common.Constants.TABLE_AIRLINE
 import no.tomlin.api.common.Constants.TABLE_LOCATION
-import no.tomlin.api.entity.Airline
-import no.tomlin.api.entity.Location
+import no.tomlin.api.iata.entity.Airline
+import no.tomlin.api.iata.entity.Location
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate

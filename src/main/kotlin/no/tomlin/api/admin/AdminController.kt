@@ -2,7 +2,7 @@ package no.tomlin.api.admin
 
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
-import no.tomlin.api.entity.Flight
+import no.tomlin.api.admin.entity.Flight
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*

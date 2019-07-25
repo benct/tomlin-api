@@ -11,10 +11,10 @@ import no.tomlin.api.common.Constants.TABLE_NOTE
 import no.tomlin.api.common.Constants.TABLE_SEASON
 import no.tomlin.api.common.Constants.TABLE_TRACK
 import no.tomlin.api.common.Constants.TABLE_TV
-import no.tomlin.api.entity.Flight
-import no.tomlin.api.entity.Log
-import no.tomlin.api.entity.Note
-import no.tomlin.api.entity.Visit
+import no.tomlin.api.admin.entity.Flight
+import no.tomlin.api.admin.entity.Log
+import no.tomlin.api.admin.entity.Note
+import no.tomlin.api.admin.entity.Visit
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate

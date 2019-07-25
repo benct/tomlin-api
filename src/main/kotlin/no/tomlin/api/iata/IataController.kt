@@ -2,8 +2,8 @@ package no.tomlin.api.iata
 
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Extensions.cleanBlank
-import no.tomlin.api.entity.Airline
-import no.tomlin.api.entity.Location
+import no.tomlin.api.iata.entity.Airline
+import no.tomlin.api.iata.entity.Location
 import no.tomlin.api.http.HttpFetcher
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus.NO_CONTENT

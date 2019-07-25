@@ -1,4 +1,4 @@
-package no.tomlin.api.entity
+package no.tomlin.api.iata.entity
 
 import no.tomlin.api.common.Extensions.required
 import java.sql.ResultSet
