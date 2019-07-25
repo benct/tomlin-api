@@ -1,8 +1,10 @@
 package no.tomlin.api
 
 import no.tomlin.api.admin.AdminDao
+import no.tomlin.api.common.Constants.ADMIN
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -25,8 +27,8 @@ class ApiController {
     @GetMapping("/version")
     fun version() = version
 
-    @PostMapping("/visit")
-    fun visit(@RequestParam referrer: String?, request: HttpServletRequest, response: HttpServletResponse): Boolean {
+    @PostMapping("/authenticate")
+    fun authenticate(@RequestParam referrer: String?, request: HttpServletRequest, response: HttpServletResponse): Boolean {
         adminDao.visit(
             request.remoteAddr,
             request.remoteHost,
@@ -36,4 +38,8 @@ class ApiController {
         )
         return request.authenticate(response)
     }
+
+    @Secured(ADMIN)
+    @PostMapping("/login")
+    fun login() = true // Logged in when passing Secured
 }
