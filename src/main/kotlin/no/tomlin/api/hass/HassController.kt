@@ -3,12 +3,20 @@ package no.tomlin.api.hass
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpHeaders.AUTHORIZATION
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
+import javax.servlet.http.HttpServletRequest
 
 @RestController
 @RequestMapping("/hass")
 class HassController {
+
+    @Value("\${api.auth.key}")
+    private lateinit var apiKey: String
 
     @Autowired
     private lateinit var hassDao: HassDao
@@ -42,6 +50,20 @@ class HassController {
     @Secured(ADMIN)
     @PostMapping("/state")
     fun setState(@RequestParam sensor: String, @RequestParam value: String) = hassDao.setState(sensor, value)
+
+    @PostMapping("/set")
+    fun setState(@RequestBody body: State, request: HttpServletRequest): ResponseEntity<Boolean> {
+        val token = request.getHeader(AUTHORIZATION)
+
+        return if (token == apiKey) {
+            hassDao.setState(body.sensor, body.value)
+            ResponseEntity(true, HttpStatus.OK)
+        } else {
+            ResponseEntity(false, HttpStatus.UNAUTHORIZED)
+        }
+    }
+
+    data class State(val sensor: String, val value: String)
 
     companion object {
         private fun findValue(states: List<Map<String, Any?>>, sensor: String, column: String = "value") =

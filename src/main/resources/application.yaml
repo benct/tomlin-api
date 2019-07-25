@@ -22,11 +22,7 @@ spring:
 api:
   version: 1.0.0
   base: https://tomlin.no
-  key: xxxxxxxxx
+  auth:
+    key: xxxxxxxxx
   tmdb:
     key: xxxxxxxxx
-    url: https://api.themoviedb.org/3/
-    img: https://image.tmdb.org/t/p/w200
-  iata:
-    airlines: https://raw.githubusercontent.com/opentraveldata/opentraveldata/master/opentraveldata/optd_airline_best_known_so_far.csv
-    locations: https://raw.githubusercontent.com/opentraveldata/opentraveldata/master/opentraveldata/optd_por_public.csv
