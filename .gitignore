@@ -3,6 +3,7 @@
 !**/src/main/**
 !**/src/test/**
 
+backup/
 build/
 out/
 

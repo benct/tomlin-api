@@ -26,3 +26,5 @@ api:
     key: xxxxxxxxx
   tmdb:
     key: xxxxxxxxx
+  db:
+    backup: -u user -ppassword database
