@@ -20,8 +20,9 @@ spring:
         - ADMIN
 
 api:
+  name: Tomlin
   version: 1.0.0
-  base: https://tomlin.no
+  baseUrl: https://tomlin.no
   auth:
     key: xxxxxxxxx
   tmdb:

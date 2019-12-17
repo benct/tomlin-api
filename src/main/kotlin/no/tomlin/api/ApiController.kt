@@ -15,11 +15,20 @@ import javax.servlet.http.HttpServletResponse
 @RestController
 class ApiController {
 
+    @Value("\${api.name}")
+    private lateinit var name: String
+
     @Value("\${api.version}")
     private lateinit var version: String
 
+    @Value("\${api.baseUrl}")
+    private lateinit var baseUrl: String
+
     @Autowired
     private lateinit var adminDao: AdminDao
+
+    @GetMapping("/")
+    fun base() = mapOf("site" to name, "version" to version, "baseUrl" to baseUrl)
 
     @GetMapping("/ping")
     fun ping() = "pong"
