@@ -57,9 +57,9 @@ class HassController {
 
         return if (token == apiKey) {
             hassDao.setState(body.sensor, body.value)
-            ResponseEntity(true, HttpStatus.OK)
+            ResponseEntity.ok(true)
         } else {
-            ResponseEntity(false, HttpStatus.UNAUTHORIZED)
+            ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false)
         }
     }
 

@@ -2,7 +2,6 @@ package no.tomlin.api.admin
 
 import no.tomlin.api.common.Constants.ADMIN
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
@@ -20,8 +19,8 @@ class SettingsController {
     @GetMapping("/get")
     fun get(@RequestParam key: String): ResponseEntity<String> =
         adminDao.getSetting(key)
-            ?.let { ResponseEntity(it, HttpStatus.OK) }
-            ?: ResponseEntity(HttpStatus.NOT_FOUND)
+            ?.let { ResponseEntity.ok(it) }
+            ?: ResponseEntity.notFound().build()
 
     @Secured(ADMIN)
     @PostMapping("/set")
