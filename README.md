@@ -16,3 +16,10 @@ java -jar build/libs/tomlin-api-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
 ```jvm
 -Dspring.profiles.active=prod
 ```
+
+### Database
+```bash
+mysql_secure_installation
+mysql -u root -p
+mysql.server start
+```
