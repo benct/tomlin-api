@@ -13,9 +13,11 @@ import no.tomlin.api.common.Constants.TABLE_LOG
 import no.tomlin.api.common.Constants.TABLE_MOVIE
 import no.tomlin.api.common.Constants.TABLE_NOTE
 import no.tomlin.api.common.Constants.TABLE_SEASON
+import no.tomlin.api.common.Constants.TABLE_SETTINGS
 import no.tomlin.api.common.Constants.TABLE_TRACK
 import no.tomlin.api.common.Constants.TABLE_TV
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Component
@@ -36,6 +38,24 @@ class AdminDao {
         "location" to countQuery(TABLE_LOCATION),
         "log" to countQuery(TABLE_LOG)
     )
+
+    fun getSettings(): Map<String, String?> =
+        jdbcTemplate.query("SELECT `key`, `value` FROM $TABLE_SETTINGS", EmptySqlParameterSource.INSTANCE) { resultSet, _ ->
+            resultSet.getString("key") to resultSet.getString("value")
+        }.toMap()
+
+    fun getSetting(key: String): String? =
+        try {
+            jdbcTemplate.queryForObject("SELECT `value` FROM $TABLE_SETTINGS WHERE `key` = :key", mapOf("key" to key), String::class.java)
+        } catch (e: EmptyResultDataAccessException) {
+            null
+        }
+
+    fun saveSetting(key: String, value: String?) =
+        jdbcTemplate.update(
+            "INSERT INTO $TABLE_SETTINGS (`key`, `value`) VALUES (:key, :value) ON DUPLICATE KEY UPDATE `value` = :value",
+            mapOf("key" to key, "value" to value)
+        )
 
     fun getLogs(limit: Int): List<Log> =
         jdbcTemplate.query("SELECT * FROM $TABLE_LOG ORDER BY `timestamp` DESC LIMIT $limit") { resultSet, _ -> Log(resultSet) }
