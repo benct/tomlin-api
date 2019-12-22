@@ -14,7 +14,7 @@ class FileController {
     @Secured(USER, ADMIN)
     @GetMapping("/tree")
     fun getFiles(@RequestParam path: String?): List<FileModel> {
-        val file = File("$ROOT${slash(path)}")
+        val file = getValidFile(path)
 
         validatePath(file)
 
@@ -33,12 +33,6 @@ class FileController {
     }
 
     private fun validatePath(file: File, checkIsDir: Boolean = true): Boolean {
-        if (file.path.split('/').contains("..")) {
-            throw IllegalArgumentException("Parent directory references are not permitted")
-        }
-        if (file.path.split('/').contains(".")) {
-            throw IllegalArgumentException("Relative directory references are not permitted")
-        }
         if (!file.exists()) {
             throw IllegalArgumentException("The specified path does not exist")
         }
@@ -55,6 +49,8 @@ class FileController {
         private const val ROOT = "files"
         private const val KILO: Double = 1024.0
         private const val PREVIEW = "jpg|jpeg|png|bmp|gif|svg|ico|txt|md"
+
+        private fun getValidFile(path: String?) = File(ROOT + prependSlash(stripRelative(path.orEmpty())))
 
         private fun getFilesFromPath(path: File): List<File> = path.listFiles().orEmpty().toList()
 
@@ -73,7 +69,9 @@ class FileController {
 
         private fun canPreview(extension: String) = extension.isNotBlank() && PREVIEW.contains(extension)
 
-        private fun slash(path: String?): String = path?.let { if (it.isEmpty() || path[0] == '/') path else "/$path" } ?: ""
+        private fun prependSlash(path: String): String = if (path.isEmpty() || path[0] == '/') path else "/$path"
+
+        private fun stripRelative(path: String): String = path.split('/').filter { it != "." && it != ".." }.joinToString("/")
     }
 
     data class FileModel(
