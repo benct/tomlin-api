@@ -32,6 +32,28 @@ class FileController {
         }
     }
 
+    @Secured(ADMIN)
+    @PostMapping("/mkdir")
+    fun mkdir(@RequestParam path: String): Boolean {
+        val file = getValidFile(path)
+
+        if (file.exists()) {
+            throw IllegalStateException("A directory with the name '${file.name}' already exists")
+        }
+        return file.mkdirs()
+    }
+
+    @Secured(ADMIN)
+    @PostMapping("/rmdir")
+    fun rmdir(@RequestParam path: String): Boolean {
+        val file = getValidFile(path)
+
+        if (!file.exists()) {
+            throw IllegalStateException("The specified directory path does not exists")
+        }
+        return file.deleteRecursively()
+    }
+
     private fun validatePath(file: File, checkIsDir: Boolean = true): Boolean {
         if (!file.exists()) {
             throw IllegalArgumentException("The specified path does not exist")
