@@ -5,7 +5,10 @@ import no.tomlin.api.common.Constants.USER
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
 import java.io.File
-import java.lang.Math.pow
+import java.nio.file.Files
+import java.nio.file.Paths
+import javax.servlet.http.HttpServletResponse
+import kotlin.math.pow
 
 @RestController
 @RequestMapping("/file")
@@ -54,14 +57,35 @@ class FileController {
         return file.deleteRecursively()
     }
 
-    private fun validatePath(file: File, checkIsDir: Boolean = true): Boolean {
+    @Secured(ADMIN)
+    @PostMapping("/download")
+    fun download(@RequestParam path: String, @RequestHeader referer: String?, response: HttpServletResponse) {
+        val file = getValidFile(path)
+
+        if (referer.isNullOrEmpty()) {
+            // TODO check actual referer string?
+            throw IllegalArgumentException("No cross-referencing allowed")
+        }
+
+        validatePath(file, false)
+
+        response.contentType = "application/save"
+        response.setContentLengthLong(file.length())
+        response.addHeader("Content-Disposition", "attachment; filename=${file.name}")
+        response.addHeader("Content-Transfer-Encoding", "binary")
+
+        Files.copy(Paths.get(file.path), response.outputStream)
+        response.outputStream.flush()
+    }
+
+    private fun validatePath(file: File, isDir: Boolean = true): Boolean {
         if (!file.exists()) {
             throw IllegalArgumentException("The specified path does not exist")
         }
-        if (checkIsDir && !file.isDirectory) {
+        if (isDir && !file.isDirectory) {
             throw IllegalArgumentException("The specified path is not a valid directory")
         }
-        if (!checkIsDir && !file.isFile) {
+        if (!isDir && !file.isFile) {
             throw IllegalArgumentException("The specified path is not a valid file")
         }
         return true
@@ -81,8 +105,8 @@ class FileController {
 
             return when {
                 total < KILO -> "$total  b"
-                total < pow(KILO, 2.0) -> "${total / KILO} kb"
-                total < pow(KILO, 3.0) -> "${total / (KILO * KILO)} mb"
+                total < KILO.pow(2.0) -> "${total / KILO} kb"
+                total < KILO.pow(3.0) -> "${total / (KILO * KILO)} mb"
                 else -> "${total / (KILO * KILO * KILO)} gb"
             }
         }
