@@ -58,6 +58,17 @@ class FileController {
     }
 
     @Secured(ADMIN)
+    @PostMapping("/remove")
+    fun rm(@RequestParam path: String): Boolean {
+        val file = getValidFile(path)
+
+        checkExists(file)
+        checkFile(file)
+
+        return file.delete()
+    }
+
+    @Secured(ADMIN)
     @PostMapping("/download")
     fun download(@RequestParam path: String, @RequestHeader referer: String?, response: HttpServletResponse) {
         val file = getValidFile(path)
