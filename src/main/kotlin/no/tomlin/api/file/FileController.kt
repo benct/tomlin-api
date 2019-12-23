@@ -70,6 +70,22 @@ class FileController {
     }
 
     @Secured(ADMIN)
+    @PostMapping("/rename")
+    fun rename(@RequestParam old: String, @RequestParam new: String): Boolean {
+        val oldFile = getValidFile(old)
+        val newFile = getValidFile(new)
+
+        if (oldFile.path == newFile.path) {
+            return true
+        }
+
+        checkExists(oldFile)
+        checkNotExists(newFile)
+
+        return oldFile.renameTo(newFile)
+    }
+
+    @Secured(ADMIN)
     @PostMapping("/download")
     fun download(@RequestParam path: String, @RequestHeader referer: String?, response: HttpServletResponse) {
         val file = getValidFile(path)
