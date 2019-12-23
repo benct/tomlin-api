@@ -19,7 +19,8 @@ class FileController {
     fun getFiles(@RequestParam path: String?): List<FileModel> {
         val file = getValidFile(path)
 
-        validatePath(file)
+        checkExists(file)
+        checkDir(file)
 
         return getFilesFromPath(file).map {
             FileModel(
@@ -40,9 +41,8 @@ class FileController {
     fun mkdir(@RequestParam path: String): Boolean {
         val file = getValidFile(path)
 
-        if (file.exists()) {
-            throw IllegalStateException("A directory with the name '${file.name}' already exists")
-        }
+        checkExists(file)
+
         return file.mkdirs()
     }
 
@@ -51,9 +51,9 @@ class FileController {
     fun rmdir(@RequestParam path: String): Boolean {
         val file = getValidFile(path)
 
-        if (!file.exists()) {
-            throw IllegalStateException("The specified directory path does not exists")
-        }
+        checkExists(file)
+        checkDir(file)
+
         return file.deleteRecursively()
     }
 
@@ -67,7 +67,8 @@ class FileController {
             throw IllegalArgumentException("No cross-referencing allowed")
         }
 
-        validatePath(file, false)
+        checkExists(file)
+        checkFile(file)
 
         response.contentType = "application/save"
         response.setContentLengthLong(file.length())
@@ -78,17 +79,22 @@ class FileController {
         response.outputStream.flush()
     }
 
-    private fun validatePath(file: File, isDir: Boolean = true): Boolean {
+    private fun checkExists(file: File) {
         if (!file.exists()) {
             throw IllegalArgumentException("The specified path does not exist")
         }
-        if (isDir && !file.isDirectory) {
+    }
+
+    private fun checkDir(file: File) {
+        if (!file.isDirectory) {
             throw IllegalArgumentException("The specified path is not a valid directory")
         }
-        if (!isDir && !file.isFile) {
+    }
+
+    private fun checkFile(file: File) {
+        if (!file.isFile) {
             throw IllegalArgumentException("The specified path is not a valid file")
         }
-        return true
     }
 
     companion object {
