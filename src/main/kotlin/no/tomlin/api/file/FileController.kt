@@ -2,6 +2,7 @@ package no.tomlin.api.file
 
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
+import no.tomlin.api.file.entity.FileModel
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
 import java.io.File
@@ -17,12 +18,12 @@ class FileController {
     @Secured(USER, ADMIN)
     @GetMapping("/tree")
     fun getFiles(@RequestParam path: String?): List<FileModel> {
-        val file = getValidFile(path)
+        val directory = getValidFile(path)
 
-        checkExists(file)
-        checkDir(file)
+        checkExists(directory)
+        checkDir(directory)
 
-        return getFilesFromPath(file).map {
+        return getFilesFromPath(directory).map {
             FileModel(
                 it.path,
                 it.name,
@@ -39,22 +40,22 @@ class FileController {
     @Secured(ADMIN)
     @PostMapping("/mkdir")
     fun mkdir(@RequestParam path: String): Boolean {
-        val file = getValidFile(path)
+        val directory = getValidFile(path)
 
-        checkExists(file)
+        checkNotExists(directory)
 
-        return file.mkdirs()
+        return directory.mkdirs()
     }
 
     @Secured(ADMIN)
     @PostMapping("/rmdir")
     fun rmdir(@RequestParam path: String): Boolean {
-        val file = getValidFile(path)
+        val directory = getValidFile(path)
 
-        checkExists(file)
-        checkDir(file)
+        checkExists(directory)
+        checkDir(directory)
 
-        return file.deleteRecursively()
+        return directory.deleteRecursively()
     }
 
     @Secured(ADMIN)
@@ -90,24 +91,6 @@ class FileController {
         response.outputStream.flush()
     }
 
-    private fun checkExists(file: File) {
-        if (!file.exists()) {
-            throw IllegalArgumentException("The specified path does not exist")
-        }
-    }
-
-    private fun checkDir(file: File) {
-        if (!file.isDirectory) {
-            throw IllegalArgumentException("The specified path is not a valid directory")
-        }
-    }
-
-    private fun checkFile(file: File) {
-        if (!file.isFile) {
-            throw IllegalArgumentException("The specified path is not a valid file")
-        }
-    }
-
     companion object {
         private const val ROOT = "files"
         private const val KILO: Double = 1024.0
@@ -115,7 +98,15 @@ class FileController {
 
         private fun getValidFile(path: String?) = File(ROOT + prependSlash(stripRelative(path.orEmpty())))
 
+        private fun prependSlash(path: String): String = if (path.isEmpty() || path[0] == '/') path else "/$path"
+
+        private fun stripRelative(path: String): String = path.split('/').filter { it != "." && it != ".." }.joinToString("/")
+
         private fun getFilesFromPath(path: File): List<File> = path.listFiles().orEmpty().toList()
+
+        private fun shortName(name: String): String = if (name.length > 25) "${name.substring(0, 21)}..${name.substring(-4)}" else name
+
+        private fun canPreview(extension: String) = extension.isNotBlank() && PREVIEW.contains(extension)
 
         private fun computeSize(sizeInBytes: Long): String {
             val total = sizeInBytes.toDouble()
@@ -128,23 +119,28 @@ class FileController {
             }
         }
 
-        private fun shortName(name: String): String = if (name.length > 25) "${name.substring(0, 21)}..${name.substring(-4)}" else name
+        private fun checkExists(file: File) {
+            if (!file.exists()) {
+                throw IllegalStateException("The specified path does not exist")
+            }
+        }
 
-        private fun canPreview(extension: String) = extension.isNotBlank() && PREVIEW.contains(extension)
+        private fun checkNotExists(file: File) {
+            if (file.exists()) {
+                throw IllegalStateException("The specified file or directory already exists")
+            }
+        }
 
-        private fun prependSlash(path: String): String = if (path.isEmpty() || path[0] == '/') path else "/$path"
+        private fun checkDir(file: File) {
+            if (!file.isDirectory) {
+                throw IllegalStateException("The specified path is not a valid directory")
+            }
+        }
 
-        private fun stripRelative(path: String): String = path.split('/').filter { it != "." && it != ".." }.joinToString("/")
+        private fun checkFile(file: File) {
+            if (!file.isFile) {
+                throw IllegalStateException("The specified path is not a valid file")
+            }
+        }
     }
-
-    data class FileModel(
-        val path: String,
-        val name: String,
-        val short: String,
-        val size: String,
-        val type: String,
-        val dir: Boolean,
-        val preview: Boolean,
-        val files: Int = 0
-    )
 }
