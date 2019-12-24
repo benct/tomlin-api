@@ -4,6 +4,12 @@ spring:
       charset: UTF-8
       enabled: true
       force: true
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 64MB
+      max-request-size: 128MB
+      location: ${java.io.tmpdir}
   jpa:
     hibernate:
       ddl-auto: none
