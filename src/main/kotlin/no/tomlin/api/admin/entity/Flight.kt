@@ -15,7 +15,7 @@ data class Flight(
     val aircraft: String?,
     val seat: String?,
     val reference: String,
-    val into: String?
+    val info: String?
 ) {
     constructor(resultSet: ResultSet) : this(
         resultSet.getInt("id"),
@@ -29,7 +29,7 @@ data class Flight(
         resultSet.getString("aircraft"),
         resultSet.getString("seat"),
         resultSet.getString("reference"),
-        resultSet.getString("into")
+        resultSet.getString("info")
     )
 
     fun asDaoMap() = mapOf(
@@ -44,6 +44,6 @@ data class Flight(
         "aircraft" to aircraft?.toUpperCase(),
         "seat" to seat?.toUpperCase(),
         "reference" to reference,
-        "into" to into
+        "info" to info
     )
 }
