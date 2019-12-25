@@ -2,6 +2,8 @@ package no.tomlin.api.media
 
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
+import no.tomlin.api.media.MediaController.Companion.parseSort
+import no.tomlin.api.media.dao.MovieDao
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.security.access.annotation.Secured
@@ -14,9 +16,17 @@ class MovieController {
     @Autowired
     private lateinit var tmdbService: TmdbService
 
+    @Autowired
+    private lateinit var movieDao: MovieDao
+
     @Secured(USER, ADMIN)
     @GetMapping
-    fun get(@RequestParam query: String?, @RequestParam sort: String?, @RequestParam page: Int? = 1) = null
+    fun get(@RequestParam query: String?, @RequestParam sort: String?, @RequestParam page: Int?) =
+        movieDao.get(query, parseSort(sort), page ?: 1)
+
+    @Secured(USER, ADMIN)
+    @GetMapping("/{id}")
+    fun get(@PathVariable id: String) = movieDao.get(id)
 
     @Secured(ADMIN)
     @PostMapping

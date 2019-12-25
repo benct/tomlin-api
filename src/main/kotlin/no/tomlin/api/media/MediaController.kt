@@ -29,10 +29,6 @@ class MediaController {
     )
 
     @Secured(USER, ADMIN)
-    @GetMapping("/get")
-    fun get(@RequestParam type: String, @RequestParam id: String) = null
-
-    @Secured(USER, ADMIN)
     @GetMapping("/watchlist")
     fun watchlist() = null
 
@@ -45,7 +41,7 @@ class MediaController {
     fun posters(@RequestParam(required = false) overwrite: Boolean = false) = null
 
     companion object {
-        fun parseSort(sort: String): String = when (sort) {
+        fun parseSort(sort: String?): String = when (sort) {
             "rating-asc" -> "rating ASC"
             "rating-desc" -> "rating DESC"
             "release-asc" -> "release_date ASC"

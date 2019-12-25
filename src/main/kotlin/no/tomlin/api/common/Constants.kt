@@ -5,6 +5,9 @@ object Constants {
     const val USER = "ROLE_USER"
     const val ADMIN = "ROLE_ADMIN"
 
+    // Media
+    const val PAGE_SIZE = 50
+
     // Database tables
     private const val TABLE_PREFIX = "tomlin_"
     const val TABLE_SETTINGS = "${TABLE_PREFIX}settings"
