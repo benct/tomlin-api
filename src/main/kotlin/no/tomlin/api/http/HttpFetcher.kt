@@ -16,26 +16,18 @@ open class HttpFetcher private constructor(private val baseUrl: String?, timeout
         .writeTimeout(timeout.toMillis(), MILLISECONDS)
         .build()
 
-    open fun getJson(path: String, queryParams: Map<String, List<String>> = mapOf()) =
-        get(path, mapOf("Accept" to "application/json"), queryParams)
+    open fun get(path: String = "", headers: Map<String, String> = mapOf(), queryParams: Map<String, String?> = mapOf()) =
+        fetch(path = path, headers = headers, queryParams = queryParams.mapValues { listOf(it.value) })
 
-    open fun getJson(queryParams: Map<String, String> = mapOf()) =
-        get("", mapOf("Accept" to "application/json"), queryParams.mapValues { listOf(it.value) })
+    open fun getJson(path: String = "", queryParams: Map<String, String?> = mapOf()) =
+        get(path = path, headers = mapOf("Accept" to "application/json"), queryParams = queryParams)
 
-    open fun get(path: String = "", headers: Map<String, String> = mapOf(), queryParams: Map<String, List<String>> = mapOf()) =
-        fetch(path = path, headers = headers, queryParams = queryParams)
-
-    open fun get(headers: Map<String, String>, queryParams: Map<String, String?>) =
-        fetch(path = "", headers = headers, queryParams = queryParams.mapValues { listOf(it.value) })
-
-    open fun post(path: String, postBody: RequestBody, headers: Map<String, String> = mapOf()) =
-        fetch(path, postBody, headers, mapOf())
-
-    open fun post(postBody: RequestBody, headers: Map<String, String> = mapOf()) = fetch("", postBody, headers, mapOf())
+    open fun post(path: String = "", postBody: RequestBody, headers: Map<String, String> = mapOf()) =
+        fetch(path = path, postBody = postBody, headers = headers, queryParams = mapOf())
 
     open fun postJson(payload: String): Response {
         val requestBody = RequestBody.create(MediaType.parse("application/json"), payload)
-        return post(requestBody)
+        return post(postBody = requestBody)
     }
 
     private fun fetch(
