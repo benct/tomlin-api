@@ -3,6 +3,7 @@
 !**/src/main/**
 !**/src/test/**
 
+assets/
 backup/
 files/
 build/
