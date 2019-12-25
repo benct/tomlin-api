@@ -33,5 +33,7 @@ api:
     key: xxxxxxxxx
   tmdb:
     key: xxxxxxxxx
+    url: https://api.themoviedb.org/3/
+    img: https://image.tmdb.org/t/p/w200
   db:
     backup: -u user -ppassword database
