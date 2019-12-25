@@ -62,4 +62,13 @@ class TVDao {
                 EmptySqlParameterSource.INSTANCE
             )
         )
+
+    fun favourite(id: String, set: Boolean): Boolean =
+        jdbcTemplate.update("UPDATE $TABLE_TV SET `favourite` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set)) > 0
+
+    fun seen(id: String, set: Boolean): Boolean =
+        jdbcTemplate.update("UPDATE $TABLE_TV SET `seen` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set)) > 0
+
+    fun seenAll(seasonId: String, set: Boolean): Boolean =
+        jdbcTemplate.update("UPDATE $TABLE_EPISODE SET `seen` = :set WHERE `season_id` = :id", mapOf("id" to seasonId, "set" to set)) > 0
 }

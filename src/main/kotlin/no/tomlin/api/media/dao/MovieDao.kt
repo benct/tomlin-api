@@ -51,4 +51,10 @@ class MovieDao {
                 EmptySqlParameterSource.INSTANCE
             )
         )
+
+    fun favourite(id: String, set: Boolean): Boolean =
+        jdbcTemplate.update("UPDATE $TABLE_MOVIE SET `favourite` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set)) > 0
+
+    fun seen(id: String, set: Boolean): Boolean =
+        jdbcTemplate.update("UPDATE $TABLE_MOVIE SET `seen` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set)) > 0
 }

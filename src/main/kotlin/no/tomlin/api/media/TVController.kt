@@ -42,15 +42,15 @@ class TVController {
 
     @Secured(ADMIN)
     @PostMapping("/favourite")
-    fun favourite(@RequestParam id: String, @RequestParam set: Boolean) = null
+    fun favourite(@RequestParam id: String, @RequestParam set: Boolean) = tvDao.favourite(id, set)
 
     @Secured(ADMIN)
     @PostMapping("/seen")
-    fun seen(@RequestParam id: String, @RequestParam set: Boolean) = null
+    fun seen(@RequestParam id: String, @RequestParam set: Boolean) = tvDao.seen(id, set)
 
     @Secured(ADMIN)
     @PostMapping("/seenSeason")
-    fun seenSeason(@RequestParam id: String, @RequestParam set: Boolean) = null
+    fun seenSeason(@RequestParam id: String, @RequestParam set: Boolean) = tvDao.seenAll(id, set)
 
     @Secured(USER, ADMIN)
     @GetMapping("/external", produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
