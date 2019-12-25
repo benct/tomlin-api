@@ -5,7 +5,7 @@ import no.tomlin.api.common.Constants.USER
 import no.tomlin.api.media.MediaController.Companion.parseSort
 import no.tomlin.api.media.dao.TVDao
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.MediaType
+import org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
 
@@ -53,27 +53,27 @@ class TVController {
     fun seenSeason(@RequestParam id: String, @RequestParam set: Boolean) = tvDao.seenAll(id, set)
 
     @Secured(USER, ADMIN)
-    @GetMapping("/external", produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
+    @GetMapping("/external", produces = [APPLICATION_JSON_UTF8_VALUE])
     fun external(@RequestParam id: String) = tmdbService.fetchMedia("tv/$id/external_ids")
 
     @Secured(USER, ADMIN)
-    @GetMapping("/popular", produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
+    @GetMapping("/popular", produces = [APPLICATION_JSON_UTF8_VALUE])
     fun popular(@RequestParam page: Int?) = tmdbService.fetchMedia("tv/popular", page)
 
     @Secured(USER, ADMIN)
-    @GetMapping("/top", produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
+    @GetMapping("/top", produces = [APPLICATION_JSON_UTF8_VALUE])
     fun top(@RequestParam page: Int?) = tmdbService.fetchMedia("tv/top_rated", page)
 
     @Secured(USER, ADMIN)
-    @GetMapping("/now", produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
+    @GetMapping("/now", produces = [APPLICATION_JSON_UTF8_VALUE])
     fun now(@RequestParam page: Int?) = tmdbService.fetchMedia("tv/on_the_air", page)
 
     @Secured(USER, ADMIN)
-    @GetMapping("/similar", produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
+    @GetMapping("/similar", produces = [APPLICATION_JSON_UTF8_VALUE])
     fun similar(@RequestParam id: String, @RequestParam page: Int?) = tmdbService.fetchMedia("tv/$id/similar", page)
 
     @Secured(USER, ADMIN)
-    @GetMapping("/recommended", produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
+    @GetMapping("/recommended", produces = [APPLICATION_JSON_UTF8_VALUE])
     fun recommended(@RequestParam id: String, @RequestParam page: Int?) = tmdbService.fetchMedia("tv/$id/recommendations", page)
 
     companion object {
