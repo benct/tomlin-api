@@ -2,6 +2,8 @@ package no.tomlin.api.media
 
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
+import no.tomlin.api.media.dao.MovieDao
+import no.tomlin.api.media.dao.TVDao
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE
 import org.springframework.security.access.annotation.Secured
@@ -14,8 +16,17 @@ class MediaController {
     @Autowired
     private lateinit var tmdbService: TmdbService
 
+    @Autowired
+    private lateinit var movieDao: MovieDao
+
+    @Autowired
+    private lateinit var tvDao: TVDao
+
     @GetMapping
-    fun stats() = null
+    fun stats() = mapOf(
+        "movie" to movieDao.stats(),
+        "tv" to tvDao.stats()
+    )
 
     @Secured(USER, ADMIN)
     @GetMapping("/get")
