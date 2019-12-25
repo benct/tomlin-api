@@ -34,6 +34,12 @@ class TVDao {
         return MediaResponse(page, total, tv)
     }
 
+    fun watchlist(): List<Map<String, Any>> = jdbcTemplate.queryForList(
+        "SELECT t.*, 'tv' AS `type`, " +
+            "(SELECT COUNT(id) FROM $TABLE_EPISODE e WHERE e.seen = 1 AND e.tv_id = t.id) AS seen_episodes " +
+            "FROM $TABLE_TV t WHERE t.seen = 0 ORDER BY t.release_date ASC",
+        EmptySqlParameterSource.INSTANCE)
+
     fun stats(): Map<String, Any?> =
         mapOf(
             "years" to jdbcTemplate.queryForList(

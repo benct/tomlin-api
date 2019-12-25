@@ -30,7 +30,7 @@ class MediaController {
 
     @Secured(USER, ADMIN)
     @GetMapping("/watchlist")
-    fun watchlist() = null
+    fun watchlist() = movieDao.watchlist() + tvDao.watchlist()
 
     @Secured(USER, ADMIN)
     @GetMapping("/search", produces = [APPLICATION_JSON_UTF8_VALUE])

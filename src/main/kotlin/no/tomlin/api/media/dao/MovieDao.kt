@@ -31,6 +31,10 @@ class MovieDao {
         return MediaResponse(page, total, movies)
     }
 
+    fun watchlist(): List<Map<String, Any>> = jdbcTemplate.queryForList(
+        "SELECT *, 'movie' AS `type` FROM $TABLE_MOVIE WHERE `seen` = false  ORDER BY release_date ASC",
+        EmptySqlParameterSource.INSTANCE)
+
     fun stats(): Map<String, Any?> =
         mapOf(
             "years" to jdbcTemplate.queryForList(
