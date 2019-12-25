@@ -36,10 +36,6 @@ class MediaController {
     @GetMapping("/search", produces = [APPLICATION_JSON_UTF8_VALUE])
     fun search(@RequestParam query: String) = tmdbService.fetchMedia("search/multi", query)
 
-    @Secured(ADMIN)
-    @PostMapping("/posters")
-    fun posters(@RequestParam(required = false) overwrite: Boolean = false) = null
-
     companion object {
         fun parseSort(sort: String?): String = when (sort) {
             "rating-asc" -> "rating ASC"
