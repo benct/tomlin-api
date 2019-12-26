@@ -34,7 +34,7 @@ class TVController {
 
     @Secured(ADMIN)
     @DeleteMapping
-    fun delete(@RequestParam id: String) = null
+    fun delete(@RequestParam id: String) = tvDao.delete(id)
 
     @Secured(ADMIN)
     @PostMapping("/update")

@@ -34,7 +34,7 @@ class MovieController {
 
     @Secured(ADMIN)
     @DeleteMapping
-    fun delete(@RequestParam id: String) = null
+    fun delete(@RequestParam id: String) = movieDao.delete(id)
 
     @Secured(ADMIN)
     @PostMapping("/update")
