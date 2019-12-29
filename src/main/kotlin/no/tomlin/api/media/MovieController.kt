@@ -40,8 +40,8 @@ class MovieController {
             } ?: false
 
     @Secured(ADMIN)
-    @DeleteMapping
-    fun delete(@RequestParam id: String) = movieDao.delete(id)
+    @DeleteMapping("/{id}")
+    fun delete(@PathVariable id: String) = movieDao.delete(id)
 
     @Secured(ADMIN)
     @PostMapping("/update")

@@ -29,12 +29,12 @@ class TVController {
     fun get(@PathVariable id: String) = tvDao.get(id)
 
     @Secured(ADMIN)
-    @PostMapping
-    fun store(@RequestParam id: String) = null
+    @PostMapping("/{id}")
+    fun store(@PathVariable id: String) = null
 
     @Secured(ADMIN)
-    @DeleteMapping
-    fun delete(@RequestParam id: String) = tvDao.delete(id)
+    @DeleteMapping("/{id}")
+    fun delete(@PathVariable id: String) = tvDao.delete(id)
 
     @Secured(ADMIN)
     @PostMapping("/update")
