@@ -3,6 +3,7 @@ package no.tomlin.api.media.dao
 import no.tomlin.api.common.Constants.PAGE_SIZE
 import no.tomlin.api.common.Constants.TABLE_MOVIE
 import no.tomlin.api.media.entity.MediaResponse
+import no.tomlin.api.media.entity.Movie
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -57,6 +58,9 @@ class MovieDao {
 
     fun seen(id: String, set: Boolean): Boolean =
         jdbcTemplate.update("UPDATE $TABLE_MOVIE SET `seen` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set)) > 0
+
+    fun store(movie: Movie): Boolean =
+        jdbcTemplate.update(movie.insertStatement, movie.toDaoMap()) > 0
 
     fun delete(id: String): Boolean =
         jdbcTemplate.update("DELETE FROM $TABLE_MOVIE WHERE `id` = :id", mapOf("id" to id)) > 0

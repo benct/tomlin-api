@@ -4,6 +4,7 @@ import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
 import no.tomlin.api.media.MediaController.Companion.parseSort
 import no.tomlin.api.media.dao.MovieDao
+import no.tomlin.api.media.entity.Movie.Companion.parseMovie
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE
 import org.springframework.security.access.annotation.Secured
@@ -29,8 +30,14 @@ class MovieController {
     fun get(@PathVariable id: String) = movieDao.get(id)
 
     @Secured(ADMIN)
-    @PostMapping
-    fun store(@RequestParam id: String) = null
+    @PostMapping("/{id}")
+    fun store(@PathVariable id: String): Boolean =
+        tmdbService.fetchMedia("movie/$id")
+            ?.parseMovie()
+            ?.let {
+                tmdbService.storePoster(it.posterPath)
+                movieDao.store(it)
+            } ?: false
 
     @Secured(ADMIN)
     @DeleteMapping

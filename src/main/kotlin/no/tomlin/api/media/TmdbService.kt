@@ -40,17 +40,16 @@ class TmdbService {
                 } else null
             }
 
-    fun storePoster(path: String): Boolean =
-        posterFetcher
-            .get(path)
-            .use {
+    fun storePoster(path: String?) =
+        path?.let {
+            posterFetcher.get(path).use {
                 if (it.isSuccessful) {
                     it.body()?.bytes()?.let {
                         File(POSTER_PATH + path).writeBytes(it)
                     }
                 }
-                it.isSuccessful
             }
+        }
 
     companion object {
         const val API_KEY = "api_key"
