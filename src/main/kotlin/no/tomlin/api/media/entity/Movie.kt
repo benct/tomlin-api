@@ -28,7 +28,7 @@ data class Movie(
 
     val insertStatement: String =
         "INSERT INTO $TABLE_MOVIE (${keys.joinToString { "`${it}`" }}) VALUES (${keys.joinToString { ":$it" }}) " +
-            "ON DUPLICATE KEY UPDATE ${keys.joinToString { "`${it}` = :${it}" }}"
+            "ON DUPLICATE KEY UPDATE ${keys.joinToString { "`${it}` = :${it}" }}, `updated` = CURRENT_TIMESTAMP"
 
     val updateStatement: String = "UPDATE $TABLE_MOVIE SET ${keys.joinToString { "`${it}` = :${it}" }} WHERE `id` = :id"
 
