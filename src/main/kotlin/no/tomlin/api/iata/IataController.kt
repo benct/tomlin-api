@@ -1,10 +1,10 @@
 package no.tomlin.api.iata
 
 import no.tomlin.api.common.Constants.ADMIN
-import no.tomlin.api.common.Extensions.cleanBlank
+import no.tomlin.api.common.Extensions.nullIfBlank
+import no.tomlin.api.http.HttpFetcher
 import no.tomlin.api.iata.entity.Airline
 import no.tomlin.api.iata.entity.Location
-import no.tomlin.api.http.HttpFetcher
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.security.access.annotation.Secured
@@ -76,6 +76,6 @@ class IataController {
             ?.split('\n')
             .orEmpty()
             .drop(1) // Skip header row
-            .map { it.split('^').cleanBlank() }
+            .map { it.split('^').nullIfBlank() }
     }
 }

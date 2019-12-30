@@ -6,5 +6,5 @@ object Extensions {
 
     fun String?.nullIfBlank() = this?.let { if (it.isNotBlank()) it else null }
 
-    fun List<String>.cleanBlank() = this.map { if (it.isNotBlank()) it.trim() else null }
+    fun List<String>.nullIfBlank() = this.map { if (it.isBlank()) null else it.trim() }
 }
