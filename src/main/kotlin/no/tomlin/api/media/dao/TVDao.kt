@@ -72,6 +72,8 @@ class TVDao {
     fun seenAll(seasonId: String, set: Boolean): Boolean =
         jdbcTemplate.update("UPDATE $TABLE_EPISODE SET `seen` = :set WHERE `season_id` = :id", mapOf("id" to seasonId, "set" to set)) > 0
 
+    fun store(statement: String, data: Map<String, Any?>): Boolean = jdbcTemplate.update(statement, data) > 0
+
     fun delete(id: String): Boolean {
         jdbcTemplate.update("DELETE FROM $TABLE_EPISODE WHERE `tv_id` = :id", mapOf("id" to id))
         jdbcTemplate.update("DELETE FROM $TABLE_SEASON WHERE `tv_id` = :id", mapOf("id" to id))

@@ -4,6 +4,8 @@ import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
 import no.tomlin.api.media.MediaController.Companion.parseSort
 import no.tomlin.api.media.dao.TVDao
+import no.tomlin.api.media.entity.Season.Companion.parseSeason
+import no.tomlin.api.media.entity.TV.Companion.parseTV
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE
 import org.springframework.security.access.annotation.Secured
@@ -30,7 +32,26 @@ class TVController {
 
     @Secured(ADMIN)
     @PostMapping("/{id}")
-    fun store(@PathVariable id: String) = null
+    fun store(@PathVariable id: String) =
+        tmdbService.fetchMedia("tv/$id", mapOf("append_to_response" to "external_ids"))
+            ?.parseTV()
+            ?.let { tv ->
+                tmdbService.storePoster(tv.posterPath)
+
+                tv.seasons.all { s ->
+                    tmdbService.fetchMedia("tv/${id}/season/${s.seasonNumber}")
+                        ?.parseSeason()
+                        ?.let { season ->
+                            season.episodes.all { episode ->
+                                tvDao.store(episode.insertStatement(false), episode.toDaoMap(season.id))
+                            }.and(
+                                tvDao.store(season.insertStatement(false), season.toDaoMap(tv.id))
+                            )
+                        } ?: false
+                }.and(
+                    tvDao.store(tv.insertStatement(), tv.toDaoMap())
+                )
+            } ?: false
 
     @Secured(ADMIN)
     @DeleteMapping("/{id}")
