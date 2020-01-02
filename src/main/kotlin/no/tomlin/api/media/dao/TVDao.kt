@@ -4,7 +4,7 @@ import no.tomlin.api.common.Constants.PAGE_SIZE
 import no.tomlin.api.common.Constants.TABLE_EPISODE
 import no.tomlin.api.common.Constants.TABLE_SEASON
 import no.tomlin.api.common.Constants.TABLE_TV
-import no.tomlin.api.media.entity.MediaResponse
+import no.tomlin.api.media.MediaController.MediaResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -17,7 +17,7 @@ class TVDao {
     private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
 
     fun get(id: String): Map<String, Any?> =
-        jdbcTemplate.queryForMap("SELECT *, 'tv' AS `type`  FROM $TABLE_TV WHERE `id` = :id", mapOf("id" to id))
+        jdbcTemplate.queryForMap("SELECT *, 'tv' AS `type` FROM $TABLE_TV WHERE `id` = :id", mapOf("id" to id))
             .also { tv ->
                 tv["seasons"] = jdbcTemplate.queryForList("SELECT id, season, title, release_date, overview " +
                     "FROM $TABLE_SEASON WHERE `tv_id` = :id ORDER BY season", mapOf("id" to id))
@@ -53,6 +53,23 @@ class TVDao {
             "FROM $TABLE_TV t WHERE t.seen = 0 ORDER BY t.release_date ASC",
         EmptySqlParameterSource.INSTANCE)
 
+    fun store(statement: String, data: Map<String, Any?>): Boolean = jdbcTemplate.update(statement, data) > 0
+
+    fun delete(id: String): Boolean {
+        jdbcTemplate.update("DELETE FROM $TABLE_EPISODE WHERE `tv_id` = :id", mapOf("id" to id))
+        jdbcTemplate.update("DELETE FROM $TABLE_SEASON WHERE `tv_id` = :id", mapOf("id" to id))
+        return jdbcTemplate.update("DELETE FROM $TABLE_TV WHERE `id` = :id", mapOf("id" to id)) > 0
+    }
+
+    fun favourite(id: String, set: Boolean): Boolean =
+        jdbcTemplate.update("UPDATE $TABLE_TV SET `favourite` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set)) > 0
+
+    fun seen(id: String, set: Boolean): Boolean =
+        jdbcTemplate.update("UPDATE $TABLE_TV SET `seen` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set)) > 0
+
+    fun seenAll(seasonId: String, set: Boolean): Boolean =
+        jdbcTemplate.update("UPDATE $TABLE_EPISODE SET `seen` = :set WHERE `season_id` = :id", mapOf("id" to seasonId, "set" to set)) > 0
+
     fun stats(): Map<String, Any?> =
         mapOf(
             "years" to jdbcTemplate.queryForList(
@@ -75,21 +92,4 @@ class TVDao {
                 EmptySqlParameterSource.INSTANCE
             )
         )
-
-    fun favourite(id: String, set: Boolean): Boolean =
-        jdbcTemplate.update("UPDATE $TABLE_TV SET `favourite` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set)) > 0
-
-    fun seen(id: String, set: Boolean): Boolean =
-        jdbcTemplate.update("UPDATE $TABLE_TV SET `seen` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set)) > 0
-
-    fun seenAll(seasonId: String, set: Boolean): Boolean =
-        jdbcTemplate.update("UPDATE $TABLE_EPISODE SET `seen` = :set WHERE `season_id` = :id", mapOf("id" to seasonId, "set" to set)) > 0
-
-    fun store(statement: String, data: Map<String, Any?>): Boolean = jdbcTemplate.update(statement, data) > 0
-
-    fun delete(id: String): Boolean {
-        jdbcTemplate.update("DELETE FROM $TABLE_EPISODE WHERE `tv_id` = :id", mapOf("id" to id))
-        jdbcTemplate.update("DELETE FROM $TABLE_SEASON WHERE `tv_id` = :id", mapOf("id" to id))
-        return jdbcTemplate.update("DELETE FROM $TABLE_TV WHERE `id` = :id", mapOf("id" to id)) > 0
-    }
 }

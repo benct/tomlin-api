@@ -2,7 +2,7 @@ package no.tomlin.api.media.dao
 
 import no.tomlin.api.common.Constants.PAGE_SIZE
 import no.tomlin.api.common.Constants.TABLE_MOVIE
-import no.tomlin.api.media.entity.MediaResponse
+import no.tomlin.api.media.MediaController.MediaResponse
 import no.tomlin.api.media.entity.Movie
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
@@ -34,8 +34,20 @@ class MovieDao {
     }
 
     fun watchlist(): List<Map<String, Any>> = jdbcTemplate.queryForList(
-        "SELECT *, 'movie' AS `type` FROM $TABLE_MOVIE WHERE `seen` = false  ORDER BY release_date ASC",
+        "SELECT *, 'movie' AS `type` FROM $TABLE_MOVIE WHERE `seen` = false ORDER BY release_date ASC",
         EmptySqlParameterSource.INSTANCE)
+
+    fun store(movie: Movie): Boolean =
+        jdbcTemplate.update(movie.insertStatement(), movie.toDaoMap()) > 0
+
+    fun delete(id: String): Boolean =
+        jdbcTemplate.update("DELETE FROM $TABLE_MOVIE WHERE `id` = :id", mapOf("id" to id)) > 0
+
+    fun favourite(id: String, set: Boolean): Boolean =
+        jdbcTemplate.update("UPDATE $TABLE_MOVIE SET `favourite` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set)) > 0
+
+    fun seen(id: String, set: Boolean): Boolean =
+        jdbcTemplate.update("UPDATE $TABLE_MOVIE SET `seen` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set)) > 0
 
     fun stats(): Map<String, Any?> =
         mapOf(
@@ -53,16 +65,4 @@ class MovieDao {
                 EmptySqlParameterSource.INSTANCE
             )
         )
-
-    fun favourite(id: String, set: Boolean): Boolean =
-        jdbcTemplate.update("UPDATE $TABLE_MOVIE SET `favourite` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set)) > 0
-
-    fun seen(id: String, set: Boolean): Boolean =
-        jdbcTemplate.update("UPDATE $TABLE_MOVIE SET `seen` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set)) > 0
-
-    fun store(movie: Movie): Boolean =
-        jdbcTemplate.update(movie.insertStatement(), movie.toDaoMap()) > 0
-
-    fun delete(id: String): Boolean =
-        jdbcTemplate.update("DELETE FROM $TABLE_MOVIE WHERE `id` = :id", mapOf("id" to id)) > 0
 }
