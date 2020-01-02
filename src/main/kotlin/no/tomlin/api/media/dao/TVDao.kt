@@ -16,7 +16,20 @@ class TVDao {
     @Autowired
     private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
 
-    fun get(id: String): Map<String, Any?> = jdbcTemplate.queryForMap("SELECT * FROM $TABLE_TV WHERE `id` = :id", mapOf("id" to id))
+    fun get(id: String): Map<String, Any?> =
+        jdbcTemplate.queryForMap("SELECT *, 'tv' AS `type`  FROM $TABLE_TV WHERE `id` = :id", mapOf("id" to id))
+            .also { tv ->
+                tv["seasons"] = jdbcTemplate.queryForList("SELECT id, season, title, release_date, overview " +
+                    "FROM $TABLE_SEASON WHERE `tv_id` = :id ORDER BY season", mapOf("id" to id))
+                    .map { season ->
+                        season["episodes"] = jdbcTemplate.queryForList(
+                            "SELECT id, episode, title, release_date, overview, production_code, rating, votes, seen " +
+                                "FROM $TABLE_EPISODE WHERE `season_id` = :id ORDER BY episode",
+                            mapOf("id" to season["id"])
+                        )
+                        season
+                    }
+            }
 
     fun get(query: String?, sort: String, page: Int): MediaResponse {
         val where = query?.let { "WHERE title LIKE :query" }.orEmpty()

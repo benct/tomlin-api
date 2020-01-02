@@ -15,7 +15,8 @@ class MovieDao {
     @Autowired
     private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
 
-    fun get(id: String): Map<String, Any?> = jdbcTemplate.queryForMap("SELECT * FROM $TABLE_MOVIE WHERE `id` = :id", mapOf("id" to id))
+    fun get(id: String): Map<String, Any?> =
+        jdbcTemplate.queryForMap("SELECT *, 'movie' AS `type` FROM $TABLE_MOVIE WHERE `id` = :id", mapOf("id" to id))
 
     fun get(query: String?, sort: String, page: Int): MediaResponse {
         val where = query?.let { "WHERE title LIKE :query" }.orEmpty()
