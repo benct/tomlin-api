@@ -23,14 +23,11 @@ data class Movie(
     val voteCount: Long,
     val genres: List<Genre>,
     val productionCompanies: List<ProductionCompany>
-) {
-    private val keys = toDaoMap().keys
+) : Media() {
 
-    val insertStatement: String =
-        "INSERT INTO $TABLE_MOVIE (${keys.joinToString { "`${it}`" }}) VALUES (${keys.joinToString { ":$it" }}) " +
-            "ON DUPLICATE KEY UPDATE ${keys.joinToString { "`${it}` = :${it}" }}, `updated` = CURRENT_TIMESTAMP"
+    override val table = TABLE_MOVIE
 
-    val updateStatement: String = "UPDATE $TABLE_MOVIE SET ${keys.joinToString { "`${it}` = :${it}" }} WHERE `id` = :id"
+    override val keys = toDaoMap().keys
 
     fun toDaoMap() = mapOf(
         "id" to id,
@@ -55,14 +52,3 @@ data class Movie(
         fun String.parseMovie() = this.parseJson<Movie>(SNAKE_CASE)
     }
 }
-
-data class Genre(
-    val id: Long,
-    val name: String
-)
-
-data class ProductionCompany(
-    val id: Long,
-    val name: String,
-    val logoPath: String? = null
-)

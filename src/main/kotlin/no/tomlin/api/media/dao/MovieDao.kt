@@ -60,7 +60,7 @@ class MovieDao {
         jdbcTemplate.update("UPDATE $TABLE_MOVIE SET `seen` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set)) > 0
 
     fun store(movie: Movie): Boolean =
-        jdbcTemplate.update(movie.insertStatement, movie.toDaoMap()) > 0
+        jdbcTemplate.update(movie.insertStatement(), movie.toDaoMap()) > 0
 
     fun delete(id: String): Boolean =
         jdbcTemplate.update("DELETE FROM $TABLE_MOVIE WHERE `id` = :id", mapOf("id" to id)) > 0
