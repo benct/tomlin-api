@@ -94,7 +94,7 @@ class FileController {
 
         if (referer.isNullOrEmpty()) {
             // TODO check actual referer string?
-            throw IllegalArgumentException("No cross-referencing allowed")
+            throw IllegalStateException("No cross-referencing allowed")
         }
 
         checkExists(file)

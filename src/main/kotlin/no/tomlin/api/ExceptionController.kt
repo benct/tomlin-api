@@ -1,5 +1,6 @@
 package no.tomlin.api
 
+import no.tomlin.api.admin.SettingsController.SettingNotFoundException
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.dao.IncorrectResultSizeDataAccessException
 import org.springframework.http.HttpStatus
@@ -15,7 +16,7 @@ import javax.servlet.http.HttpServletRequest
 @ControllerAdvice
 class ExceptionController {
 
-    @ExceptionHandler(EmptyResultDataAccessException::class, IncorrectResultSizeDataAccessException::class)
+    @ExceptionHandler(EmptyResultDataAccessException::class, IncorrectResultSizeDataAccessException::class, SettingNotFoundException::class)
     fun notFound(exception: Exception, request: HttpServletRequest) =
         ResponseEntity(ErrorResponse(NOT_FOUND, exception, request), NOT_FOUND)
 

@@ -17,7 +17,6 @@ import no.tomlin.api.common.Constants.TABLE_SETTINGS
 import no.tomlin.api.common.Constants.TABLE_TRACK
 import no.tomlin.api.common.Constants.TABLE_TV
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Component
@@ -45,11 +44,7 @@ class AdminDao {
         }.toMap()
 
     fun getSetting(key: String): String? =
-        try {
-            jdbcTemplate.queryForObject("SELECT `value` FROM $TABLE_SETTINGS WHERE `key` = :key", mapOf("key" to key), String::class.java)
-        } catch (e: EmptyResultDataAccessException) {
-            null
-        }
+        jdbcTemplate.queryForObject("SELECT `value` FROM $TABLE_SETTINGS WHERE `key` = :key", mapOf("key" to key), String::class.java)
 
     fun saveSetting(key: String, value: String?) =
         jdbcTemplate.update(
