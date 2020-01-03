@@ -37,7 +37,7 @@ data class Movie(
         "genres" to genres.joinToString { it.name }.nullIfBlank(),
         "language" to Locale(originalLanguage).displayLanguage,
         "poster" to posterPath,
-        "runtime" to (runtime ?: 0),
+        "runtime" to runtime,
         "release_date" to releaseDate,
         "release_year" to releaseDate.subSequence(0, 4),
         "overview" to overview.nullIfBlank(),

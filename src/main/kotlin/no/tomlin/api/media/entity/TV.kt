@@ -43,7 +43,7 @@ data class TV(
         "genres" to genres.joinToString { it.name }.nullIfBlank(),
         "language" to Locale(originalLanguage).displayLanguage,
         "poster" to posterPath,
-        "runtime" to (episodeRunTime.joinToString { it.toString() }.nullIfBlank() ?: 0),
+        "runtime" to episodeRunTime.joinToString { it.toString() }.nullIfBlank(),
         "release_date" to firstAirDate.nullIfBlank(),
         "release_year" to firstAirDate.nullIfBlank()?.substring(0, 4),
         "end_year" to if (!inProduction && !lastAirDate.isNullOrBlank()) lastAirDate?.substring(0, 4) else null,
