@@ -8,7 +8,7 @@ data class Episode(
     val showId: Long,
     val name: String,
     val overview: String,
-    val airDate: String,
+    val airDate: String? = null,
     val productionCode: String,
     val stillPath: String? = null,
     val seasonNumber: Long,
