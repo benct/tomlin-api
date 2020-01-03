@@ -47,6 +47,10 @@ class TVDao {
         return MediaResponse(page, total, tv)
     }
 
+    fun getIds(count: Int? = null): List<Map<String, Any?>> = jdbcTemplate.queryForList(
+        "SELECT id FROM $TABLE_TV" + count?.let { " ORDER BY `updated` LIMIT $it" }.orEmpty(),
+        EmptySqlParameterSource.INSTANCE)
+
     fun watchlist(): List<Map<String, Any>> = jdbcTemplate.queryForList(
         "SELECT t.*, 'tv' AS `type`, " +
             "(SELECT COUNT(id) FROM $TABLE_EPISODE e WHERE e.seen = 1 AND e.tv_id = t.id) AS seen_episodes " +

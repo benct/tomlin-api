@@ -41,6 +41,13 @@ class MediaController {
     @GetMapping("/search", produces = [APPLICATION_JSON_UTF8_VALUE])
     fun search(@RequestParam query: String) = tmdbService.fetchMedia("search/multi", query)
 
+    @Secured(USER, ADMIN)
+    @GetMapping("/existing")
+    fun existing() = mapOf(
+        "movie" to movieDao.getIds(),
+        "tv" to tvDao.getIds()
+    )
+
     companion object {
         fun parseSort(sort: String?): String = when (sort) {
             "rating-asc" -> "rating ASC"

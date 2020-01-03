@@ -33,6 +33,10 @@ class MovieDao {
         return MediaResponse(page, total, movies)
     }
 
+    fun getIds(count: Int? = null): List<Map<String, Any?>> = jdbcTemplate.queryForList(
+        "SELECT id FROM $TABLE_MOVIE" + count?.let { " ORDER BY `updated` LIMIT $it" }.orEmpty(),
+        EmptySqlParameterSource.INSTANCE)
+
     fun watchlist(): List<Map<String, Any>> = jdbcTemplate.queryForList(
         "SELECT *, 'movie' AS `type` FROM $TABLE_MOVIE WHERE `seen` = false ORDER BY release_date ASC",
         EmptySqlParameterSource.INSTANCE)
