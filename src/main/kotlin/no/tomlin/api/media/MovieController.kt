@@ -31,7 +31,7 @@ class MovieController {
 
     @Secured(ADMIN)
     @PostMapping("/{id}")
-    fun store(@PathVariable id: String): Boolean =
+    fun store(@PathVariable id: String) =
         tmdbService.fetchMedia("movie/$id")
             ?.parseMovie()
             ?.let {
@@ -45,7 +45,7 @@ class MovieController {
 
     @Secured(ADMIN)
     @PostMapping("/update")
-    fun batchUpdate(@RequestParam count: Int = UPDATE_COUNT) = null
+    fun batchUpdate(@RequestParam count: Int?) = movieDao.getIds(count ?: UPDATE_COUNT).count { store(it) }
 
     @Secured(ADMIN)
     @PostMapping("/favourite")

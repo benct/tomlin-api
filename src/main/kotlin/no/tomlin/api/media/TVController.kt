@@ -59,7 +59,7 @@ class TVController {
 
     @Secured(ADMIN)
     @PostMapping("/update")
-    fun batchUpdate(@RequestParam count: Int = UPDATE_COUNT) = null
+    fun batchUpdate(@RequestParam count: Int?) = tvDao.getIds(count ?: UPDATE_COUNT).count { store(it) }
 
     @Secured(ADMIN)
     @PostMapping("/favourite")
@@ -98,6 +98,6 @@ class TVController {
     fun recommended(@RequestParam id: String, @RequestParam page: Int?) = tmdbService.fetchMedia("tv/$id/recommendations", page)
 
     companion object {
-        const val UPDATE_COUNT = 5
+        const val UPDATE_COUNT = 3
     }
 }
