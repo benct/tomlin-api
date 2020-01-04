@@ -46,17 +46,15 @@ class AdminDao {
     fun getSetting(key: String): String? =
         jdbcTemplate.queryForObject("SELECT `value` FROM $TABLE_SETTINGS WHERE `key` = :key", mapOf("key" to key), String::class.java)
 
-    fun saveSetting(key: String, value: String?) =
+    fun saveSetting(key: String, value: String?): Int =
         jdbcTemplate.update(
             "INSERT INTO $TABLE_SETTINGS (`key`, `value`) VALUES (:key, :value) ON DUPLICATE KEY UPDATE `value` = :value",
-            mapOf("key" to key, "value" to value)
-        )
+            mapOf("key" to key, "value" to value))
 
-    fun log(message: String, details: String? = null, path: String? = null) =
+    fun log(message: String, details: String? = null, path: String? = null): Int =
         jdbcTemplate.update(
             "INSERT INTO $TABLE_LOG (`message`, `details`, `path`) VALUES (:message, :details, :path)",
-            mapOf("message" to message, "details" to details, "path" to path)
-        )
+            mapOf("message" to message, "details" to details, "path" to path))
 
     fun getLogs(limit: Int): List<Log> =
         jdbcTemplate.query("SELECT * FROM $TABLE_LOG ORDER BY `timestamp` DESC LIMIT $limit") { resultSet, _ -> Log(resultSet) }
@@ -66,7 +64,7 @@ class AdminDao {
     fun getVisits(limit: Int): List<Visit> =
         jdbcTemplate.query("SELECT * FROM $TABLE_TRACK ORDER BY visits DESC LIMIT $limit") { resultSet, _ -> Visit(resultSet) }
 
-    fun visit(ip: String, host: String?, referrer: String?, agent: String?, page: String?) =
+    fun visit(ip: String, host: String?, referrer: String?, agent: String?, page: String?): Int =
         jdbcTemplate.update(
             "INSERT INTO $TABLE_TRACK (ip, host, referer, agent, page) " +
                 "VALUES (:ip, :host, :referrer, :agent, :page) " +
@@ -77,32 +75,29 @@ class AdminDao {
                 "referrer" to referrer,
                 "agent" to agent,
                 "page" to page
-            )
-        )
+            ))
 
     fun getNotes(): List<Note> =
         jdbcTemplate.query("SELECT * FROM $TABLE_NOTE ORDER BY updated DESC") { resultSet, _ -> Note(resultSet) }
 
-    fun saveNote(id: Int?, title: String, content: String?) =
+    fun saveNote(id: Int?, title: String, content: String?): Int =
         jdbcTemplate.update(
             "INSERT INTO $TABLE_NOTE (id, title, content) VALUES (:id, :title, :content) " +
                 "ON DUPLICATE KEY UPDATE title = :title, content = :content",
-            mapOf("id" to id, "title" to title, "content" to content)
-        )
+            mapOf("id" to id, "title" to title, "content" to content))
 
-    fun deleteNote(id: Int) = jdbcTemplate.update("DELETE FROM $TABLE_NOTE WHERE id = :id", mapOf("id" to id))
+    fun deleteNote(id: Int): Int = jdbcTemplate.update("DELETE FROM $TABLE_NOTE WHERE id = :id", mapOf("id" to id))
 
     fun getFlights(): List<Flight> =
         jdbcTemplate.query("SELECT * FROM $TABLE_FLIGHT ORDER BY departure ASC") { resultSet, _ -> Flight(resultSet) }
 
-    fun saveFlight(flight: Flight) =
+    fun saveFlight(flight: Flight): Int =
         jdbcTemplate.update(
             "INSERT INTO $TABLE_FLIGHT (id, title, content) VALUES (:id, :title, :content) " +
                 "ON DUPLICATE KEY UPDATE title = :title, content = :content",
-            flight.asDaoMap()
-        )
+            flight.asDaoMap())
 
-    fun deleteFlight(id: Int) = jdbcTemplate.update("DELETE FROM $TABLE_FLIGHT WHERE id = :id", mapOf("id" to id))
+    fun deleteFlight(id: Int): Int = jdbcTemplate.update("DELETE FROM $TABLE_FLIGHT WHERE id = :id", mapOf("id" to id))
 
     private fun countQuery(table: String): Int? =
         jdbcTemplate.queryForObject("SELECT COUNT(id) FROM $table", EmptySqlParameterSource.INSTANCE, Int::class.java)

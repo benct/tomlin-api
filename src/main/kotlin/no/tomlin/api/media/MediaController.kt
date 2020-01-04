@@ -35,11 +35,11 @@ class MediaController {
 
     @Secured(USER, ADMIN)
     @GetMapping("/watchlist")
-    fun watchlist() = movieDao.watchlist() + tvDao.watchlist()
+    fun watchlist(): List<Map<String, Any?>> = movieDao.watchlist() + tvDao.watchlist()
 
     @Secured(USER, ADMIN)
     @GetMapping("/search", produces = [APPLICATION_JSON_UTF8_VALUE])
-    fun search(@RequestParam query: String) = tmdbService.fetchMedia("search/multi", query)
+    fun search(@RequestParam query: String): String = tmdbService.fetchMedia("search/multi", query)
 
     @Secured(USER, ADMIN)
     @GetMapping("/existing")

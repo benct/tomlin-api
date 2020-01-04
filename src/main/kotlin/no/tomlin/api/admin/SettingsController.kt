@@ -16,7 +16,7 @@ class SettingsController {
     fun base(): Map<String, String?> = adminDao.getSettings()
 
     @GetMapping("/get")
-    fun get(@RequestParam key: String) = adminDao.getSetting(key) ?: throw SettingNotFoundException(key)
+    fun get(@RequestParam key: String): String = adminDao.getSetting(key) ?: throw SettingNotFoundException(key)
 
     @Secured(ADMIN)
     @PostMapping("/set")

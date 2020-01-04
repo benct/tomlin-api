@@ -45,11 +45,12 @@ class HassController {
 
     @Secured(USER, ADMIN)
     @GetMapping("/state/{sensor}")
-    fun getState(@PathVariable sensor: String) = hassDao.getState(sensor)
+    fun getState(@PathVariable sensor: String): String? = hassDao.getState(sensor)
 
     @Secured(ADMIN)
     @PostMapping("/state")
-    fun setState(@RequestParam sensor: String, @RequestParam value: String) = hassDao.setState(sensor, value)
+    fun setState(@RequestParam sensor: String, @RequestParam value: String): Boolean =
+        hassDao.setState(sensor, value) > 0
 
     @PostMapping("/set")
     fun setState(@RequestBody body: State, request: HttpServletRequest): ResponseEntity<Boolean> {

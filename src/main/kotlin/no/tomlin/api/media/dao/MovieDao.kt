@@ -38,21 +38,21 @@ class MovieDao {
         EmptySqlParameterSource.INSTANCE,
         String::class.java)
 
-    fun watchlist(): List<Map<String, Any>> = jdbcTemplate.queryForList(
+    fun watchlist(): List<Map<String, Any?>> = jdbcTemplate.queryForList(
         "SELECT *, 'movie' AS `type` FROM $TABLE_MOVIE WHERE `seen` = false ORDER BY release_date ASC",
         EmptySqlParameterSource.INSTANCE)
 
-    fun store(movie: Movie): Boolean =
-        jdbcTemplate.update(movie.insertStatement(), movie.toDaoMap()) > 0
+    fun store(movie: Movie): Int =
+        jdbcTemplate.update(movie.insertStatement(), movie.toDaoMap())
 
-    fun delete(id: String): Boolean =
-        jdbcTemplate.update("DELETE FROM $TABLE_MOVIE WHERE `id` = :id", mapOf("id" to id)) > 0
+    fun delete(id: String): Int =
+        jdbcTemplate.update("DELETE FROM $TABLE_MOVIE WHERE `id` = :id", mapOf("id" to id))
 
-    fun favourite(id: String, set: Boolean): Boolean =
-        jdbcTemplate.update("UPDATE $TABLE_MOVIE SET `favourite` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set)) > 0
+    fun favourite(id: String, set: Boolean): Int =
+        jdbcTemplate.update("UPDATE $TABLE_MOVIE SET `favourite` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set))
 
-    fun seen(id: String, set: Boolean): Boolean =
-        jdbcTemplate.update("UPDATE $TABLE_MOVIE SET `seen` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set)) > 0
+    fun seen(id: String, set: Boolean): Int =
+        jdbcTemplate.update("UPDATE $TABLE_MOVIE SET `seen` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set))
 
     fun stats(): Map<String, Any?> =
         mapOf(

@@ -52,28 +52,28 @@ class TVDao {
         EmptySqlParameterSource.INSTANCE,
         String::class.java)
 
-    fun watchlist(): List<Map<String, Any>> = jdbcTemplate.queryForList(
+    fun watchlist(): List<Map<String, Any?>> = jdbcTemplate.queryForList(
         "SELECT t.*, 'tv' AS `type`, " +
             "(SELECT COUNT(id) FROM $TABLE_EPISODE e WHERE e.seen = 1 AND e.tv_id = t.id) AS seen_episodes " +
             "FROM $TABLE_TV t WHERE t.seen = 0 ORDER BY t.release_date ASC",
         EmptySqlParameterSource.INSTANCE)
 
-    fun store(statement: String, data: Map<String, Any?>): Boolean = jdbcTemplate.update(statement, data) > 0
+    fun store(statement: String, data: Map<String, Any?>): Int = jdbcTemplate.update(statement, data)
 
-    fun delete(id: String): Boolean {
+    fun delete(id: String): Int {
         jdbcTemplate.update("DELETE FROM $TABLE_EPISODE WHERE `tv_id` = :id", mapOf("id" to id))
         jdbcTemplate.update("DELETE FROM $TABLE_SEASON WHERE `tv_id` = :id", mapOf("id" to id))
-        return jdbcTemplate.update("DELETE FROM $TABLE_TV WHERE `id` = :id", mapOf("id" to id)) > 0
+        return jdbcTemplate.update("DELETE FROM $TABLE_TV WHERE `id` = :id", mapOf("id" to id))
     }
 
-    fun favourite(id: String, set: Boolean): Boolean =
-        jdbcTemplate.update("UPDATE $TABLE_TV SET `favourite` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set)) > 0
+    fun favourite(id: String, set: Boolean): Int =
+        jdbcTemplate.update("UPDATE $TABLE_TV SET `favourite` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set))
 
-    fun seen(id: String, set: Boolean): Boolean =
-        jdbcTemplate.update("UPDATE $TABLE_TV SET `seen` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set)) > 0
+    fun seen(id: String, set: Boolean): Int =
+        jdbcTemplate.update("UPDATE $TABLE_TV SET `seen` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set))
 
-    fun seenAll(seasonId: String, set: Boolean): Boolean =
-        jdbcTemplate.update("UPDATE $TABLE_EPISODE SET `seen` = :set WHERE `season_id` = :id", mapOf("id" to seasonId, "set" to set)) > 0
+    fun seenAll(seasonId: String, set: Boolean): Int =
+        jdbcTemplate.update("UPDATE $TABLE_EPISODE SET `seen` = :set WHERE `season_id` = :id", mapOf("id" to seasonId, "set" to set))
 
     fun stats(): Map<String, Any?> =
         mapOf(

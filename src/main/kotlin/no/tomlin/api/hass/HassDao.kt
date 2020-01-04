@@ -23,15 +23,13 @@ class HassDao {
         mapOf("sensor" to sensor, "value" to value)
     )
 
-    fun getStates(): MutableList<Map<String, Any?>> {
-        return jdbcTemplate.query(
-            "SELECT h.sensor, h.value, " +
-                "FORMAT(h.value - " +
-                    "(SELECT f.value FROM $TABLE_HASS f " +
-                    "WHERE f.updated > DATE_SUB(NOW(), INTERVAL 1 MONTH) AND f.sensor=h.sensor GROUP BY f.sensor), 1) diff " +
-                "FROM $TABLE_HASS h " +
-                "WHERE h.id IN (SELECT MAX(m.id) FROM $TABLE_HASS m GROUP BY m.sensor)",
-            ColumnMapRowMapper()
-        )
-    }
+    fun getStates(): List<Map<String, Any?>> = jdbcTemplate.query(
+        "SELECT h.sensor, h.value, " +
+            "FORMAT(h.value - " +
+                "(SELECT f.value FROM $TABLE_HASS f " +
+                "WHERE f.updated > DATE_SUB(NOW(), INTERVAL 1 MONTH) AND f.sensor=h.sensor GROUP BY f.sensor), 1) diff " +
+            "FROM $TABLE_HASS h " +
+            "WHERE h.id IN (SELECT MAX(m.id) FROM $TABLE_HASS m GROUP BY m.sensor)",
+        ColumnMapRowMapper()
+    )
 }

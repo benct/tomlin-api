@@ -3,6 +3,7 @@ package no.tomlin.api.media
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
 import no.tomlin.api.media.MediaController.Companion.parseSort
+import no.tomlin.api.media.MediaController.MediaResponse
 import no.tomlin.api.media.dao.MovieDao
 import no.tomlin.api.media.entity.Movie.Companion.parseMovie
 import org.springframework.beans.factory.annotation.Autowired
@@ -22,38 +23,38 @@ class MovieController {
 
     @Secured(USER, ADMIN)
     @GetMapping
-    fun get(@RequestParam query: String?, @RequestParam sort: String?, @RequestParam page: Int?) =
+    fun get(@RequestParam query: String?, @RequestParam sort: String?, @RequestParam page: Int?): MediaResponse =
         movieDao.get(query, parseSort(sort), page ?: 1)
 
     @Secured(USER, ADMIN)
     @GetMapping("/{id}")
-    fun get(@PathVariable id: String) = movieDao.get(id)
+    fun get(@PathVariable id: String): Map<String, Any?> = movieDao.get(id)
 
     @Secured(ADMIN)
     @PostMapping("/{id}")
-    fun store(@PathVariable id: String) =
+    fun store(@PathVariable id: String): Boolean =
         tmdbService.fetchMedia("movie/$id")
-            ?.parseMovie()
-            ?.let {
+            .parseMovie()
+            .let {
                 tmdbService.storePoster(it.posterPath)
-                movieDao.store(it)
-            } ?: false
+                movieDao.store(it) == 1
+            }
 
     @Secured(ADMIN)
     @DeleteMapping("/{id}")
-    fun delete(@PathVariable id: String) = movieDao.delete(id)
+    fun delete(@PathVariable id: String): Boolean = movieDao.delete(id) == 1
 
     @Secured(ADMIN)
     @PostMapping("/update")
-    fun batchUpdate(@RequestParam count: Int?) = movieDao.getIds(count ?: UPDATE_COUNT).count { store(it) }
+    fun batchUpdate(@RequestParam count: Int?): Int = movieDao.getIds(count ?: UPDATE_COUNT).count { store(it) }
 
     @Secured(ADMIN)
     @PostMapping("/favourite")
-    fun favourite(@RequestParam id: String, @RequestParam set: Boolean) = movieDao.favourite(id, set)
+    fun favourite(@RequestParam id: String, @RequestParam set: Boolean): Boolean = movieDao.favourite(id, set) == 1
 
     @Secured(ADMIN)
     @PostMapping("/seen")
-    fun seen(@RequestParam id: String, @RequestParam set: Boolean) = movieDao.seen(id, set)
+    fun seen(@RequestParam id: String, @RequestParam set: Boolean): Boolean = movieDao.seen(id, set) == 1
 
     @Secured(USER, ADMIN)
     @GetMapping("/external", produces = [APPLICATION_JSON_UTF8_VALUE])
