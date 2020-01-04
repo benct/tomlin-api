@@ -6,6 +6,7 @@ import no.tomlin.api.http.HttpFetcher
 import no.tomlin.api.http.HttpFetcher.Companion.readBody
 import no.tomlin.api.iata.entity.Airline
 import no.tomlin.api.iata.entity.Location
+import no.tomlin.api.logging.LogDao
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.security.access.annotation.Secured
@@ -18,6 +19,9 @@ class IataController {
 
     @Autowired
     private lateinit var iataDao: IataDao
+
+    @Autowired
+    private lateinit var logger: LogDao
 
     private val fetcher = HttpFetcher.fetcher(OPTD_URL)
 
@@ -45,7 +49,8 @@ class IataController {
 
             val airlines = parseCsv(it).map(::Airline)
 
-            return iataDao.batchAirlines(airlines).size
+            iataDao.batchAirlines(airlines).size
+                .also { logger.info("IATA", "Updated $it airlines") }
         }
 
     @Secured(ADMIN)
@@ -57,6 +62,7 @@ class IataController {
             val locations = parseCsv(it).map(::Location)
 
             iataDao.batchLocations(locations).size
+                .also { logger.info("IATA", "Updated $it locations") }
         }
 
     companion object {

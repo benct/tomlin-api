@@ -2,6 +2,7 @@ package no.tomlin.api.media
 
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
+import no.tomlin.api.logging.LogDao
 import no.tomlin.api.media.MediaController.Companion.parseSort
 import no.tomlin.api.media.MediaController.MediaResponse
 import no.tomlin.api.media.dao.MovieDao
@@ -21,6 +22,9 @@ class MovieController {
     @Autowired
     private lateinit var movieDao: MovieDao
 
+    @Autowired
+    private lateinit var logger: LogDao
+
     @Secured(USER, ADMIN)
     @GetMapping
     fun get(@RequestParam query: String?, @RequestParam sort: String?, @RequestParam page: Int?): MediaResponse =
@@ -35,14 +39,24 @@ class MovieController {
     fun store(@PathVariable id: String): Boolean =
         tmdbService.fetchMedia("movie/$id")
             .parseMovie()
-            .let {
-                tmdbService.storePoster(it.posterPath)
-                movieDao.store(it) == 1
+            .let { movie ->
+                tmdbService.storePoster(movie.posterPath)
+                movieDao.store(movie).let {
+                    if (it == 1) {
+                        logger.info("Movie", "Saved/updated ${movie.id} (${movie.title})")
+                        true
+                    } else false
+                }
             }
 
     @Secured(ADMIN)
     @DeleteMapping("/{id}")
-    fun delete(@PathVariable id: String): Boolean = movieDao.delete(id) == 1
+    fun delete(@PathVariable id: String): Boolean = movieDao.delete(id).let {
+        if (it == 1) {
+            logger.info("Movie", "Removed $id")
+            true
+        } else false
+    }
 
     @Secured(ADMIN)
     @PostMapping("/update")

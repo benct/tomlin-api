@@ -2,6 +2,7 @@ package no.tomlin.api.media
 
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
+import no.tomlin.api.logging.LogDao
 import no.tomlin.api.media.MediaController.Companion.parseSort
 import no.tomlin.api.media.MediaController.MediaResponse
 import no.tomlin.api.media.dao.TVDao
@@ -21,6 +22,9 @@ class TVController {
 
     @Autowired
     private lateinit var tvDao: TVDao
+
+    @Autowired
+    private lateinit var logger: LogDao
 
     @Secured(USER, ADMIN)
     @GetMapping
@@ -50,13 +54,23 @@ class TVController {
                             )
                         }
                 }.and(
-                    tvDao.store(tv.insertStatement(), tv.toDaoMap()) == 1
+                    tvDao.store(tv.insertStatement(), tv.toDaoMap()).let {
+                        if (it == 1) {
+                            logger.info("TV", "Saved/updated ${tv.id} (${tv.name})")
+                            true
+                        } else false
+                    }
                 )
             }
 
     @Secured(ADMIN)
     @DeleteMapping("/{id}")
-    fun delete(@PathVariable id: String): Boolean = tvDao.delete(id) == 1
+    fun delete(@PathVariable id: String): Boolean = tvDao.delete(id).let {
+        if (it == 1) {
+            logger.info("TV", "Removed $id")
+            true
+        } else false
+    }
 
     @Secured(ADMIN)
     @PostMapping("/update")
