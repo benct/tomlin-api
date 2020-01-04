@@ -27,14 +27,14 @@ class IataDao {
             mapOf("code" to code)
         ) { resultSet, _ -> Location(resultSet) }
 
-    fun batchAirlines(airlines: List<Airline>) =
+    fun batchAirlines(airlines: List<Airline>): IntArray =
         jdbcTemplate.batchUpdate(
             "INSERT INTO $TABLE_AIRLINE (id, iataCode, icaoCode, name, alias, type, started, ended, wiki) " +
                 "VALUES (:id, :iataCode, :icaoCode, :name, :alias, :type, :started, :ended, :wiki)",
             airlines.map { it.asDaoMap() }.toTypedArray()
         )
 
-    fun batchLocations(locations: List<Location>) =
+    fun batchLocations(locations: List<Location>): IntArray =
         jdbcTemplate.batchUpdate(
             "INSERT INTO $TABLE_LOCATION (id, iataCode, icaoCode, cityCode, cityName, name, area, areaCode, " +
                 "country, countryCode, continent, type, latitude, longitude, timezone, operational, wiki) " +

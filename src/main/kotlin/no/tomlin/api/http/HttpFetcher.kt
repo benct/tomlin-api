@@ -70,6 +70,12 @@ open class HttpFetcher private constructor(private val baseUrl: String?, timeout
             return builder.build()
         }
 
+        fun Response.readBody(): String = this.use {
+            if (it.isSuccessful) {
+                it.body()?.string() ?: throw EmptyResponseException(it)
+            } else throw UnsuccessfulResponseException(it)
+        }
+
         private val CONNECTION_TIMEOUT = ofSeconds(5)
         private val REQUEST_TIMEOUT = ofSeconds(10)
         private val CONNECTIONPOOL_KEEPALIVE = ofMinutes(5)
@@ -81,4 +87,10 @@ open class HttpFetcher private constructor(private val baseUrl: String?, timeout
         private fun queryString(queryParams: Map<String, List<String?>>) =
             queryParams.flatMap { (key, values) -> values.map { "$key=$it" } }.joinToString("&")
     }
+
+    internal class EmptyResponseException(response: Response) :
+        RuntimeException("Empty response (${response.code()}) from ${response.request().url()})")
+
+    internal class UnsuccessfulResponseException(response: Response) :
+        RuntimeException("Invalid response (${response.code()}) from (${response.request().url()}): ${response.message()}")
 }

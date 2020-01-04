@@ -3,6 +3,7 @@ package no.tomlin.api.iata
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Extensions.nullIfBlank
 import no.tomlin.api.http.HttpFetcher
+import no.tomlin.api.http.HttpFetcher.Companion.readBody
 import no.tomlin.api.iata.entity.Airline
 import no.tomlin.api.iata.entity.Location
 import org.springframework.beans.factory.annotation.Autowired
@@ -38,33 +39,25 @@ class IataController {
 
     @Secured(ADMIN)
     @PostMapping("/airlines")
-    fun updateAirlines(): Int {
-        fetcher.get(AIRLINE_PATH).use { response ->
-            if (response.isSuccessful) {
-                iataDao.deleteAirlines()
+    fun updateAirlines(): Int =
+        fetcher.get(AIRLINE_PATH).readBody().let {
+            iataDao.deleteAirlines()
 
-                val airlines = parseCsv(response.body()?.string()).map(::Airline)
+            val airlines = parseCsv(it).map(::Airline)
 
-                return iataDao.batchAirlines(airlines).size
-            }
+            return iataDao.batchAirlines(airlines).size
         }
-        return 0
-    }
 
     @Secured(ADMIN)
     @PostMapping("/locations")
-    fun updateLocations(): Int {
-        fetcher.get(LOCATION_PATH).use { response ->
-            if (response.isSuccessful) {
-                iataDao.deleteLocations()
+    fun updateLocations(): Int =
+        fetcher.get(LOCATION_PATH).readBody().let {
+            iataDao.deleteLocations()
 
-                val locations = parseCsv(response.body()?.string()).map(::Location)
+            val locations = parseCsv(it).map(::Location)
 
-                return iataDao.batchLocations(locations).size
-            }
+            iataDao.batchLocations(locations).size
         }
-        return 0
-    }
 
     companion object {
         private const val OPTD_URL = "https://raw.githubusercontent.com/opentraveldata/opentraveldata/master/opentraveldata"

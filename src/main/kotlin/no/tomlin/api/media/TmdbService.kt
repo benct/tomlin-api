@@ -1,7 +1,7 @@
 package no.tomlin.api.media
 
 import no.tomlin.api.http.HttpFetcher
-import okhttp3.Response
+import no.tomlin.api.http.HttpFetcher.Companion.readBody
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.io.File
@@ -35,31 +35,18 @@ class TmdbService {
     fun fetchMedia(path: String, params: Map<String, String> = mapOf()): String =
         fetcher
             .getJson(path, mapOf(API_KEY to tmdbKey).plus(params))
-            .use {
-                if (it.isSuccessful) {
-                    it.body()?.string() ?: throw EmptyResponseException(it)
-                } else throw UnsuccessfulResponseException(it)
-            }
+            .readBody()
 
-    fun storePoster(path: String?) =
-        path?.let {
-            posterFetcher.get(path).use {
-                if (it.isSuccessful) {
-                    it.body()?.bytes()?.let {
-                        File(POSTER_PATH + path).writeBytes(it)
-                    }
-                } else throw UnsuccessfulResponseException(it)
+    fun storePoster(path: String?) {
+        if (path != null) {
+            posterFetcher.get(path).readBody().let {
+                File(POSTER_PATH + path).writeText(it)
             }
         }
+    }
 
     companion object {
         const val API_KEY = "api_key"
         const val POSTER_PATH = "assets/images/media"
     }
-
-    internal class EmptyResponseException(response: Response) :
-        RuntimeException("Empty response (${response.code()}) from TMDB (${response.request().url().encodedPath()})")
-
-    internal class UnsuccessfulResponseException(response: Response) :
-        RuntimeException("Invalid response (${response.code()}) from TMDB (${response.request().url().encodedPath()}): ${response.message()}")
 }
