@@ -11,7 +11,6 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 import javax.servlet.http.HttpServletResponse
-import kotlin.math.pow
 
 @RestController
 @RequestMapping("/file")
@@ -25,18 +24,7 @@ class FileController {
         checkExists(directory)
         checkDir(directory)
 
-        return getFilesFromPath(directory).map {
-            FileModel(
-                it.path,
-                it.name,
-                shortName(it.name),
-                computeSize(it.length()),
-                it.extension,
-                it.isDirectory,
-                canPreview(it.extension),
-                it.listFiles()?.size ?: 0
-            )
-        }
+        return getFilesFromPath(directory).map(::FileModel)
     }
 
     @Secured(ADMIN)
@@ -123,8 +111,6 @@ class FileController {
 
     companion object {
         private const val ROOT = "files"
-        private const val KILO: Double = 1024.0
-        private const val PREVIEW = "jpg|jpeg|png|bmp|gif|svg|ico|txt|md"
 
         private fun getValidFile(path: String?) = File(ROOT + prependSlash(stripRelative(path.orEmpty())))
 
@@ -133,21 +119,6 @@ class FileController {
         private fun stripRelative(path: String): String = path.split('/').filter { it != "." && it != ".." }.joinToString("/")
 
         private fun getFilesFromPath(path: File): List<File> = path.listFiles().orEmpty().toList()
-
-        private fun shortName(name: String): String = if (name.length > 25) "${name.substring(0, 21)}..${name.substring(-4)}" else name
-
-        private fun canPreview(extension: String) = extension.isNotBlank() && PREVIEW.contains(extension)
-
-        private fun computeSize(sizeInBytes: Long): String {
-            val total = sizeInBytes.toDouble()
-
-            return when {
-                total < KILO -> "$total  b"
-                total < KILO.pow(2.0) -> "${total / KILO} kb"
-                total < KILO.pow(3.0) -> "${total / (KILO * KILO)} mb"
-                else -> "${total / (KILO * KILO * KILO)} gb"
-            }
-        }
 
         private fun checkExists(file: File) {
             if (!file.exists()) {
