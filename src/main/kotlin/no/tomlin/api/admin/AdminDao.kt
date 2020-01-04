@@ -51,11 +51,6 @@ class AdminDao {
             "INSERT INTO $TABLE_SETTINGS (`key`, `value`) VALUES (:key, :value) ON DUPLICATE KEY UPDATE `value` = :value",
             mapOf("key" to key, "value" to value))
 
-    fun log(message: String, details: String? = null, path: String? = null): Int =
-        jdbcTemplate.update(
-            "INSERT INTO $TABLE_LOG (`message`, `details`, `path`) VALUES (:message, :details, :path)",
-            mapOf("message" to message, "details" to details, "path" to path))
-
     fun getLogs(limit: Int): List<Log> =
         jdbcTemplate.query("SELECT * FROM $TABLE_LOG ORDER BY `timestamp` DESC LIMIT $limit") { resultSet, _ -> Log(resultSet) }
 

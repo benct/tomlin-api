@@ -1,7 +1,7 @@
 package no.tomlin.api
 
-import no.tomlin.api.admin.AdminDao
 import no.tomlin.api.admin.SettingsController.SettingNotFoundException
+import no.tomlin.api.logging.LogDao
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.dao.IncorrectResultSizeDataAccessException
@@ -18,20 +18,20 @@ import javax.servlet.http.HttpServletRequest
 class ExceptionController {
 
     @Autowired
-    lateinit var adminDao: AdminDao
+    lateinit var logger: LogDao
 
     @ExceptionHandler(
         EmptyResultDataAccessException::class,
         IncorrectResultSizeDataAccessException::class,
         SettingNotFoundException::class)
     fun handleNotFound(exception: Exception, request: HttpServletRequest): ResponseEntity<Any> {
-        adminDao.log("[Warn] ${exception::class.simpleName}", exception.message, request.servletPath)
+        logger.warn(exception, request)
         return ResponseEntity(ErrorResponse(NOT_FOUND, exception, request), NOT_FOUND)
     }
 
     @ExceptionHandler(Exception::class)
     fun handleAll(exception: Exception, request: HttpServletRequest) {
-        adminDao.log("[Error] ${exception::class.simpleName}", exception.message, request.servletPath)
+        logger.error(exception, request)
         throw exception
     }
 
