@@ -25,6 +25,10 @@ spring:
         - USER
         - ADMIN
 
+server:
+  error:
+    include-stacktrace: never
+
 api:
   name: Tomlin
   version: 1.0.0

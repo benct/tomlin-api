@@ -1,10 +1,11 @@
 package no.tomlin.api
 
+import no.tomlin.api.admin.AdminDao
 import no.tomlin.api.admin.SettingsController.SettingNotFoundException
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.dao.IncorrectResultSizeDataAccessException
 import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
@@ -16,14 +17,22 @@ import javax.servlet.http.HttpServletRequest
 @ControllerAdvice
 class ExceptionController {
 
-    @ExceptionHandler(EmptyResultDataAccessException::class, IncorrectResultSizeDataAccessException::class, SettingNotFoundException::class)
-    fun notFound(exception: Exception, request: HttpServletRequest) =
-        ResponseEntity(ErrorResponse(NOT_FOUND, exception, request), NOT_FOUND)
+    @Autowired
+    lateinit var adminDao: AdminDao
+
+    @ExceptionHandler(
+        EmptyResultDataAccessException::class,
+        IncorrectResultSizeDataAccessException::class,
+        SettingNotFoundException::class)
+    fun handleNotFound(exception: Exception, request: HttpServletRequest): ResponseEntity<Any> {
+        adminDao.log("[Warn] ${exception::class.simpleName}", exception.message, request.servletPath)
+        return ResponseEntity(ErrorResponse(NOT_FOUND, exception, request), NOT_FOUND)
+    }
 
     @ExceptionHandler(Exception::class)
-    fun generalException(exception: Exception, request: HttpServletRequest): ResponseEntity<ErrorResponse> {
-        // log
-        return ResponseEntity(ErrorResponse(INTERNAL_SERVER_ERROR, exception, request), INTERNAL_SERVER_ERROR)
+    fun handleAll(exception: Exception, request: HttpServletRequest) {
+        adminDao.log("[Error] ${exception::class.simpleName}", exception.message, request.servletPath)
+        throw exception
     }
 
     data class ErrorResponse(
