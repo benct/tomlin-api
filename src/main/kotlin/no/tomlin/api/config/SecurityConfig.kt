@@ -11,21 +11,12 @@ import org.springframework.security.config.http.SessionCreationPolicy
 class SecurityConfig : WebSecurityConfigurerAdapter() {
 
     override fun configure(http: HttpSecurity) {
-        http.csrf().disable()
+        http
+            .csrf().disable()
             .formLogin().disable()
             .logout().disable()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .httpBasic()
-//            .and()
-//            .requiresChannel().anyRequest().requiresSecure()
     }
-
-//    override fun configure(auth: AuthenticationManagerBuilder) {
-//        auth.inMemoryAuthentication()
-//            .passwordEncoder(BCryptPasswordEncoder(12))
-//            .withUser(username)
-//            .password(password)
-//            .roles("ADMIN", "USER")
-//    }
 }
