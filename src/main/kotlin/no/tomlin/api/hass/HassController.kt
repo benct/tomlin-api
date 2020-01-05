@@ -36,8 +36,8 @@ class HassController {
                 "office" to findValue(states, "thermometer_office_temperature")
             ),
             "consumption" to mapOf(
-                "tv" to findValue(states, "power_livingroom_tv_power_2", "diff"),
-                "pc" to findValue(states, "power_office_pc_power_2", "diff")
+                "tv" to findValue(states, "power_livingroom_tv_power", "diff"),
+                "pc" to findValue(states, "power_office_pc_power", "diff")
             ),
             "day" to (findValue(states, "sun") !== "below_horizon")
         )
