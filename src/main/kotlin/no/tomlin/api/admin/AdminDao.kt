@@ -38,9 +38,9 @@ class AdminDao {
         "log" to countQuery(TABLE_LOG)
     )
 
-    fun getSettings(): Map<String, String?> =
+    fun getSettings(): Map<String, Any?> =
         jdbcTemplate.query("SELECT `key`, `value` FROM $TABLE_SETTINGS", EmptySqlParameterSource.INSTANCE) { resultSet, _ ->
-            resultSet.getString("key") to resultSet.getString("value")
+            resultSet.getString("key") to resultSet.getObject("value")
         }.toMap()
 
     fun getSetting(key: String): String? =

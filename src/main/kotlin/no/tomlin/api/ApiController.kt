@@ -36,7 +36,7 @@ class ApiController {
     fun version() = version
 
     @PostMapping("/authenticate")
-    fun authenticate(@RequestParam referrer: String?, request: HttpServletRequest, response: HttpServletResponse): Boolean {
+    fun authenticate(@RequestParam referrer: String?, request: HttpServletRequest): Map<String, Any?> {
         adminDao.visit(
             request.remoteAddr,
             request.remoteHost,
@@ -45,7 +45,10 @@ class ApiController {
             request.getHeader("referer")
         )
 
-        return SecurityContextHolder.getContext().authentication?.isAuthenticated ?: false
+        return mapOf(
+            "authenticated" to (SecurityContextHolder.getContext().authentication?.isAuthenticated ?: false),
+            "settings" to adminDao.getSettings()
+        )
     }
 
     @PostMapping("/login")

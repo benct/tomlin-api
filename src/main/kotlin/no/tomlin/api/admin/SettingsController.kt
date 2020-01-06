@@ -13,7 +13,7 @@ class SettingsController {
     private lateinit var adminDao: AdminDao
 
     @GetMapping
-    fun base(): Map<String, String?> = adminDao.getSettings()
+    fun base(): Map<String, Any?> = adminDao.getSettings()
 
     @GetMapping("/get")
     fun get(@RequestParam key: String): String = adminDao.getSetting(key) ?: throw SettingNotFoundException(key)
