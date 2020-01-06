@@ -8,13 +8,13 @@ import org.springframework.dao.IncorrectResultSizeDataAccessException
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.RestControllerAdvice
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now
 import javax.servlet.http.HttpServletRequest
 
-@ControllerAdvice
+@RestControllerAdvice
 class ExceptionController {
 
     @Autowired
