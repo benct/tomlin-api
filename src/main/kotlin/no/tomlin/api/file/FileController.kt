@@ -50,7 +50,7 @@ class FileController {
 
     @Secured(ADMIN)
     @PostMapping("/remove")
-    fun rm(@RequestParam path: String): Boolean {
+    fun remove(@RequestParam path: String): Boolean {
         val file = getValidFile(path)
 
         checkExists(file)
