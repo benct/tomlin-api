@@ -48,7 +48,6 @@ class ApiController {
         return request.authenticate(response)
     }
 
-    @Secured(ADMIN)
     @PostMapping("/login")
-    fun login() = true // Logged in when passing Secured
+    fun login(request: HttpServletRequest, response: HttpServletResponse) = request.authenticate(response)
 }
