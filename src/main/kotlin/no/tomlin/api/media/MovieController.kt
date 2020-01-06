@@ -59,8 +59,8 @@ class MovieController {
     }
 
     @Secured(ADMIN)
-    @PostMapping("/update")
-    fun batchUpdate(@RequestParam count: Int?): Int = movieDao.getIds(count ?: UPDATE_COUNT).count { store(it) }
+    @PostMapping("/update/{count}")
+    fun batchUpdate(@PathVariable count: Int?): Int = movieDao.getIds(count ?: UPDATE_COUNT).count { store(it) }
 
     @Secured(ADMIN)
     @PostMapping("/favourite")
