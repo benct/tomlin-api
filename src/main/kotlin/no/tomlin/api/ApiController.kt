@@ -1,10 +1,9 @@
 package no.tomlin.api
 
 import no.tomlin.api.admin.AdminDao
-import no.tomlin.api.common.Constants.ADMIN
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.security.access.annotation.Secured
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -45,7 +44,8 @@ class ApiController {
             request.getHeader("User-Agent"),
             request.getHeader("referer")
         )
-        return request.authenticate(response)
+
+        return SecurityContextHolder.getContext().authentication?.isAuthenticated ?: false
     }
 
     @PostMapping("/login")
