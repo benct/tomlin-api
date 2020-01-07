@@ -109,38 +109,38 @@ class FileController {
             true
         }
 
-    companion object {
-        private const val ROOT = "files"
+    private companion object {
+        const val ROOT = "files"
 
-        private fun getValidFile(path: String?) = File(ROOT + prependSlash(stripRelative(path.orEmpty())))
+        fun getValidFile(path: String?) = File(ROOT + prependSlash(stripRelative(path.orEmpty())))
 
-        private fun prependSlash(path: String): String = if (path.isEmpty() || path[0] == '/') path else "/$path"
+        fun prependSlash(path: String): String = if (path.isEmpty() || path[0] == '/') path else "/$path"
 
-        private fun stripRelative(path: String): String = path.split('/').filter { it != "." && it != ".." }.joinToString("/")
+        fun stripRelative(path: String): String = path.split('/').filter { it != "." && it != ".." }.joinToString("/")
 
-        private fun getFilesFromPath(path: File): List<File> = path.listFiles().orEmpty().toList()
+        fun getFilesFromPath(path: File): List<File> = path.listFiles().orEmpty().toList()
 
-        private fun sortByDirAndName(file: FileModel): String = (if (file.dir) "00" else "0") + file.name
+        fun sortByDirAndName(file: FileModel): String = (if (file.dir) "00" else "0") + file.name
 
-        private fun checkExists(file: File) {
+        fun checkExists(file: File) {
             if (!file.exists()) {
                 throw IllegalStateException("The specified path does not exist")
             }
         }
 
-        private fun checkNotExists(file: File) {
+        fun checkNotExists(file: File) {
             if (file.exists()) {
                 throw IllegalStateException("The specified file or directory already exists")
             }
         }
 
-        private fun checkDir(file: File) {
+        fun checkDir(file: File) {
             if (!file.isDirectory) {
                 throw IllegalStateException("The specified path is not a valid directory")
             }
         }
 
-        private fun checkFile(file: File) {
+        fun checkFile(file: File) {
             if (!file.isFile) {
                 throw IllegalStateException("The specified path is not a valid file")
             }
