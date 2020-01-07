@@ -66,7 +66,8 @@ class MovieDao {
             )
         ).plus(
             jdbcTemplate.queryForMap(
-                "SELECT COUNT(id) total, SUM(seen) seen, SUM(favourite) favourite, AVG(rating) rating, AVG(runtime) runtime FROM $TABLE_MOVIE",
+                "SELECT COUNT(id) total, SUM(seen) seen, SUM(favourite) favourite, " +
+                    "FORMAT(AVG(rating), 2) rating, FORMAT(AVG(runtime), 2) runtime FROM $TABLE_MOVIE",
                 EmptySqlParameterSource.INSTANCE
             )
         )

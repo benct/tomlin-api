@@ -87,7 +87,7 @@ class TVDao {
             )
         ).plus(
             jdbcTemplate.queryForMap(
-                "SELECT COUNT(id) total, SUM(seen) seen, SUM(favourite) favourite, AVG(rating) rating, " +
+                "SELECT COUNT(id) total, SUM(seen) seen, SUM(favourite) favourite, FORMAT(AVG(rating), 2) rating, " +
                     "(SELECT COUNT(id) FROM $TABLE_SEASON) seasons FROM $TABLE_TV",
                 EmptySqlParameterSource.INSTANCE
             )
