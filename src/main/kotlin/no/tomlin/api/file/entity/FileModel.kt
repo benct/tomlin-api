@@ -23,13 +23,13 @@ data class FileModel(
     val files: Int = 0
 ) {
     constructor(file: File) : this(
-        file.path,
+        "/${file.path}",
         file.name,
         shortName(file.name),
         computeSize(file.length()),
         computePerms(file),
         computeModified(file),
-        file.extension,
+        if (file.isDirectory) "dir" else file.extension,
         file.isDirectory,
         canPreview(file.extension),
         file.listFiles()?.size ?: 0
@@ -42,7 +42,7 @@ data class FileModel(
         val DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/YY")
         val NUM_FORMAT = DecimalFormat("#,###.##")
 
-        fun shortName(name: String): String = if (name.length > 25) "${name.substring(0, 21)}..${name.substring(-4)}" else name
+        fun shortName(name: String): String = if (name.length > 25) "${name.take(21)}..${name.takeLast(4)}" else name
 
         fun canPreview(extension: String) = extension.isNotBlank() && PREVIEW.contains(extension)
 
