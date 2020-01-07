@@ -24,7 +24,7 @@ class FileController {
         checkExists(directory)
         checkDir(directory)
 
-        return getFilesFromPath(directory).map(::FileModel)
+        return getFilesFromPath(directory).map(::FileModel).sortedBy(::sortByDirAndName)
     }
 
     @Secured(ADMIN)
@@ -119,6 +119,8 @@ class FileController {
         private fun stripRelative(path: String): String = path.split('/').filter { it != "." && it != ".." }.joinToString("/")
 
         private fun getFilesFromPath(path: File): List<File> = path.listFiles().orEmpty().toList()
+
+        private fun sortByDirAndName(file: FileModel): String = (if (file.dir) "00" else "0") + file.name
 
         private fun checkExists(file: File) {
             if (!file.exists()) {
