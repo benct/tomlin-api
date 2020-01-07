@@ -63,7 +63,7 @@ class FileController {
     @PostMapping("/rename")
     fun rename(@RequestParam old: String, @RequestParam new: String): Boolean {
         val oldFile = getValidFile(old)
-        val newFile = getValidFile(new)
+        val newFile = File("${oldFile.parent}/$new")
 
         if (oldFile.path == newFile.path) {
             return true
