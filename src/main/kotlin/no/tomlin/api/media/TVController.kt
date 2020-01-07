@@ -77,20 +77,24 @@ class TVController {
     fun batchUpdate(@PathVariable count: Int?): Int = tvDao.getIds(count ?: UPDATE_COUNT).count { store(it) }
 
     @Secured(ADMIN)
-    @PostMapping("/favourite")
-    fun favourite(@RequestParam id: String, @RequestParam set: Boolean): Boolean = tvDao.favourite(id, set) == 1
+    @PostMapping("/favourite/{id}")
+    fun favourite(@PathVariable id: String, @RequestParam set: Boolean): Boolean = tvDao.favourite(id, set) == 1
 
     @Secured(ADMIN)
-    @PostMapping("/seen")
-    fun seen(@RequestParam id: String, @RequestParam set: Boolean): Boolean = tvDao.seen(id, set) == 1
+    @PostMapping("/seen/{id}")
+    fun seen(@PathVariable id: String, @RequestParam set: Boolean): Boolean = tvDao.seen(id, set) == 1
 
     @Secured(ADMIN)
-    @PostMapping("/seenSeason")
-    fun seenSeason(@RequestParam id: String, @RequestParam set: Boolean): Boolean = tvDao.seenAll(id, set) == 1
+    @PostMapping("/seen/episode/{id}")
+    fun seenEpisode(@PathVariable id: String, @RequestParam set: Boolean): Boolean = tvDao.seenEpisode(id, set) == 1
+
+    @Secured(ADMIN)
+    @PostMapping("/seen/season/{id}")
+    fun seenSeason(@PathVariable id: String, @RequestParam set: Boolean): Boolean = tvDao.seenSeason(id, set) == 1
 
     @Secured(USER, ADMIN)
-    @GetMapping("/external", produces = [APPLICATION_JSON_UTF8_VALUE])
-    fun external(@RequestParam id: String) = tmdbService.fetchMedia("tv/$id/external_ids")
+    @GetMapping("/external/{id}", produces = [APPLICATION_JSON_UTF8_VALUE])
+    fun external(@PathVariable id: String) = tmdbService.fetchMedia("tv/$id/external_ids")
 
     @Secured(USER, ADMIN)
     @GetMapping("/popular", produces = [APPLICATION_JSON_UTF8_VALUE])
@@ -105,12 +109,12 @@ class TVController {
     fun now(@RequestParam page: Int?) = tmdbService.fetchMedia("tv/on_the_air", page)
 
     @Secured(USER, ADMIN)
-    @GetMapping("/similar", produces = [APPLICATION_JSON_UTF8_VALUE])
-    fun similar(@RequestParam id: String, @RequestParam page: Int?) = tmdbService.fetchMedia("tv/$id/similar", page)
+    @GetMapping("/similar/{id}", produces = [APPLICATION_JSON_UTF8_VALUE])
+    fun similar(@PathVariable id: String, @RequestParam page: Int?) = tmdbService.fetchMedia("tv/$id/similar", page)
 
     @Secured(USER, ADMIN)
-    @GetMapping("/recommended", produces = [APPLICATION_JSON_UTF8_VALUE])
-    fun recommended(@RequestParam id: String, @RequestParam page: Int?) = tmdbService.fetchMedia("tv/$id/recommendations", page)
+    @GetMapping("/recommended/{id}", produces = [APPLICATION_JSON_UTF8_VALUE])
+    fun recommended(@PathVariable id: String, @RequestParam page: Int?) = tmdbService.fetchMedia("tv/$id/recommendations", page)
 
     companion object {
         const val UPDATE_COUNT = 3

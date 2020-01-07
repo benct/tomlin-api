@@ -72,7 +72,10 @@ class TVDao {
     fun seen(id: String, set: Boolean): Int =
         jdbcTemplate.update("UPDATE $TABLE_TV SET `seen` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set))
 
-    fun seenAll(seasonId: String, set: Boolean): Int =
+    fun seenEpisode(episodeId: String, set: Boolean): Int =
+        jdbcTemplate.update("UPDATE $TABLE_EPISODE SET `seen` = :set WHERE `id` = :id", mapOf("id" to episodeId, "set" to set))
+
+    fun seenSeason(seasonId: String, set: Boolean): Int =
         jdbcTemplate.update("UPDATE $TABLE_EPISODE SET `seen` = :set WHERE `season_id` = :id", mapOf("id" to seasonId, "set" to set))
 
     fun stats(): Map<String, Any?> =
