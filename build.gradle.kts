@@ -5,6 +5,7 @@ plugins {
     id("io.spring.dependency-management") version "1.0.7.RELEASE"
     kotlin("jvm") version "1.2.71"
     kotlin("plugin.spring") version "1.2.71"
+    id("com.github.ben-manes.versions") version "0.27.0"
 }
 
 group = "no.tomlin"

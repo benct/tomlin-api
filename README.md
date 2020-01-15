@@ -17,6 +17,11 @@ java -jar build/libs/tomlin-api-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
 -Dspring.profiles.active=prod
 ```
 
+### Upgrade dependencies
+```bash
+./gradlew dependencyUpdates
+```
+
 ### Database
 ```bash
 mysql_secure_installation
