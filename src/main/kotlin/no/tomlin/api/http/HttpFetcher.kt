@@ -1,6 +1,9 @@
 package no.tomlin.api.http
 
 import okhttp3.*
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.net.MalformedURLException
 import java.time.Duration
 import java.time.Duration.ofMinutes
@@ -26,7 +29,7 @@ open class HttpFetcher private constructor(private val baseUrl: String?, timeout
         fetch(path = path, postBody = postBody, headers = headers, queryParams = mapOf())
 
     open fun postJson(payload: String): Response {
-        val requestBody = RequestBody.create(MediaType.parse("application/json"), payload)
+        val requestBody = payload.toRequestBody("application/json".toMediaType())
         return post(postBody = requestBody)
     }
 
@@ -53,10 +56,7 @@ open class HttpFetcher private constructor(private val baseUrl: String?, timeout
         if (params.isNotEmpty()) {
             url += (if (url.contains("?")) "&" else "?") + queryString(params)
         }
-        HttpUrl.parse(url)?.let {
-            return it
-        }
-        throw MalformedURLException("Invalid URL: $url")
+        return url.toHttpUrlOrNull() ?: throw MalformedURLException("Invalid URL: $url")
     }
 
     companion object {
@@ -72,7 +72,7 @@ open class HttpFetcher private constructor(private val baseUrl: String?, timeout
 
         fun Response.readBody(): String = this.use {
             if (it.isSuccessful) {
-                it.body()?.string() ?: throw EmptyResponseException(it)
+                it.body?.string() ?: throw EmptyResponseException(it)
             } else throw UnsuccessfulResponseException(it)
         }
 
@@ -89,8 +89,8 @@ open class HttpFetcher private constructor(private val baseUrl: String?, timeout
     }
 
     internal class EmptyResponseException(response: Response) :
-        RuntimeException("Empty response (${response.code()}) from ${response.request().url()})")
+        RuntimeException("Empty response (${response.code}) from ${response.request.url})")
 
     internal class UnsuccessfulResponseException(response: Response) :
-        RuntimeException("Invalid response (${response.code()}) from (${response.request().url()}): ${response.message()}")
+        RuntimeException("Invalid response (${response.code}) from (${response.request.url}): ${response.message}")
 }
