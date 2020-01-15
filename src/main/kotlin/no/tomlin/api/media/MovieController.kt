@@ -8,7 +8,7 @@ import no.tomlin.api.media.MediaController.MediaResponse
 import no.tomlin.api.media.dao.MovieDao
 import no.tomlin.api.media.entity.Movie.Companion.parseMovie
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
 
@@ -71,31 +71,31 @@ class MovieController {
     fun seen(@PathVariable id: String, @RequestParam set: Boolean): Boolean = movieDao.seen(id, set) == 1
 
     @Secured(USER, ADMIN)
-    @GetMapping("/external/{id}", produces = [APPLICATION_JSON_UTF8_VALUE])
+    @GetMapping("/external/{id}", produces = [APPLICATION_JSON_VALUE])
     fun external(@PathVariable id: String) = tmdbService.fetchMedia("movie/$id/external_ids")
 
     @Secured(USER, ADMIN)
-    @GetMapping("/popular", produces = [APPLICATION_JSON_UTF8_VALUE])
+    @GetMapping("/popular", produces = [APPLICATION_JSON_VALUE])
     fun popular(@RequestParam page: Int?) = tmdbService.fetchMedia("movie/popular", page)
 
     @Secured(USER, ADMIN)
-    @GetMapping("/top", produces = [APPLICATION_JSON_UTF8_VALUE])
+    @GetMapping("/top", produces = [APPLICATION_JSON_VALUE])
     fun top(@RequestParam page: Int?) = tmdbService.fetchMedia("movie/top_rated", page)
 
     @Secured(USER, ADMIN)
-    @GetMapping("/now", produces = [APPLICATION_JSON_UTF8_VALUE])
+    @GetMapping("/now", produces = [APPLICATION_JSON_VALUE])
     fun now(@RequestParam page: Int?) = tmdbService.fetchMedia("movie/now_playing", page)
 
     @Secured(USER, ADMIN)
-    @GetMapping("/upcoming", produces = [APPLICATION_JSON_UTF8_VALUE])
+    @GetMapping("/upcoming", produces = [APPLICATION_JSON_VALUE])
     fun upcoming(@RequestParam page: Int?) = tmdbService.fetchMedia("movie/upcoming", page)
 
     @Secured(USER, ADMIN)
-    @GetMapping("/similar/{id}", produces = [APPLICATION_JSON_UTF8_VALUE])
+    @GetMapping("/similar/{id}", produces = [APPLICATION_JSON_VALUE])
     fun similar(@PathVariable id: String, @RequestParam page: Int?) = tmdbService.fetchMedia("movie/$id/similar", page)
 
     @Secured(USER, ADMIN)
-    @GetMapping("/recommended/{id}", produces = [APPLICATION_JSON_UTF8_VALUE])
+    @GetMapping("/recommended/{id}", produces = [APPLICATION_JSON_VALUE])
     fun recommended(@PathVariable id: String, @RequestParam page: Int?) = tmdbService.fetchMedia("movie/$id/recommendations", page)
 
     companion object {

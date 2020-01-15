@@ -6,7 +6,7 @@ import no.tomlin.api.common.Constants.USER
 import no.tomlin.api.media.dao.MovieDao
 import no.tomlin.api.media.dao.TVDao
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -38,7 +38,7 @@ class MediaController {
     fun watchlist(): List<Map<String, Any?>> = movieDao.watchlist() + tvDao.watchlist()
 
     @Secured(USER, ADMIN)
-    @GetMapping("/search", produces = [APPLICATION_JSON_UTF8_VALUE])
+    @GetMapping("/search", produces = [APPLICATION_JSON_VALUE])
     fun search(@RequestParam query: String): String = tmdbService.fetchMedia("search/multi", query)
 
     @Secured(USER, ADMIN)
