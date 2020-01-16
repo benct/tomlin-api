@@ -5,7 +5,9 @@ import no.tomlin.api.logging.LogDao
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.dao.IncorrectResultSizeDataAccessException
+import org.springframework.dao.NonTransientDataAccessException
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -27,6 +29,12 @@ class ExceptionController {
     fun handleNotFound(exception: Exception, request: HttpServletRequest): ResponseEntity<Any> {
         logger.warn(exception, request)
         return ResponseEntity(ErrorResponse(NOT_FOUND, exception, request), NOT_FOUND)
+    }
+
+    @ExceptionHandler(NonTransientDataAccessException::class)
+    fun handleFatalDatabase(exception: Exception, request: HttpServletRequest): ResponseEntity<Any> {
+        exception.printStackTrace()
+        return ResponseEntity(ErrorResponse(INTERNAL_SERVER_ERROR, exception, request), INTERNAL_SERVER_ERROR)
     }
 
     @ExceptionHandler(Exception::class)
