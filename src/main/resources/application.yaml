@@ -2,11 +2,11 @@ spring:
   http:
     encoding:
       charset: UTF-8
-      enabled: true
-      force: true
+      enabled: on
+      force: on
   servlet:
     multipart:
-      enabled: true
+      enabled: on
       max-file-size: 64MB
       max-request-size: 128MB
       location: ${java.io.tmpdir}
