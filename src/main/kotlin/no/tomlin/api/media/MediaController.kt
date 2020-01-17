@@ -35,7 +35,7 @@ class MediaController {
 
     @Secured(USER, ADMIN)
     @GetMapping("/watchlist")
-    fun watchlist(): List<Map<String, Any?>> = movieDao.watchlist() + tvDao.watchlist()
+    fun watchlist() = MediaResponse(movieDao.watchlist() + tvDao.watchlist())
 
     @Secured(USER, ADMIN)
     @GetMapping("/search", produces = [APPLICATION_JSON_VALUE])
@@ -67,6 +67,8 @@ class MediaController {
         val total_results: Int,
         val results: List<Map<String, Any?>>
     ) {
+        constructor(data: List<Map<String, Any?>>) : this(1, data.size, data)
+
         constructor(page: Int, total: Int, data: List<Map<String, Any?>>) : this(
             page,
             ceil(total.toDouble() / Constants.PAGE_SIZE).toInt(),
