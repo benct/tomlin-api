@@ -27,6 +27,8 @@ class TmdbService {
     private fun init() {
         fetcher = HttpFetcher.fetcher(tmdbUrl)
         posterFetcher = HttpFetcher.fetcher(tmdbImg)
+
+        File(POSTER_PATH).mkdirs()
     }
 
     fun fetchMedia(path: String, page: Int?): String = fetchMedia(path, mapOf("page" to (page ?: 1).toString()))
@@ -41,9 +43,7 @@ class TmdbService {
     fun storePoster(path: String?) {
         if (path != null) {
             posterFetcher.get(path).useBody {
-                File(POSTER_PATH + path).also { file ->
-                    file.parentFile.mkdirs()
-                }.writeBytes(it.readAllBytes())
+                File(POSTER_PATH + path).writeBytes(it.readAllBytes())
             }
         }
     }
