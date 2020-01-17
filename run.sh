@@ -13,3 +13,6 @@ echo "Starting application..."
 nohup java -jar build/libs/tomlin-api-1.0.0.jar --spring.profiles.active=prod > tomlin-api.log &
 
 ps aux | grep tomlin-api
+
+echo "Reading logs..."
+tail -f tomlin-api.log
