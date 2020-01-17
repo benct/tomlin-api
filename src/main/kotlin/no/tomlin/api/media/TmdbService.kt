@@ -2,6 +2,7 @@ package no.tomlin.api.media
 
 import no.tomlin.api.http.HttpFetcher
 import no.tomlin.api.http.HttpFetcher.Companion.readBody
+import no.tomlin.api.http.HttpFetcher.Companion.useBody
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.io.File
@@ -39,16 +40,16 @@ class TmdbService {
 
     fun storePoster(path: String?) {
         if (path != null) {
-            posterFetcher.get(path).readBody().let {
-                File(POSTER_PATH + path).also {
-                    it.parentFile.mkdirs()
-                }.writeText(it)
+            posterFetcher.get(path).useBody {
+                File(POSTER_PATH + path).also { file ->
+                    file.parentFile.mkdirs()
+                }.writeBytes(it.readAllBytes())
             }
         }
     }
 
     companion object {
         const val API_KEY = "api_key"
-        const val POSTER_PATH = "assets/images/media"
+        const val POSTER_PATH = "/var/www/html/images/media"
     }
 }

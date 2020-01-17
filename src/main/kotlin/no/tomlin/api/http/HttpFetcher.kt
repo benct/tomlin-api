@@ -4,6 +4,7 @@ import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.InputStream
 import java.net.MalformedURLException
 import java.time.Duration
 import java.time.Duration.ofMinutes
@@ -73,6 +74,12 @@ open class HttpFetcher private constructor(private val baseUrl: String?, timeout
         fun Response.readBody(): String = this.use {
             if (it.isSuccessful) {
                 it.body?.string() ?: throw EmptyResponseException(it)
+            } else throw UnsuccessfulResponseException(it)
+        }
+
+        fun Response.useBody(block: (InputStream) -> Unit) = this.use {
+            if (it.isSuccessful) {
+                block(body?.byteStream() ?: throw EmptyResponseException(it))
             } else throw UnsuccessfulResponseException(it)
         }
 
