@@ -40,7 +40,9 @@ class TmdbService {
     fun storePoster(path: String?) {
         if (path != null) {
             posterFetcher.get(path).readBody().let {
-                File(POSTER_PATH + path).writeText(it)
+                File(POSTER_PATH + path).also {
+                    it.parentFile.mkdirs()
+                }.writeText(it)
             }
         }
     }
