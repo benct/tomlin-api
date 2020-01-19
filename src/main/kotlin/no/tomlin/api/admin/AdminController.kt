@@ -5,8 +5,8 @@ import no.tomlin.api.admin.entity.Note
 import no.tomlin.api.admin.entity.Visit
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
+import no.tomlin.api.config.ApiProperties
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
 import java.io.BufferedReader
@@ -17,8 +17,8 @@ import java.time.LocalDate
 @RequestMapping("/admin")
 class AdminController {
 
-    @Value("\${api.db.backup}")
-    private lateinit var backupParams: String
+    @Autowired
+    private lateinit var properties: ApiProperties
 
     @Autowired
     private lateinit var adminDao: AdminDao
@@ -55,10 +55,10 @@ class AdminController {
     @Secured(ADMIN)
     @PostMapping("/backup")
     fun backup(): Boolean {
-        val file = File("backup/db_${LocalDate.now()}.sql")
+        val file = File("${properties.backup.path}/db_${LocalDate.now()}.sql")
         file.parentFile.mkdirs()
 
-        val command = "mysqldump $backupParams -r ${file.path}"
+        val command = "mysqldump ${properties.backup.params} -r ${file.path}"
         val runtimeProcess = Runtime.getRuntime().exec(command)
 
         return if (runtimeProcess.waitFor() == 0) true else

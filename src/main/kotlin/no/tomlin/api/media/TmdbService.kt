@@ -1,9 +1,11 @@
 package no.tomlin.api.media
 
+import no.tomlin.api.config.ApiProperties
 import no.tomlin.api.http.HttpFetcher
+import no.tomlin.api.http.HttpFetcher.Companion.fetcher
 import no.tomlin.api.http.HttpFetcher.Companion.readBody
 import no.tomlin.api.http.HttpFetcher.Companion.useBody
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.io.File
 import javax.annotation.PostConstruct
@@ -11,24 +13,18 @@ import javax.annotation.PostConstruct
 @Service
 class TmdbService {
 
-    @Value("\${api.tmdb.key}")
-    private lateinit var tmdbKey: String
-
-    @Value("\${api.tmdb.url}")
-    private lateinit var tmdbUrl: String
-
-    @Value("\${api.tmdb.img}")
-    private lateinit var tmdbImg: String
+    @Autowired
+    private lateinit var properties: ApiProperties
 
     private lateinit var fetcher: HttpFetcher
     private lateinit var posterFetcher: HttpFetcher
 
     @PostConstruct
     private fun init() {
-        fetcher = HttpFetcher.fetcher(tmdbUrl)
-        posterFetcher = HttpFetcher.fetcher(tmdbImg)
+        fetcher = fetcher(properties.tmdb.url)
+        posterFetcher = fetcher(properties.tmdb.posterUrl)
 
-        File(POSTER_PATH).mkdirs()
+        File(properties.cdn.poster).mkdirs()
     }
 
     fun fetchMedia(path: String, page: Int?): String = fetchMedia(path, mapOf("page" to (page ?: 1).toString()))
@@ -37,19 +33,18 @@ class TmdbService {
 
     fun fetchMedia(path: String, params: Map<String, String> = mapOf()): String =
         fetcher
-            .getJson(path, mapOf(API_KEY to tmdbKey).plus(params))
+            .getJson(path, mapOf(API_KEY to properties.tmdb.key).plus(params))
             .readBody()
 
     fun storePoster(path: String?) {
         if (path != null) {
             posterFetcher.get(path).useBody {
-                File(POSTER_PATH + path).writeBytes(it.readAllBytes())
+                File(properties.cdn.poster + path).writeBytes(it.readAllBytes())
             }
         }
     }
 
     companion object {
         const val API_KEY = "api_key"
-        const val POSTER_PATH = "/var/www/html/images/media"
     }
 }

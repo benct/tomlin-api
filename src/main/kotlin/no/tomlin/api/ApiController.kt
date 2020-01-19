@@ -1,8 +1,8 @@
 package no.tomlin.api
 
 import no.tomlin.api.admin.AdminDao
+import no.tomlin.api.config.ApiProperties
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -14,26 +14,20 @@ import javax.servlet.http.HttpServletResponse
 @RestController
 class ApiController {
 
-    @Value("\${api.name}")
-    private lateinit var name: String
-
-    @Value("\${api.version}")
-    private lateinit var version: String
-
-    @Value("\${api.baseUrl}")
-    private lateinit var baseUrl: String
+    @Autowired
+    private lateinit var properties: ApiProperties
 
     @Autowired
     private lateinit var adminDao: AdminDao
 
     @GetMapping("/")
-    fun base() = mapOf("site" to name, "version" to version, "baseUrl" to baseUrl)
+    fun base() = mapOf("site" to properties.name, "version" to properties.version, "baseUrl" to properties.baseUrl)
 
     @GetMapping("/ping")
     fun ping() = "pong"
 
     @GetMapping("/version")
-    fun version() = version
+    fun version() = properties.version
 
     @PostMapping("/authenticate")
     fun authenticate(@RequestParam referrer: String?, request: HttpServletRequest): Map<String, Any?> {

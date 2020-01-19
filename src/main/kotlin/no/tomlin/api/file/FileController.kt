@@ -2,7 +2,9 @@ package no.tomlin.api.file
 
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
+import no.tomlin.api.config.ApiProperties
 import no.tomlin.api.file.entity.FileModel
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
@@ -10,11 +12,24 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
+import javax.annotation.PostConstruct
 import javax.servlet.http.HttpServletResponse
 
 @RestController
 @RequestMapping("/file")
 class FileController {
+
+    @Autowired
+    private lateinit var properties: ApiProperties
+
+    private var extensionIcons: List<String> = emptyList()
+
+    @PostConstruct
+    private fun init() {
+        val directory = File(properties.cdn.file).also { it.mkdirs() }
+
+        extensionIcons = getFilesFromPath(directory).map { it.nameWithoutExtension }
+    }
 
     @Secured(USER, ADMIN)
     @GetMapping("/tree")
@@ -24,7 +39,9 @@ class FileController {
         checkExists(directory)
         checkDir(directory)
 
-        return getFilesFromPath(directory).map(::FileModel).sortedBy(::sortByDirAndName)
+        return getFilesFromPath(directory)
+            .map { FileModel(it, properties.files.path, extensionIcons.contains(it.extension)) }
+            .sortedBy(::sortByDirAndName)
     }
 
     @Secured(ADMIN)
@@ -109,11 +126,9 @@ class FileController {
             true
         }
 
+    private fun getValidFile(path: String?) = File(properties.files.path + prependSlash(stripRelative(path.orEmpty())))
+
     private companion object {
-        const val ROOT = "files"
-
-        fun getValidFile(path: String?) = File(ROOT + prependSlash(stripRelative(path.orEmpty())))
-
         fun prependSlash(path: String): String = if (path.isEmpty() || path[0] == '/') path else "/$path"
 
         fun stripRelative(path: String): String = path.split('/').filter { it != "." && it != ".." }.joinToString("/")
@@ -124,25 +139,25 @@ class FileController {
 
         fun checkExists(file: File) {
             if (!file.exists()) {
-                throw IllegalStateException("The specified path does not exist")
+                throw IllegalStateException("The path '${file.path}' does not exist")
             }
         }
 
         fun checkNotExists(file: File) {
             if (file.exists()) {
-                throw IllegalStateException("The specified file or directory already exists")
+                throw IllegalStateException("The file or directory '${file.path}' already exists")
             }
         }
 
         fun checkDir(file: File) {
             if (!file.isDirectory) {
-                throw IllegalStateException("The specified path is not a valid directory")
+                throw IllegalStateException("The path '${file.path}' is not a valid directory")
             }
         }
 
         fun checkFile(file: File) {
             if (!file.isFile) {
-                throw IllegalStateException("The specified path is not a valid file")
+                throw IllegalStateException("The path '${file.path}' is not a valid file")
             }
         }
     }

@@ -19,11 +19,12 @@ data class FileModel(
     val date: String,
     val type: String,
     val dir: Boolean,
+    val icon: Boolean,
     val preview: Boolean,
     val files: Int = 0
 ) {
-    constructor(file: File) : this(
-        "/${file.path}",
+    constructor(file: File, root: String, hasIcon: Boolean) : this(
+        file.path.replace(root, ""),
         file.name,
         shortName(file.name),
         computeSize(file.length()),
@@ -31,6 +32,7 @@ data class FileModel(
         computeModified(file),
         if (file.isDirectory) "dir" else file.extension,
         file.isDirectory,
+        hasIcon,
         canPreview(file.extension),
         file.listFiles()?.size ?: 0
     )
@@ -50,7 +52,7 @@ data class FileModel(
             val total = sizeInBytes.toDouble()
 
             return when {
-                total < KILO -> "$total  b"
+                total < KILO -> "$sizeInBytes  b"
                 total < KILO.pow(2.0) -> "${NUM_FORMAT.format(total / KILO)} kb"
                 total < KILO.pow(3.0) -> "${NUM_FORMAT.format(total / (KILO * KILO))} mb"
                 else -> "${NUM_FORMAT.format(total / (KILO * KILO * KILO))} gb"

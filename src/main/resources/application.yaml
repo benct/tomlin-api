@@ -29,16 +29,3 @@ server:
   port: 8081
   error:
     include-stacktrace: never
-
-api:
-  name: Tomlin
-  version: 1.0.0
-  baseUrl: https://tomlin.no
-  auth:
-    key: xxxxxxxxx
-  tmdb:
-    key: xxxxxxxxx
-    url: https://api.themoviedb.org/3/
-    img: https://image.tmdb.org/t/p/w200
-  db:
-    backup: -u user -ppassword database
