@@ -3,7 +3,7 @@
 !**/src/main/**
 !**/src/test/**
 
-backup/*.sql
+backup/
 assets/
 files/
 build/
