@@ -25,6 +25,7 @@ class IataController {
 
     private val fetcher = HttpFetcher.fetcher(OPTD_URL)
 
+    @CrossOrigin("https://benct.github.io")
     @GetMapping("/search/{query}")
     fun search(@PathVariable query: String, response: HttpServletResponse): List<Any> {
         val value = query.trim().toUpperCase()
