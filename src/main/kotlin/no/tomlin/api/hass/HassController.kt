@@ -39,7 +39,7 @@ class HassController {
                 "tv" to findValue(states, "power_livingroom_tv_power", "diff"),
                 "pc" to findValue(states, "power_office_pc_power", "diff")
             ),
-            "day" to (findValue(states, "sun") !== "below_horizon")
+            "day" to (findValue(states, "sun") != "below_horizon")
         )
     }
 

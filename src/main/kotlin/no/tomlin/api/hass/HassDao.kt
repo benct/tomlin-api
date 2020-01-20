@@ -2,7 +2,7 @@ package no.tomlin.api.hass
 
 import no.tomlin.api.common.Constants.TABLE_HASS
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.jdbc.core.ColumnMapRowMapper
+import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Component
 
@@ -23,13 +23,8 @@ class HassDao {
         mapOf("sensor" to sensor, "value" to value)
     )
 
-    fun getStates(): List<Map<String, Any?>> = jdbcTemplate.query(
-        "SELECT h.sensor, h.value, " +
-            "FORMAT(h.value - " +
-                "(SELECT f.value FROM $TABLE_HASS f " +
-                "WHERE f.updated > DATE_SUB(NOW(), INTERVAL 1 MONTH) AND f.sensor=h.sensor GROUP BY f.sensor), 1) diff " +
-            "FROM $TABLE_HASS h " +
-            "WHERE h.id IN (SELECT MAX(m.id) FROM $TABLE_HASS m GROUP BY m.sensor)",
-        ColumnMapRowMapper()
+    fun getStates(): List<Map<String, Any?>> = jdbcTemplate.queryForList(
+        "SELECT `sensor`, `value` FROM $TABLE_HASS WHERE `id` IN (SELECT MAX(`id`) FROM $TABLE_HASS GROUP BY `sensor`)",
+        EmptySqlParameterSource.INSTANCE
     )
 }
