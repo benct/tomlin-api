@@ -52,6 +52,7 @@ class HassController {
     fun setState(@RequestParam sensor: String, @RequestParam value: String): Boolean =
         hassDao.setState(sensor, value) > 0
 
+    @CrossOrigin("https://home.tomlin.no", "https://home.tomlin.no:8123", "http://localhost:8123")
     @PostMapping("/set")
     fun setState(@RequestBody body: State, request: HttpServletRequest): ResponseEntity<Boolean> {
         val token = request.getHeader(AUTHORIZATION)
