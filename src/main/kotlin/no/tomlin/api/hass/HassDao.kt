@@ -27,4 +27,9 @@ class HassDao {
         "SELECT `sensor`, `value` FROM $TABLE_HASS WHERE `id` IN (SELECT MAX(`id`) FROM $TABLE_HASS GROUP BY `sensor`)",
         EmptySqlParameterSource.INSTANCE
     )
+
+    fun getLatest(count: Int): List<Map<String, Any?>> = jdbcTemplate.queryForList(
+        "SELECT * FROM $TABLE_HASS ORDER BY desc LIMIT $count",
+        EmptySqlParameterSource.INSTANCE
+    )
 }
