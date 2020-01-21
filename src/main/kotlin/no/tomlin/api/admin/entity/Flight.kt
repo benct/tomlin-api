@@ -1,14 +1,14 @@
 package no.tomlin.api.admin.entity
 
+import no.tomlin.api.common.Constants.TABLE_FLIGHT
 import java.sql.ResultSet
-import java.time.LocalDateTime
 
 data class Flight(
-    val id: Int?,
+    val id: Long?,
     val origin: String,
     val destination: String,
-    val departure: LocalDateTime,
-    val arrival: LocalDateTime,
+    val departure: String,
+    val arrival: String,
     val carrier: String,
     val number: String,
     val cabin: String?,
@@ -18,11 +18,11 @@ data class Flight(
     val info: String?
 ) {
     constructor(resultSet: ResultSet) : this(
-        resultSet.getInt("id"),
+        resultSet.getLong("id"),
         resultSet.getString("origin"),
         resultSet.getString("destination"),
-        LocalDateTime.parse(resultSet.getString("departure")),
-        LocalDateTime.parse(resultSet.getString("arrival")),
+        resultSet.getString("departure"),
+        resultSet.getString("arrival"),
         resultSet.getString("carrier"),
         resultSet.getString("number"),
         resultSet.getString("cabin"),
@@ -31,6 +31,8 @@ data class Flight(
         resultSet.getString("reference"),
         resultSet.getString("info")
     )
+
+    private val keys = asDaoMap().keys
 
     fun asDaoMap() = mapOf(
         "id" to id,
@@ -46,4 +48,8 @@ data class Flight(
         "reference" to reference,
         "info" to info
     )
+
+    fun insertStatement(): String =
+        "INSERT INTO $TABLE_FLIGHT (${keys.joinToString { "`${it}`" }}) VALUES (${keys.joinToString { ":$it" }}) " +
+            "ON DUPLICATE KEY UPDATE ${keys.joinToString { "`${it}` = :${it}" }}"
 }

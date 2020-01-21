@@ -6,7 +6,6 @@ import no.tomlin.api.common.Constants.USER
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
-import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("/flight")
@@ -32,11 +31,11 @@ class FlightController {
     @Secured(ADMIN)
     @PostMapping
     fun save(
-        @RequestParam id: Int?,
+        @RequestParam id: Long?,
         @RequestParam origin: String,
         @RequestParam destination: String,
-        @RequestParam departure: LocalDateTime,
-        @RequestParam arrival: LocalDateTime,
+        @RequestParam departure: String,
+        @RequestParam arrival: String,
         @RequestParam carrier: String,
         @RequestParam number: String,
         @RequestParam cabin: String?,

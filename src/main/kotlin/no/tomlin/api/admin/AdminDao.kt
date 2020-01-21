@@ -86,11 +86,7 @@ class AdminDao {
     fun getFlights(): List<Flight> =
         jdbcTemplate.query("SELECT * FROM $TABLE_FLIGHT ORDER BY departure ASC") { resultSet, _ -> Flight(resultSet) }
 
-    fun saveFlight(flight: Flight): Int =
-        jdbcTemplate.update(
-            "INSERT INTO $TABLE_FLIGHT (id, title, content) VALUES (:id, :title, :content) " +
-                "ON DUPLICATE KEY UPDATE title = :title, content = :content",
-            flight.asDaoMap())
+    fun saveFlight(flight: Flight): Int = jdbcTemplate.update(flight.insertStatement(), flight.asDaoMap())
 
     fun deleteFlight(id: Int): Int = jdbcTemplate.update("DELETE FROM $TABLE_FLIGHT WHERE id = :id", mapOf("id" to id))
 
