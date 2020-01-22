@@ -32,7 +32,7 @@ data class FileModel(
         computeModified(file),
         if (file.isDirectory) "dir" else file.extension,
         file.isDirectory,
-        hasIcon,
+        hasIcon || file.isDirectory,
         canPreview(file.extension),
         file.listFiles()?.size ?: 0
     )
