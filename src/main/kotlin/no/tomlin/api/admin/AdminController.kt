@@ -39,18 +39,22 @@ class AdminController {
     @DeleteMapping("/logs")
     fun deleteLogs(): Boolean = adminDao.deleteLogs() > 0
 
+    @Secured(ADMIN)
+    @DeleteMapping("/logs/{id}")
+    fun deleteLog(@PathVariable id: Long): Boolean = adminDao.deleteLog(id) == 1
+
     @Secured(USER, ADMIN)
     @GetMapping("/notes")
     fun getNotes(): List<Note> = adminDao.getNotes()
 
     @Secured(ADMIN)
     @PostMapping("/notes")
-    fun saveNote(@RequestParam id: Int?, @RequestParam title: String, @RequestParam content: String?): Boolean =
+    fun saveNote(@RequestParam id: Long?, @RequestParam title: String, @RequestParam content: String?): Boolean =
         adminDao.saveNote(id, title, content) == 1
 
     @Secured(ADMIN)
     @DeleteMapping("/notes/{id}")
-    fun deleteNote(@PathVariable id: Int): Boolean = adminDao.deleteNote(id) == 1
+    fun deleteNote(@PathVariable id: Long): Boolean = adminDao.deleteNote(id) == 1
 
     @Secured(ADMIN)
     @PostMapping("/backup")
