@@ -22,19 +22,18 @@ class HassController {
     private lateinit var hassDao: HassDao
 
     @GetMapping("/states")
-    fun getStates(): Map<String, Any> {
+    fun getStates(): Map<String, Any?> {
         val states = hassDao.getStates()
 
         return mapOf(
-            "temperature" to mapOf(
-                "livingroom" to findValue(states, "smoke_sensor_livingroom_temperature"),
-                "bathroom" to findValue(states, "flood_sensor_bathroom_temperature"),
-                "kitchen" to findValue(states, "motion_hall_temperature"),
-                "bedroom" to findValue(states, "netatmo_bedroom_temperature"),
-                "outside" to findValue(states, "netatmo_outside_temperature"),
-                "storeroom" to findValue(states, "thermometer_storeroom_temperature"),
-                "office" to findValue(states, "thermometer_office_temperature")
-            ),
+            "livingroom" to findValue(states, "smoke_sensor_livingroom_temperature"),
+            "livingroom_floor" to findValue(states, "netatmo_living_room_temperature"),
+            "bathroom" to findValue(states, "flood_sensor_bathroom_temperature"),
+            "kitchen" to findValue(states, "motion_hall_temperature"),
+            "bedroom" to findValue(states, "netatmo_bedroom_temperature"),
+            "outside" to findValue(states, "netatmo_outside_temperature"),
+            "storeroom" to findValue(states, "thermometer_storeroom_temperature"),
+            "office" to findValue(states, "thermometer_office_temperature"),
             "day" to (findValue(states, "sun") != "below_horizon")
         )
     }
