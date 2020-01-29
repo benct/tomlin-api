@@ -9,7 +9,8 @@ class WebConfig : WebMvcConfigurer {
 
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/**")
-            .allowedMethods("GET", "POST", "DELETE")
+            .allowedMethods("GET", "POST", "DELETE", "OPTIONS")
             .allowedOrigins("https://tomlin.no", "http://localhost:8080")
+            .maxAge(36000)
     }
 }
