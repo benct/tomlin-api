@@ -66,7 +66,7 @@ data class TV(
     data class SimpleSeason(
         val id: Long,
         val name: String,
-        val overview: String, // blank
+        val overview: String? = null, // blank
         val airDate: String? = null,
         val posterPath: String? = null,
         val episodeCount: Long,

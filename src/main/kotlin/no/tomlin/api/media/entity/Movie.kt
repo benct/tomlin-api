@@ -15,7 +15,7 @@ data class Movie(
     val posterPath: String? = null,
     val runtime: Long? = null,
     val releaseDate: String,
-    val overview: String, // blank
+    val overview: String? = null, // blank
     val tagline: String, // blank
     val budget: Long,
     val revenue: Long,

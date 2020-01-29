@@ -9,7 +9,7 @@ data class Season(
     val id: Long,
     val name: String,
     val airDate: String,
-    val overview: String,
+    val overview: String? = null,
     val posterPath: String? = null,
     val seasonNumber: Long,
     val episodes: List<Episode>
