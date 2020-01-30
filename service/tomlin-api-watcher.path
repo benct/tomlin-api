@@ -1,0 +1,5 @@
+[Path]
+PathModified=/home/pi/api/bin
+
+[Install]
+WantedBy=multi-user.target

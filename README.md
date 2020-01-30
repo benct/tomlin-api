@@ -27,11 +27,17 @@ java -jar build/libs/tomlin-api-1.0.0.jar --spring.profiles.active=prod
 ./gradlew dependencyUpdates
 ```
 
-### Service
-Move `tomlin-api.service` to `/etc/systemd/system/`
+### Services
+Move files under `service` directory to `/etc/systemd/system/`
 ```bash
-sudo systemctl start tomlin-api
-sudo systemctl enable tomlin-api
+sudo systemctl daemon-reload
+sudo systemctl enable tomlin-api && sudo systemctl start tomlin-api
+```
+
+### Restart service on file change
+```bash
+sudo systemctl enable tomlin-api-watcher && sudo systemctl start tomlin-api-watcher
+sudo systemctl enable tomlin-api-watcher.path && sudo systemctl start tomlin-api-watcher.path
 ```
 
 ### Certbot

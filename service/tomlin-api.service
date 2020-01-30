@@ -1,0 +1,15 @@
+[Unit]
+Description=Tomlin API
+After=network.target
+User=pi
+Type=simple
+
+[Service]
+ExecStart=/usr/bin/java -jar /home/pi/api/bin/tomlin-api-1.0.0.jar --spring.profiles.active=prod
+Restart=always
+StandardOutput=append:/home/pi/api/logs/tomlin-api.log
+StandardError=append:/home/pi/api/logs/tomlin-api.log
+SyslogIdentifier=tomlin-api
+
+[Install]
+WantedBy=multi-user.target
