@@ -2,6 +2,7 @@ package no.tomlin.api.media.dao
 
 import no.tomlin.api.common.Constants.PAGE_SIZE
 import no.tomlin.api.common.Constants.TABLE_MOVIE
+import no.tomlin.api.common.Extensions.checkRowsAffected
 import no.tomlin.api.media.MediaController.MediaResponse
 import no.tomlin.api.media.entity.Movie
 import org.springframework.beans.factory.annotation.Autowired
@@ -42,17 +43,21 @@ class MovieDao {
         "SELECT *, 'movie' AS `type` FROM $TABLE_MOVIE WHERE `seen` = false ORDER BY release_date ASC",
         EmptySqlParameterSource.INSTANCE)
 
-    fun store(movie: Movie): Int =
-        jdbcTemplate.update(movie.insertStatement(), movie.toDaoMap())
+    fun store(movie: Movie): Boolean = jdbcTemplate
+        .update(movie.insertStatement(), movie.toDaoMap())
+        .checkRowsAffected()
 
-    fun delete(id: String): Int =
-        jdbcTemplate.update("DELETE FROM $TABLE_MOVIE WHERE `id` = :id", mapOf("id" to id))
+    fun delete(id: String): Boolean = jdbcTemplate
+        .update("DELETE FROM $TABLE_MOVIE WHERE `id` = :id", mapOf("id" to id))
+        .checkRowsAffected()
 
-    fun favourite(id: String, set: Boolean): Int =
-        jdbcTemplate.update("UPDATE $TABLE_MOVIE SET `favourite` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set))
+    fun favourite(id: String, set: Boolean): Boolean = jdbcTemplate
+        .update("UPDATE $TABLE_MOVIE SET `favourite` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set))
+        .checkRowsAffected()
 
-    fun seen(id: String, set: Boolean): Int =
-        jdbcTemplate.update("UPDATE $TABLE_MOVIE SET `seen` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set))
+    fun seen(id: String, set: Boolean): Boolean = jdbcTemplate
+        .update("UPDATE $TABLE_MOVIE SET `seen` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set))
+        .checkRowsAffected()
 
     fun stats(): Map<String, Any?> =
         mapOf(

@@ -46,9 +46,9 @@ class FlightController {
     ): Boolean =
         adminDao.saveFlight(
             Flight(id, origin, destination, departure, arrival, carrier, number, cabin, aircraft, seat, reference, info)
-        ) == 1
+        )
 
     @Secured(ADMIN)
     @DeleteMapping("/{id}")
-    fun delete(@PathVariable id: Long): Boolean = adminDao.deleteFlight(id) == 1
+    fun delete(@PathVariable id: Long): Boolean = adminDao.deleteFlight(id)
 }

@@ -20,7 +20,7 @@ class SettingsController {
 
     @Secured(ADMIN)
     @PostMapping("/set")
-    fun set(@RequestParam key: String, @RequestParam value: String?): Boolean = adminDao.saveSetting(key, value) > 0
+    fun set(@RequestParam key: String, @RequestParam value: String?): Boolean = adminDao.saveSetting(key, value)
 
     internal class SettingNotFoundException(key: String) : RuntimeException("Could not find setting with name $key")
 }

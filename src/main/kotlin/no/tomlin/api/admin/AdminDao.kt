@@ -16,6 +16,7 @@ import no.tomlin.api.common.Constants.TABLE_SEASON
 import no.tomlin.api.common.Constants.TABLE_SETTINGS
 import no.tomlin.api.common.Constants.TABLE_TRACK
 import no.tomlin.api.common.Constants.TABLE_TV
+import no.tomlin.api.common.Extensions.checkRowsAffected
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -46,17 +47,20 @@ class AdminDao {
     fun getSetting(key: String): String? =
         jdbcTemplate.queryForObject("SELECT `value` FROM $TABLE_SETTINGS WHERE `key` = :key", mapOf("key" to key), String::class.java)
 
-    fun saveSetting(key: String, value: String?): Int =
+    fun saveSetting(key: String, value: String?): Boolean =
         jdbcTemplate.update(
             "INSERT INTO $TABLE_SETTINGS (`key`, `value`) VALUES (:key, :value) ON DUPLICATE KEY UPDATE `value` = :value",
-            mapOf("key" to key, "value" to value))
+            mapOf("key" to key, "value" to value)
+        ).checkRowsAffected()
 
     fun getLogs(limit: Int): List<Log> =
         jdbcTemplate.query("SELECT * FROM $TABLE_LOG ORDER BY `timestamp` DESC LIMIT $limit") { resultSet, _ -> Log(resultSet) }
 
     fun deleteLogs(): Int = jdbcTemplate.update("DELETE FROM $TABLE_LOG", EmptySqlParameterSource.INSTANCE)
 
-    fun deleteLog(id: Long): Int = jdbcTemplate.update("DELETE FROM $TABLE_LOG WHERE `id` = :id", mapOf("id" to id))
+    fun deleteLog(id: Long): Boolean = jdbcTemplate
+        .update("DELETE FROM $TABLE_LOG WHERE `id` = :id", mapOf("id" to id))
+        .checkRowsAffected()
 
     fun getVisits(limit: Int): List<Visit> =
         jdbcTemplate.query("SELECT * FROM $TABLE_TRACK ORDER BY visits DESC LIMIT $limit") { resultSet, _ -> Visit(resultSet) }
@@ -77,20 +81,27 @@ class AdminDao {
     fun getNotes(): List<Note> =
         jdbcTemplate.query("SELECT * FROM $TABLE_NOTE ORDER BY updated DESC") { resultSet, _ -> Note(resultSet) }
 
-    fun saveNote(id: Long?, title: String, content: String?): Int =
+    fun saveNote(id: Long?, title: String, content: String?): Boolean =
         jdbcTemplate.update(
             "INSERT INTO $TABLE_NOTE (id, title, content) VALUES (:id, :title, :content) " +
                 "ON DUPLICATE KEY UPDATE title = :title, content = :content",
-            mapOf("id" to id, "title" to title, "content" to content))
+            mapOf("id" to id, "title" to title, "content" to content)
+        ).checkRowsAffected()
 
-    fun deleteNote(id: Long): Int = jdbcTemplate.update("DELETE FROM $TABLE_NOTE WHERE id = :id", mapOf("id" to id))
+    fun deleteNote(id: Long): Boolean = jdbcTemplate
+        .update("DELETE FROM $TABLE_NOTE WHERE id = :id", mapOf("id" to id))
+        .checkRowsAffected()
 
     fun getFlights(): List<Flight> =
         jdbcTemplate.query("SELECT * FROM $TABLE_FLIGHT ORDER BY departure ASC") { resultSet, _ -> Flight(resultSet) }
 
-    fun saveFlight(flight: Flight): Int = jdbcTemplate.update(flight.insertStatement(), flight.asDaoMap())
+    fun saveFlight(flight: Flight): Boolean = jdbcTemplate
+        .update(flight.insertStatement(), flight.asDaoMap())
+        .checkRowsAffected()
 
-    fun deleteFlight(id: Long): Int = jdbcTemplate.update("DELETE FROM $TABLE_FLIGHT WHERE id = :id", mapOf("id" to id))
+    fun deleteFlight(id: Long): Boolean = jdbcTemplate
+        .update("DELETE FROM $TABLE_FLIGHT WHERE id = :id", mapOf("id" to id))
+        .checkRowsAffected()
 
     private fun countQuery(table: String): Int? =
         jdbcTemplate.queryForObject("SELECT COUNT(id) FROM $table", EmptySqlParameterSource.INSTANCE, Int::class.java)

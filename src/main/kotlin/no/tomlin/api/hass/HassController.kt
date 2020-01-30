@@ -44,7 +44,7 @@ class HassController {
 
     @Secured(ADMIN)
     @PostMapping("/state")
-    fun setState(@RequestParam sensor: String, @RequestParam value: String): Boolean = hassDao.setState(sensor, value) > 0
+    fun setState(@RequestParam sensor: String, @RequestParam value: String): Boolean = hassDao.setState(sensor, value)
 
     @Secured(ADMIN)
     @GetMapping("/latest/{count}")

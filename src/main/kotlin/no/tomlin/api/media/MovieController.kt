@@ -41,21 +41,17 @@ class MovieController {
             .parseMovie()
             .let { movie ->
                 tmdbService.storePoster(movie.posterPath)
-                movieDao.store(movie).let {
-                    if (it == 1) {
-                        logger.info("Movie", "Saved/updated ${movie.id} (${movie.title})")
-                        true
-                    } else false
-                }
+
+                movieDao.store(movie)
+
+                logger.info("Movie", "Saved/updated ${movie.id} (${movie.title})")
+                true
             }
 
     @Secured(ADMIN)
     @DeleteMapping("/{id}")
-    fun delete(@PathVariable id: String): Boolean = movieDao.delete(id).let {
-        if (it == 1) {
-            logger.info("Movie", "Removed $id")
-            true
-        } else false
+    fun delete(@PathVariable id: String): Boolean = movieDao.delete(id).also {
+        if (it) logger.info("Movie", "Removed $id")
     }
 
     @Secured(ADMIN)
@@ -64,11 +60,11 @@ class MovieController {
 
     @Secured(ADMIN)
     @PostMapping("/favourite/{id}")
-    fun favourite(@PathVariable id: String, @RequestParam set: Boolean): Boolean = movieDao.favourite(id, set) == 1
+    fun favourite(@PathVariable id: String, @RequestParam set: Boolean): Boolean = movieDao.favourite(id, set)
 
     @Secured(ADMIN)
     @PostMapping("/seen/{id}")
-    fun seen(@PathVariable id: String, @RequestParam set: Boolean): Boolean = movieDao.seen(id, set) == 1
+    fun seen(@PathVariable id: String, @RequestParam set: Boolean): Boolean = movieDao.seen(id, set)
 
     @Secured(USER, ADMIN)
     @GetMapping("/external/{id}", produces = [APPLICATION_JSON_VALUE])

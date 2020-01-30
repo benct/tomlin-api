@@ -4,6 +4,7 @@ import no.tomlin.api.common.Constants.PAGE_SIZE
 import no.tomlin.api.common.Constants.TABLE_EPISODE
 import no.tomlin.api.common.Constants.TABLE_SEASON
 import no.tomlin.api.common.Constants.TABLE_TV
+import no.tomlin.api.common.Extensions.checkRowsAffected
 import no.tomlin.api.media.MediaController.MediaResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
@@ -58,25 +59,28 @@ class TVDao {
             "FROM $TABLE_TV t WHERE t.seen = 0 ORDER BY t.release_date ASC",
         EmptySqlParameterSource.INSTANCE)
 
-    fun store(statement: String, data: Map<String, Any?>): Int = jdbcTemplate.update(statement, data)
+    fun store(statement: String, data: Map<String, Any?>): Boolean = jdbcTemplate.update(statement, data).checkRowsAffected()
 
-    fun delete(id: String): Int {
+    fun delete(id: String): Boolean {
         jdbcTemplate.update("DELETE FROM $TABLE_EPISODE WHERE `tv_id` = :id", mapOf("id" to id))
         jdbcTemplate.update("DELETE FROM $TABLE_SEASON WHERE `tv_id` = :id", mapOf("id" to id))
-        return jdbcTemplate.update("DELETE FROM $TABLE_TV WHERE `id` = :id", mapOf("id" to id))
+        return jdbcTemplate.update("DELETE FROM $TABLE_TV WHERE `id` = :id", mapOf("id" to id)).checkRowsAffected()
     }
 
-    fun favourite(id: String, set: Boolean): Int =
-        jdbcTemplate.update("UPDATE $TABLE_TV SET `favourite` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set))
+    fun favourite(id: String, set: Boolean): Boolean = jdbcTemplate
+        .update("UPDATE $TABLE_TV SET `favourite` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set))
+        .checkRowsAffected()
 
-    fun seen(id: String, set: Boolean): Int =
-        jdbcTemplate.update("UPDATE $TABLE_TV SET `seen` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set))
+    fun seen(id: String, set: Boolean): Boolean = jdbcTemplate
+        .update("UPDATE $TABLE_TV SET `seen` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set))
+        .checkRowsAffected()
 
-    fun seenEpisode(episodeId: String, set: Boolean): Int =
-        jdbcTemplate.update("UPDATE $TABLE_EPISODE SET `seen` = :set WHERE `id` = :id", mapOf("id" to episodeId, "set" to set))
+    fun seenEpisode(episodeId: String, set: Boolean): Boolean = jdbcTemplate
+        .update("UPDATE $TABLE_EPISODE SET `seen` = :set WHERE `id` = :id", mapOf("id" to episodeId, "set" to set))
+        .checkRowsAffected()
 
-    fun seenSeason(seasonId: String, set: Boolean): Int =
-        jdbcTemplate.update("UPDATE $TABLE_EPISODE SET `seen` = :set WHERE `season_id` = :id", mapOf("id" to seasonId, "set" to set))
+    fun seenSeason(seasonId: String, set: Boolean): Boolean = jdbcTemplate
+        .update("UPDATE $TABLE_EPISODE SET `seen` = :set WHERE `season_id` = :id", mapOf("id" to seasonId, "set" to set)) > 0
 
     fun stats(): Map<String, Any?> =
         mapOf(

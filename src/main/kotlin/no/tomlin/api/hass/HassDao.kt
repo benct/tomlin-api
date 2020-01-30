@@ -1,6 +1,7 @@
 package no.tomlin.api.hass
 
 import no.tomlin.api.common.Constants.TABLE_HASS
+import no.tomlin.api.common.Extensions.checkRowsAffected
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -18,10 +19,9 @@ class HassDao {
         String::class.java
     )
 
-    fun setState(sensor: String, value: String): Int = jdbcTemplate.update(
-        "INSERT INTO $TABLE_HASS (`sensor`, `value`) VALUES (:sensor, :value)",
-        mapOf("sensor" to sensor, "value" to value)
-    )
+    fun setState(sensor: String, value: String): Boolean = jdbcTemplate
+        .update("INSERT INTO $TABLE_HASS (`sensor`, `value`) VALUES (:sensor, :value)", mapOf("sensor" to sensor, "value" to value))
+        .checkRowsAffected()
 
     fun getStates(): List<Map<String, Any?>> = jdbcTemplate.queryForList(
         "SELECT `sensor`, `value` FROM $TABLE_HASS WHERE `id` IN (SELECT MAX(`id`) FROM $TABLE_HASS GROUP BY `sensor`)",

@@ -43,33 +43,26 @@ class TVController {
             .let { tv ->
                 tmdbService.storePoster(tv.posterPath)
 
-                tv.seasons.all { s ->
+                tv.seasons.forEach { s ->
                     tmdbService.fetchMedia("tv/${id}/season/${s.seasonNumber}")
                         .parseSeason()
                         .let { season ->
-                            season.episodes.all { episode ->
-                                tvDao.store(episode.insertStatement(false), episode.toDaoMap(season.id)) == 1
-                            }.and(
-                                tvDao.store(season.insertStatement(false), season.toDaoMap(tv.id)) == 1
-                            )
+                            season.episodes.forEach { episode ->
+                                tvDao.store(episode.insertStatement(false), episode.toDaoMap(season.id))
+                            }
+                            tvDao.store(season.insertStatement(false), season.toDaoMap(tv.id))
                         }
-                }.and(
-                    tvDao.store(tv.insertStatement(), tv.toDaoMap()).let {
-                        if (it == 1) {
-                            logger.info("TV", "Saved/updated ${tv.id} (${tv.name})")
-                            true
-                        } else false
-                    }
-                )
+                }
+                tvDao.store(tv.insertStatement(), tv.toDaoMap())
+
+                logger.info("TV", "Saved/updated ${tv.id} (${tv.name})")
+                true
             }
 
     @Secured(ADMIN)
     @DeleteMapping("/{id}")
-    fun delete(@PathVariable id: String): Boolean = tvDao.delete(id).let {
-        if (it == 1) {
-            logger.info("TV", "Removed $id")
-            true
-        } else false
+    fun delete(@PathVariable id: String): Boolean = tvDao.delete(id).also {
+        if (it) logger.info("TV", "Removed $id")
     }
 
     @Secured(ADMIN)
@@ -78,19 +71,19 @@ class TVController {
 
     @Secured(ADMIN)
     @PostMapping("/favourite/{id}")
-    fun favourite(@PathVariable id: String, @RequestParam set: Boolean): Boolean = tvDao.favourite(id, set) == 1
+    fun favourite(@PathVariable id: String, @RequestParam set: Boolean): Boolean = tvDao.favourite(id, set)
 
     @Secured(ADMIN)
     @PostMapping("/seen/{id}")
-    fun seen(@PathVariable id: String, @RequestParam set: Boolean): Boolean = tvDao.seen(id, set) == 1
+    fun seen(@PathVariable id: String, @RequestParam set: Boolean): Boolean = tvDao.seen(id, set)
 
     @Secured(ADMIN)
     @PostMapping("/seen/episode/{id}")
-    fun seenEpisode(@PathVariable id: String, @RequestParam set: Boolean): Boolean = tvDao.seenEpisode(id, set) == 1
+    fun seenEpisode(@PathVariable id: String, @RequestParam set: Boolean): Boolean = tvDao.seenEpisode(id, set)
 
     @Secured(ADMIN)
     @PostMapping("/seen/season/{id}")
-    fun seenSeason(@PathVariable id: String, @RequestParam set: Boolean): Boolean = tvDao.seenSeason(id, set) == 1
+    fun seenSeason(@PathVariable id: String, @RequestParam set: Boolean): Boolean = tvDao.seenSeason(id, set)
 
     @Secured(USER, ADMIN)
     @GetMapping("/external/{id}", produces = [APPLICATION_JSON_VALUE])
