@@ -17,7 +17,7 @@ Backend API for homepage (http://tomlin.no) and possible other projects.
 java -jar build/libs/tomlin-api-1.0.0.jar --spring.profiles.active=prod
 ```
 
-### JVM Options
+#### JVM Options
 ```jvm
 -Dspring.profiles.active=prod
 ```
@@ -34,7 +34,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable tomlin-api && sudo systemctl start tomlin-api
 ```
 
-### Restart service on file change
+#### Restart service on file change
 ```bash
 sudo systemctl enable tomlin-api-watcher && sudo systemctl start tomlin-api-watcher
 sudo systemctl enable tomlin-api-watcher.path && sudo systemctl start tomlin-api-watcher.path
