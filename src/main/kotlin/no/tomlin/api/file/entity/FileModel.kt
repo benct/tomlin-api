@@ -30,10 +30,10 @@ data class FileModel(
         computeSize(file.length()),
         computePerms(file),
         computeModified(file),
-        if (file.isDirectory) "dir" else file.extension,
+        if (file.isDirectory) "dir" else file.extension.toLowerCase(),
         file.isDirectory,
         hasIcon || file.isDirectory,
-        canPreview(file.extension),
+        canPreview(file.extension.toLowerCase()),
         file.listFiles()?.size ?: 0
     )
 
