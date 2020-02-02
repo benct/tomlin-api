@@ -29,7 +29,7 @@ class HassDao {
     )
 
     fun getLatest(count: Int): List<Map<String, Any?>> = jdbcTemplate.queryForList(
-        "SELECT * FROM $TABLE_HASS ORDER BY desc LIMIT $count",
+        "SELECT * FROM $TABLE_HASS ORDER BY `id` desc LIMIT $count",
         EmptySqlParameterSource.INSTANCE
     )
 }

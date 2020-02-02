@@ -47,7 +47,7 @@ class HassController {
     fun setState(@RequestParam sensor: String, @RequestParam value: String): Boolean = hassDao.setState(sensor, value)
 
     @Secured(ADMIN)
-    @GetMapping("/latest/{count}")
+    @GetMapping("/latest", "/latest/{count}")
     fun getLatest(@PathVariable count: Int?): List<Map<String, Any?>> = hassDao.getLatest(count ?: DEFAULT_COUNT)
 
     @CrossOrigin("https://home.tomlin.no", "https://home.tomlin.no:8123", "http://localhost:8123")
@@ -66,7 +66,7 @@ class HassController {
     data class State(val sensor: String, val value: String)
 
     private companion object {
-        const val DEFAULT_COUNT = 50
+        const val DEFAULT_COUNT = 25
 
         fun findValue(states: List<Map<String, Any?>>, sensor: String, column: String = "value") =
             states.find { it["sensor"] == sensor }?.get(column)
