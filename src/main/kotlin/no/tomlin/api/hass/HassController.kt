@@ -3,6 +3,7 @@ package no.tomlin.api.hass
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
 import no.tomlin.api.config.ApiProperties
+import no.tomlin.api.hass.HassDao.Hass
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpStatus
@@ -48,7 +49,7 @@ class HassController {
 
     @Secured(ADMIN)
     @GetMapping("/latest", "/latest/{count}")
-    fun getLatest(@PathVariable count: Int?): List<Map<String, Any?>> = hassDao.getLatest(count ?: DEFAULT_COUNT)
+    fun getLatest(@PathVariable count: Int?): List<Hass> = hassDao.getLatest(count ?: DEFAULT_COUNT)
 
     @CrossOrigin("https://home.tomlin.no", "https://home.tomlin.no:8123", "http://localhost:8123")
     @PostMapping("/set")
@@ -68,7 +69,6 @@ class HassController {
     private companion object {
         const val DEFAULT_COUNT = 25
 
-        fun findValue(states: List<Map<String, Any?>>, sensor: String, column: String = "value") =
-            states.find { it["sensor"] == sensor }?.get(column)
+        fun findValue(states: List<Hass>, sensor: String) = states.find { it.sensor == sensor }?.value
     }
 }

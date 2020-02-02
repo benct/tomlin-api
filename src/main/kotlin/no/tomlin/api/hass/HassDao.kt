@@ -3,9 +3,10 @@ package no.tomlin.api.hass
 import no.tomlin.api.common.Constants.TABLE_HASS
 import no.tomlin.api.common.Extensions.checkRowsAffected
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Component
+import java.sql.ResultSet
+import java.time.LocalDateTime
 
 @Component
 class HassDao {
@@ -23,13 +24,19 @@ class HassDao {
         .update("INSERT INTO $TABLE_HASS (`sensor`, `value`) VALUES (:sensor, :value)", mapOf("sensor" to sensor, "value" to value))
         .checkRowsAffected()
 
-    fun getStates(): List<Map<String, Any?>> = jdbcTemplate.queryForList(
-        "SELECT `sensor`, `value` FROM $TABLE_HASS WHERE `id` IN (SELECT MAX(`id`) FROM $TABLE_HASS GROUP BY `sensor`)",
-        EmptySqlParameterSource.INSTANCE
-    )
+    fun getStates(): List<Hass> =
+        jdbcTemplate.query("SELECT * FROM $TABLE_HASS WHERE `id` IN (SELECT MAX(`id`) FROM $TABLE_HASS GROUP BY `sensor`)")
+        { resultSet, _ -> Hass(resultSet) }
 
-    fun getLatest(count: Int): List<Map<String, Any?>> = jdbcTemplate.queryForList(
-        "SELECT * FROM $TABLE_HASS ORDER BY `id` desc LIMIT $count",
-        EmptySqlParameterSource.INSTANCE
-    )
+    fun getLatest(count: Int): List<Hass> =
+        jdbcTemplate.query("SELECT * FROM $TABLE_HASS ORDER BY `updated` desc LIMIT $count") { resultSet, _ -> Hass(resultSet) }
+
+    data class Hass(val id: Long, val sensor: String, val value: String, val updated: LocalDateTime) {
+        constructor(resultSet: ResultSet) : this(
+            resultSet.getLong("id"),
+            resultSet.getString("sensor"),
+            resultSet.getString("value"),
+            resultSet.getTimestamp("updated").toLocalDateTime()
+        )
+    }
 }
