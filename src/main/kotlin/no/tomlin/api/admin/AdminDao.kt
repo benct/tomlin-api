@@ -4,6 +4,7 @@ import no.tomlin.api.admin.entity.Flight
 import no.tomlin.api.admin.entity.Log
 import no.tomlin.api.admin.entity.Note
 import no.tomlin.api.admin.entity.Visit
+import no.tomlin.api.common.Constants.PAGE_SIZE
 import no.tomlin.api.common.Constants.TABLE_AIRLINE
 import no.tomlin.api.common.Constants.TABLE_EPISODE
 import no.tomlin.api.common.Constants.TABLE_FLIGHT
@@ -17,6 +18,7 @@ import no.tomlin.api.common.Constants.TABLE_SETTINGS
 import no.tomlin.api.common.Constants.TABLE_TRACK
 import no.tomlin.api.common.Constants.TABLE_TV
 import no.tomlin.api.common.Extensions.checkRowsAffected
+import no.tomlin.api.common.PaginationResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -53,8 +55,18 @@ class AdminDao {
             mapOf("key" to key, "value" to value)
         ).checkRowsAffected()
 
-    fun getLogs(limit: Int): List<Log> =
-        jdbcTemplate.query("SELECT * FROM $TABLE_LOG ORDER BY `timestamp` DESC LIMIT $limit") { resultSet, _ -> Log(resultSet) }
+    fun getLogs(page: Int): PaginationResponse<Log> {
+        val start = (page - 1) * PAGE_SIZE
+
+        val logs = jdbcTemplate.query(
+            "SELECT * FROM $TABLE_LOG ORDER BY `timestamp` DESC LIMIT $PAGE_SIZE OFFSET $start"
+        ) { resultSet, _ -> Log(resultSet) }
+
+        val total = jdbcTemplate.queryForObject(
+            "SELECT COUNT(id) total FROM $TABLE_LOG", EmptySqlParameterSource.INSTANCE, Int::class.java) ?: 1
+
+        return PaginationResponse(page, total, logs)
+    }
 
     fun deleteLogs(): Int = jdbcTemplate.update("DELETE FROM $TABLE_LOG", EmptySqlParameterSource.INSTANCE)
 
@@ -62,8 +74,18 @@ class AdminDao {
         .update("DELETE FROM $TABLE_LOG WHERE `id` = :id", mapOf("id" to id))
         .checkRowsAffected()
 
-    fun getVisits(limit: Int): List<Visit> =
-        jdbcTemplate.query("SELECT * FROM $TABLE_TRACK ORDER BY visits DESC LIMIT $limit") { resultSet, _ -> Visit(resultSet) }
+    fun getVisits(page: Int): PaginationResponse<Visit> {
+        val start = (page - 1) * PAGE_SIZE
+
+        val visits = jdbcTemplate.query(
+            "SELECT * FROM $TABLE_TRACK ORDER BY `visits` DESC LIMIT $PAGE_SIZE OFFSET $start"
+        ) { resultSet, _ -> Visit(resultSet) }
+
+        val total = jdbcTemplate.queryForObject(
+            "SELECT COUNT(id) total FROM $TABLE_TRACK", EmptySqlParameterSource.INSTANCE, Int::class.java) ?: 1
+
+        return PaginationResponse(page, total, visits)
+    }
 
     fun visit(ip: String, host: String?, referrer: String?, agent: String?, page: String?): Int =
         jdbcTemplate.update(

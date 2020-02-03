@@ -3,7 +3,7 @@ package no.tomlin.api.media.dao
 import no.tomlin.api.common.Constants.PAGE_SIZE
 import no.tomlin.api.common.Constants.TABLE_MOVIE
 import no.tomlin.api.common.Extensions.checkRowsAffected
-import no.tomlin.api.media.MediaController.MediaResponse
+import no.tomlin.api.common.PaginationResponse
 import no.tomlin.api.media.entity.Movie
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
@@ -19,7 +19,7 @@ class MovieDao {
     fun get(id: String): Map<String, Any?> =
         jdbcTemplate.queryForMap("SELECT *, 'movie' AS `type` FROM $TABLE_MOVIE WHERE `id` = :id", mapOf("id" to id))
 
-    fun get(query: String?, sort: String, page: Int): MediaResponse {
+    fun get(query: String?, sort: String, page: Int): PaginationResponse<Map<String, Any?>> {
         val where = query?.let { "WHERE title LIKE :query" }.orEmpty()
         val start = (page - 1) * PAGE_SIZE
 
@@ -31,7 +31,7 @@ class MovieDao {
             "SELECT COUNT(id) total FROM $TABLE_MOVIE $where",
             mapOf("query" to "%$query%"), Int::class.java) ?: 1
 
-        return MediaResponse(page, total, movies)
+        return PaginationResponse(page, total, movies)
     }
 
     fun getIds(count: Int? = null): List<Long> = jdbcTemplate.queryForList(

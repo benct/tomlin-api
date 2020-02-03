@@ -2,9 +2,9 @@ package no.tomlin.api.media
 
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
+import no.tomlin.api.common.PaginationResponse
 import no.tomlin.api.logging.LogDao
 import no.tomlin.api.media.MediaController.Companion.parseSort
-import no.tomlin.api.media.MediaController.MediaResponse
 import no.tomlin.api.media.dao.TVDao
 import no.tomlin.api.media.entity.Season.Companion.parseSeason
 import no.tomlin.api.media.entity.TV.Companion.parseTV
@@ -28,7 +28,7 @@ class TVController {
 
     @Secured(USER, ADMIN)
     @GetMapping
-    fun get(@RequestParam query: String?, @RequestParam sort: String?, @RequestParam page: Int?): MediaResponse =
+    fun get(@RequestParam query: String?, @RequestParam sort: String?, @RequestParam page: Int?): PaginationResponse<Map<String, Any?>> =
         tvDao.get(query, parseSort(sort), page ?: 1)
 
     @Secured(USER, ADMIN)

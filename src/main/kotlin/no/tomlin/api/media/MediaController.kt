@@ -1,8 +1,8 @@
 package no.tomlin.api.media
 
-import no.tomlin.api.common.Constants
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
+import no.tomlin.api.common.PaginationResponse
 import no.tomlin.api.media.dao.MovieDao
 import no.tomlin.api.media.dao.TVDao
 import org.springframework.beans.factory.annotation.Autowired
@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import kotlin.math.ceil
 
 @RestController
 @RequestMapping("/media")
@@ -35,7 +34,7 @@ class MediaController {
 
     @Secured(USER, ADMIN)
     @GetMapping("/watchlist")
-    fun watchlist() = MediaResponse(movieDao.watchlist() + tvDao.watchlist())
+    fun watchlist() = PaginationResponse(movieDao.watchlist() + tvDao.watchlist())
 
     @Secured(USER, ADMIN)
     @GetMapping("/search", produces = [APPLICATION_JSON_VALUE])
@@ -59,21 +58,5 @@ class MediaController {
             "favourite" -> "favourite DESC, rating DESC"
             else -> "rating DESC"
         }
-    }
-
-    data class MediaResponse(
-        val page: Int,
-        val total_pages: Int,
-        val total_results: Int,
-        val results: List<Map<String, Any?>>
-    ) {
-        constructor(data: List<Map<String, Any?>>) : this(1, data.size, data)
-
-        constructor(page: Int, total: Int, data: List<Map<String, Any?>>) : this(
-            page,
-            ceil(total.toDouble() / Constants.PAGE_SIZE).toInt(),
-            total,
-            data
-        )
     }
 }

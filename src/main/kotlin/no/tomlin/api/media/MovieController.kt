@@ -2,9 +2,9 @@ package no.tomlin.api.media
 
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
+import no.tomlin.api.common.PaginationResponse
 import no.tomlin.api.logging.LogDao
 import no.tomlin.api.media.MediaController.Companion.parseSort
-import no.tomlin.api.media.MediaController.MediaResponse
 import no.tomlin.api.media.dao.MovieDao
 import no.tomlin.api.media.entity.Movie.Companion.parseMovie
 import org.springframework.beans.factory.annotation.Autowired
@@ -27,7 +27,7 @@ class MovieController {
 
     @Secured(USER, ADMIN)
     @GetMapping
-    fun get(@RequestParam query: String?, @RequestParam sort: String?, @RequestParam page: Int?): MediaResponse =
+    fun get(@RequestParam query: String?, @RequestParam sort: String?, @RequestParam page: Int?): PaginationResponse<Map<String, Any?>> =
         movieDao.get(query, parseSort(sort), page ?: 1)
 
     @Secured(USER, ADMIN)

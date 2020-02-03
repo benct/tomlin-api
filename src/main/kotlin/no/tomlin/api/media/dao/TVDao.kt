@@ -5,7 +5,7 @@ import no.tomlin.api.common.Constants.TABLE_EPISODE
 import no.tomlin.api.common.Constants.TABLE_SEASON
 import no.tomlin.api.common.Constants.TABLE_TV
 import no.tomlin.api.common.Extensions.checkRowsAffected
-import no.tomlin.api.media.MediaController.MediaResponse
+import no.tomlin.api.common.PaginationResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -32,7 +32,7 @@ class TVDao {
                     }
             }
 
-    fun get(query: String?, sort: String, page: Int): MediaResponse {
+    fun get(query: String?, sort: String, page: Int): PaginationResponse<Map<String, Any?>> {
         val where = query?.let { "WHERE title LIKE :query" }.orEmpty()
         val start = (page - 1) * PAGE_SIZE
 
@@ -45,7 +45,7 @@ class TVDao {
             "SELECT COUNT(id) total FROM $TABLE_TV $where",
             mapOf("query" to "%$query%"), Int::class.java) ?: 1
 
-        return MediaResponse(page, total, tv)
+        return PaginationResponse(page, total, tv)
     }
 
     fun getIds(count: Int? = null): List<Long> = jdbcTemplate.queryForList(

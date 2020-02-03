@@ -5,6 +5,7 @@ import no.tomlin.api.admin.entity.Note
 import no.tomlin.api.admin.entity.Visit
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
+import no.tomlin.api.common.PaginationResponse
 import no.tomlin.api.config.ApiProperties
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.annotation.Secured
@@ -28,12 +29,12 @@ class AdminController {
     fun getStats(): Map<String, Int?> = adminDao.getStats()
 
     @Secured(USER, ADMIN)
-    @GetMapping("/visits", "/visits/{limit}")
-    fun getVisits(@PathVariable limit: Int?): List<Visit> = adminDao.getVisits(limit ?: DEFAULT_VISITS)
+    @GetMapping("/visits", "/visits/{page}")
+    fun getVisits(@PathVariable page: Int?): PaginationResponse<Visit> = adminDao.getVisits(page ?: 1)
 
     @Secured(USER, ADMIN)
-    @GetMapping("/logs", "/logs/{limit}")
-    fun getLogs(@PathVariable limit: Int?): List<Log> = adminDao.getLogs(limit ?: DEFAULT_LOGS)
+    @GetMapping("/logs", "/logs/{page}")
+    fun getLogs(@PathVariable page: Int?): PaginationResponse<Log> = adminDao.getLogs(page ?: 1)
 
     @Secured(ADMIN)
     @DeleteMapping("/logs")
