@@ -20,7 +20,7 @@ data class FileModel(
     val type: String,
     val dir: Boolean,
     val icon: Boolean,
-    val preview: Boolean,
+    val preview: String?,
     val files: Int = 0
 ) {
     constructor(file: File, root: String, hasIcon: Boolean) : this(
@@ -33,20 +33,17 @@ data class FileModel(
         if (file.isDirectory) "dir" else file.extension.toLowerCase(),
         file.isDirectory,
         hasIcon || file.isDirectory,
-        canPreview(file.extension.toLowerCase()),
+        findPreviewType(file.extension.toLowerCase()),
         file.listFiles()?.size ?: 0
     )
 
     private companion object {
         const val KILO: Double = 1024.0
-        const val PREVIEW = "jpg|jpeg|png|bmp|gif|svg|ico|txt|md"
 
         val DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/YY")
         val NUM_FORMAT = DecimalFormat("#,###.##")
 
         fun shortName(name: String): String = if (name.length > 25) "${name.take(21)}..${name.takeLast(4)}" else name
-
-        fun canPreview(extension: String) = extension.isNotBlank() && PREVIEW.contains(extension)
 
         fun computeSize(sizeInBytes: Long): String {
             val total = sizeInBytes.toDouble()
@@ -63,5 +60,14 @@ data class FileModel(
 
         fun computeModified(file: File): String =
             LocalDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()), ZoneId.systemDefault()).format(DATE_FORMAT)
+
+        fun findPreviewType(type: String): String? =
+            Preview.values().find { it.extensions.contains(type.toLowerCase()) }?.name?.toLowerCase()
+
+        enum class Preview(val extensions: List<String>) {
+            IMAGE(listOf("jpg", "jpeg", "png", "bmp", "gif", "svg", "ico")),
+            VIDEO(listOf("avi", "mp4", "webm", "ogm", "ogv", "ogg")),
+            TEXT(listOf("txt", "json", "xml", "ini", "conf", "html", "js", "css", "md"))
+        }
     }
 }
