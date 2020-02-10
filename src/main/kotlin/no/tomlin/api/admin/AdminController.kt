@@ -69,9 +69,4 @@ class AdminController {
         return if (runtimeProcess.waitFor() == 0) true else
             throw RuntimeException(runtimeProcess.errorStream.bufferedReader().use(BufferedReader::readText))
     }
-
-    companion object {
-        private const val DEFAULT_VISITS = 100
-        private const val DEFAULT_LOGS = 25
-    }
 }
