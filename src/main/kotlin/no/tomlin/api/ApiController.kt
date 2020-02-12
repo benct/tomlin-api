@@ -2,6 +2,7 @@ package no.tomlin.api
 
 import no.tomlin.api.admin.AdminDao
 import no.tomlin.api.config.ApiProperties
+import no.tomlin.api.github.GitHubService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.GetMapping
@@ -20,6 +21,9 @@ class ApiController {
     @Autowired
     private lateinit var adminDao: AdminDao
 
+    @Autowired
+    private lateinit var gitHubService: GitHubService
+
     @GetMapping("/")
     fun base() = mapOf("site" to properties.name, "version" to properties.version, "baseUrl" to properties.baseUrl)
 
@@ -28,6 +32,9 @@ class ApiController {
 
     @GetMapping("/version")
     fun version() = properties.version
+
+    @GetMapping("/github")
+    fun github() = gitHubService.getUserData()
 
     @PostMapping("/authenticate")
     fun authenticate(@RequestParam referrer: String?, request: HttpServletRequest): Map<String, Any?> {

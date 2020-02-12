@@ -1,0 +1,32 @@
+package no.tomlin.api.github.entity
+
+data class GitHubRepo(
+    val id: Long,
+    val name: String,
+    val fullName: String,
+    val private: Boolean,
+    val htmlUrl: String,
+    val description: String? = null,
+    val fork: Boolean,
+    val createdAt: String,
+    val updatedAt: String,
+    val pushedAt: String,
+    val homepage: String? = null,
+    val size: Long,
+    val stargazersCount: Long,
+    val watchersCount: Long,
+    val language: String? = null,
+    val hasIssues: Boolean,
+    val hasProjects: Boolean,
+    val hasDownloads: Boolean,
+    val hasWiki: Boolean,
+    val hasPages: Boolean,
+    val forksCount: Long,
+    val archived: Boolean,
+    val disabled: Boolean,
+    val openIssuesCount: Long,
+    val forks: Long,
+    val openIssues: Long,
+    val watchers: Long,
+    val defaultBranch: String
+)
