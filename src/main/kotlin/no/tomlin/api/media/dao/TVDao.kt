@@ -7,6 +7,7 @@ import no.tomlin.api.common.Constants.TABLE_TV
 import no.tomlin.api.common.Extensions.checkRowsAffected
 import no.tomlin.api.common.PaginationResponse
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Component
@@ -82,6 +83,7 @@ class TVDao {
     fun seenSeason(seasonId: String, set: Boolean): Boolean = jdbcTemplate
         .update("UPDATE $TABLE_EPISODE SET `seen` = :set WHERE `season_id` = :id", mapOf("id" to seasonId, "set" to set)) > 0
 
+    @Cacheable("tvStats")
     fun stats(): Map<String, Any?> =
         mapOf(
             "years" to jdbcTemplate.queryForList(

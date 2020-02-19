@@ -20,6 +20,8 @@ import no.tomlin.api.common.Constants.TABLE_TV
 import no.tomlin.api.common.Extensions.checkRowsAffected
 import no.tomlin.api.common.PaginationResponse
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Component
@@ -41,6 +43,7 @@ class AdminDao {
         "log" to countQuery(TABLE_LOG)
     )
 
+    @Cacheable("settings")
     fun getSettings(): Map<String, Any?> =
         jdbcTemplate.query("SELECT `key`, `value` FROM $TABLE_SETTINGS", EmptySqlParameterSource.INSTANCE) { resultSet, _ ->
             resultSet.getString("key") to resultSet.getObject("value")
@@ -49,6 +52,7 @@ class AdminDao {
     fun getSetting(key: String): String? =
         jdbcTemplate.queryForObject("SELECT `value` FROM $TABLE_SETTINGS WHERE `key` = :key", mapOf("key" to key), String::class.java)
 
+    @CacheEvict("settings", allEntries = true)
     fun saveSetting(key: String, value: String?): Boolean =
         jdbcTemplate.update(
             "INSERT INTO $TABLE_SETTINGS (`key`, `value`) VALUES (:key, :value) ON DUPLICATE KEY UPDATE `value` = :value",

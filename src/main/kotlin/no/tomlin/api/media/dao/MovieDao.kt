@@ -6,6 +6,7 @@ import no.tomlin.api.common.Extensions.checkRowsAffected
 import no.tomlin.api.common.PaginationResponse
 import no.tomlin.api.media.entity.Movie
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Component
@@ -59,6 +60,7 @@ class MovieDao {
         .update("UPDATE $TABLE_MOVIE SET `seen` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set))
         .checkRowsAffected()
 
+    @Cacheable("movieStats")
     fun stats(): Map<String, Any?> =
         mapOf(
             "years" to jdbcTemplate.queryForList(
