@@ -3,7 +3,7 @@ package no.tomlin.api.hass
 import no.tomlin.api.common.Constants.TABLE_HASS
 import no.tomlin.api.common.Extensions.checkRowsAffected
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.cache.annotation.Cacheable
+import org.springframework.cache.annotation.CachePut
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Component
 import java.sql.ResultSet
@@ -25,7 +25,7 @@ class HassDao {
         .update("INSERT INTO $TABLE_HASS (`sensor`, `value`) VALUES (:sensor, :value)", mapOf("sensor" to sensor, "value" to value))
         .checkRowsAffected()
 
-    @Cacheable("hass")
+    @CachePut("hass")
     fun getStates(): List<Hass> =
         jdbcTemplate.query("SELECT * FROM $TABLE_HASS WHERE `id` IN (SELECT MAX(`id`) FROM $TABLE_HASS GROUP BY `sensor`)")
         { resultSet, _ -> Hass(resultSet) }
