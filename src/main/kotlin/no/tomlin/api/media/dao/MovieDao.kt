@@ -6,6 +6,7 @@ import no.tomlin.api.common.Extensions.checkRowsAffected
 import no.tomlin.api.common.PaginationResponse
 import no.tomlin.api.media.entity.Movie
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -44,10 +45,12 @@ class MovieDao {
         "SELECT *, 'movie' AS `type` FROM $TABLE_MOVIE WHERE `seen` = false ORDER BY release_date ASC",
         EmptySqlParameterSource.INSTANCE)
 
+    @CacheEvict("movieStats", allEntries = true)
     fun store(movie: Movie): Boolean = jdbcTemplate
         .update(movie.insertStatement(), movie.toDaoMap())
         .checkRowsAffected()
 
+    @CacheEvict("movieStats", allEntries = true)
     fun delete(id: String): Boolean = jdbcTemplate
         .update("DELETE FROM $TABLE_MOVIE WHERE `id` = :id", mapOf("id" to id))
         .checkRowsAffected()

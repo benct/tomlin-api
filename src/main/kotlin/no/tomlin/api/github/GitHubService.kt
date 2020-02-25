@@ -7,14 +7,14 @@ import no.tomlin.api.github.entity.GitHubUser
 import no.tomlin.api.http.HttpFetcher
 import no.tomlin.api.http.HttpFetcher.Companion.fetcher
 import no.tomlin.api.http.HttpFetcher.Companion.readBody
-import org.springframework.cache.annotation.Cacheable
+import org.springframework.cache.annotation.CachePut
 import org.springframework.stereotype.Service
 import java.util.stream.Collectors
 
 @Service
 class GitHubService(val fetcher: HttpFetcher = fetcher(BASE_URL)) {
 
-    @Cacheable("github")
+    @CachePut("github")
     fun getUserData(): Map<String, Any> {
         val responses = listOf(USER_PATH, REPO_PATH)
             .parallelStream()
