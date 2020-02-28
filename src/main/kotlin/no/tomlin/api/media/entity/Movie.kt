@@ -22,7 +22,8 @@ data class Movie(
     val voteAverage: Double,
     val voteCount: Long,
     val genres: List<Genre>,
-    val productionCompanies: List<ProductionCompany>
+    val productionCompanies: List<ProductionCompany>,
+    val externalIds: ExternalIds
 ) : Media() {
 
     override val table = TABLE_MOVIE
@@ -32,6 +33,9 @@ data class Movie(
     fun toDaoMap() = mapOf(
         "id" to id,
         "imdb_id" to imdbId.nullIfBlank(),
+        "facebook_id" to externalIds.facebookID.nullIfBlank(),
+        "instagram_id" to externalIds.instagramID.nullIfBlank(),
+        "twitter_id" to externalIds.twitterID.nullIfBlank(),
         "title" to title,
         "original_title" to if (title != originalTitle) originalTitle else null,
         "genres" to genres.joinToString { it.name }.nullIfBlank(),

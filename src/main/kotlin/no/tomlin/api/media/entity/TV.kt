@@ -38,6 +38,9 @@ data class TV(
     fun toDaoMap() = mapOf(
         "id" to id,
         "imdb_id" to externalIds.imdbID.nullIfBlank(),
+        "facebook_id" to externalIds.facebookID.nullIfBlank(),
+        "instagram_id" to externalIds.instagramID.nullIfBlank(),
+        "twitter_id" to externalIds.twitterID.nullIfBlank(),
         "title" to name,
         "original_title" to if (name != originalName) originalName else null,
         "genres" to genres.joinToString { it.name }.nullIfBlank(),

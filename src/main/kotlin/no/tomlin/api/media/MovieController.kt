@@ -37,7 +37,7 @@ class MovieController {
     @Secured(ADMIN)
     @PostMapping("/{id}")
     fun store(@PathVariable id: String): Boolean =
-        tmdbService.fetchMedia("movie/$id")
+        tmdbService.fetchMedia("movie/$id", mapOf("append_to_response" to "external_ids"))
             .parseMovie()
             .let { movie ->
                 tmdbService.storePoster(movie.posterPath)
