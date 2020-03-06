@@ -22,7 +22,7 @@ class RedditController(private val fetcher: HttpFetcher = fetcher("https://www.r
     fun sub(@PathVariable sub: String, @PathVariable after: String?): Map<String, Any?> {
         val response = fetcher.getJson("/r/${sub}.json", mapOf("raw_json" to "1").plus("after" to after))
             .readBody()
-            .parseJson<RedditReponse>(SNAKE_CASE)
+            .parseJson<RedditResponse>(SNAKE_CASE)
 
         return mapOf(
             "sub" to sub,
@@ -50,7 +50,7 @@ class RedditController(private val fetcher: HttpFetcher = fetcher("https://www.r
         )
     }
 
-    data class RedditReponse(
+    data class RedditResponse(
         val kind: String,
         val data: RedditData
     )
