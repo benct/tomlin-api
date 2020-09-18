@@ -1,9 +1,4 @@
 spring:
-  http:
-    encoding:
-      charset: UTF-8
-      enabled: on
-      force: on
   servlet:
     multipart:
       enabled: on
@@ -29,3 +24,8 @@ server:
   port: 8081
   error:
     include-stacktrace: never
+  servlet:
+    encoding:
+      enabled: on
+      force: on
+      charset: UTF-8
