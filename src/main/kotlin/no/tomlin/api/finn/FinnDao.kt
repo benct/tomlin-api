@@ -13,8 +13,8 @@ class FinnDao {
     @Autowired
     private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
 
-    fun get(): List<Map<String, Any?>> = jdbcTemplate
-        .queryForList("SELECT `id`, `price`, MAX(`timestamp`) as `timestamp` FROM $TABLE_FINN GROUP BY `id`", EmptySqlParameterSource.INSTANCE)
+    fun get(): List<Map<String, Any>> = jdbcTemplate
+        .queryForList("SELECT * FROM $TABLE_FINN ORDER BY `id` DESC, `timestamp` DESC", EmptySqlParameterSource.INSTANCE)
 
     fun get(id: Long): List<Map<String, Any?>> = jdbcTemplate
         .queryForList("SELECT * FROM $TABLE_FINN WHERE `id` = :id ORDER BY `timestamp` DESC", mapOf("id" to id))

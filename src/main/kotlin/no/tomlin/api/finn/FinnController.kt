@@ -16,7 +16,14 @@ class FinnController(private val fetcher: HttpFetcher = fetcher(FINN_URL)) {
     private lateinit var finnDao: FinnDao
 
     @GetMapping
-    fun list(): List<Map<String, Any?>> = finnDao.get()
+    fun list(): Map<String, List<Map<String, Any>>> = finnDao.get()
+        .fold(mutableMapOf<String, MutableList<Map<String, Any>>>()) { accumulator, entry ->
+            accumulator.merge(entry["id"].toString(), mutableListOf(entry)) { oldValue, _ ->
+                oldValue.add(entry)
+                oldValue
+            }
+            accumulator
+        }
 
     @GetMapping("/{id}")
     fun get(@PathVariable id: Long): List<Map<String, Any?>> = finnDao.get(id)
