@@ -5,6 +5,7 @@ import no.tomlin.api.common.JsonUtils.parseJson
 import no.tomlin.api.http.HttpFetcher
 import no.tomlin.api.http.HttpFetcher.Companion.fetcher
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
 
@@ -30,13 +31,16 @@ class FinnController(private val fetcher: HttpFetcher = fetcher(FINN_URL)) {
 
     @Secured(ADMIN)
     @PostMapping
-    fun track(): Boolean = finnDao.getUniqueIds().map { track(it) }.all { it }
+    fun track(): Boolean = trackAllPrices()
 
     @PostMapping("/{id}")
     fun track(@PathVariable id: Long): Boolean = finnDao.save(id, fetchPrice(id))
 
     @DeleteMapping("/{id}")
     fun delete(@PathVariable id: Long): Boolean = finnDao.delete(id)
+
+    @Scheduled(cron = "0 0 3,9,15,21 * * ?")
+    fun trackAllPrices(): Boolean = finnDao.getUniqueIds().map { track(it) }.all { it }
 
     private fun fetchPrice(id: Long): String =
         fetcher.get(queryParams = mapOf(
