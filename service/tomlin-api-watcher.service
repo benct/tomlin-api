@@ -4,6 +4,7 @@ After=network.target
 
 [Service]
 Type=oneshot
+ExecStartPre=/bin/sleep 10
 ExecStart=/usr/bin/systemctl restart tomlin-api.service
 
 [Install]
