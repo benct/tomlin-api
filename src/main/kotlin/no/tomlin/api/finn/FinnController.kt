@@ -49,11 +49,15 @@ class FinnController(private val fetcher: HttpFetcher = fetcher(FINN_URL)) {
             "q" to id.toString())
         ).let {
             if (it.isSuccessful) {
-                val results = it.body?.string()?.parseJson<FinnResponse>()?.displaySearchResults
-                if (results.isNullOrEmpty()) {
-                    "Not Found (404)"
-                } else {
-                    results.first().bodyRow.lastOrNull() ?: "Parse Error"
+                try {
+                    val results = it.body?.string()?.parseJson<FinnResponse>()?.displaySearchResults
+                    if (results.isNullOrEmpty()) {
+                        "Ad Not Found (404)"
+                    } else {
+                        results.first().bodyRow.lastOrNull() ?: "Price Not Found"
+                    }
+                } catch (e: Exception) {
+                    "Fatal Parse Error"
                 }
             } else "Request Error (${it.code})"
         }
@@ -69,8 +73,6 @@ class FinnController(private val fetcher: HttpFetcher = fetcher(FINN_URL)) {
         val adUrl: String,
         val imageUrl: String? = null,
         val topRowCenter: String? = null,
-        val topRowLeft: String? = null,
-        val topRowRight: String? = null,
         val titleRow: String,
         val bodyRow: List<String>,
         val bottomRow1: String? = null,
