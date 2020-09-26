@@ -32,6 +32,5 @@ class FinnDao {
 
     @CacheEvict("finn", allEntries = true)
     fun delete(id: Long): Boolean = jdbcTemplate
-        .update("DELETE FROM $TABLE_FINN WHERE id = :id", mapOf("id" to id))
-        .checkRowsAffected()
+        .update("DELETE FROM $TABLE_FINN WHERE id = :id", mapOf("id" to id)) > 0
 }
