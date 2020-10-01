@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.security.Principal
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
@@ -37,7 +38,7 @@ class ApiController {
     fun github() = gitHubService.getUserData()
 
     @PostMapping("/authenticate")
-    fun authenticate(@RequestParam referrer: String?, request: HttpServletRequest): Map<String, Any?> {
+    fun authenticate(@RequestParam referrer: String?, request: HttpServletRequest, principal: Principal?): Map<String, Any?> {
         adminDao.visit(
             request.remoteAddr,
             request.remoteHost,
@@ -48,7 +49,8 @@ class ApiController {
 
         return mapOf(
             "authenticated" to (SecurityContextHolder.getContext().authentication?.isAuthenticated ?: false),
-            "settings" to adminDao.getSettings()
+            "settings" to adminDao.getSettings(),
+            "username" to principal?.name
         )
     }
 
