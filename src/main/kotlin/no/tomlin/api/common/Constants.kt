@@ -11,6 +11,8 @@ object Constants {
     // Database tables
     private const val TABLE_PREFIX = "tomlin_"
     const val TABLE_SETTINGS = "${TABLE_PREFIX}settings"
+    const val TABLE_USER = "${TABLE_PREFIX}user"
+    const val TABLE_ROLE = "${TABLE_PREFIX}role"
     const val TABLE_LOG = "${TABLE_PREFIX}log"
     const val TABLE_TRACK = "${TABLE_PREFIX}track"
     const val TABLE_NOTE = "${TABLE_PREFIX}note"

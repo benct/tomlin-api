@@ -12,13 +12,6 @@ spring:
     url: jdbc:mysql://hostname/database?serverTimezone=Europe/Oslo&useServerPrepStmts=false&rewriteBatchedStatements=true
     username: xxxxxxxxx
     password: xxxxxxxxx
-  security:
-    user:
-      name: xxxxxxxxx
-      password: xxxxxxxxx
-      roles:
-        - USER
-        - ADMIN
 
 server:
   port: 8081
