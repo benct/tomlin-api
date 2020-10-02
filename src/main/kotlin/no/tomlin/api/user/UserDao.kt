@@ -14,6 +14,12 @@ class UserDao {
     @Autowired
     private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
 
+    fun updateLastSeen(email: String) =
+        jdbcTemplate.update(
+            "UPDATE $TABLE_USER SET last_seen = CURRENT_TIMESTAMP() WHERE email = :email",
+            mapOf("email" to email)
+        ).checkRowsAffected()
+
     fun getUser(email: String): User? =
         jdbcTemplate.query(
             "SELECT u.name, u.email, u.enabled, u.created, u.last_seen, GROUP_CONCAT(r.role) as roles " +
