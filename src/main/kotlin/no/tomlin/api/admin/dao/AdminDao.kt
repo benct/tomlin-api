@@ -1,4 +1,4 @@
-package no.tomlin.api.admin
+package no.tomlin.api.admin.dao
 
 import no.tomlin.api.admin.entity.Flight
 import no.tomlin.api.admin.entity.Log

@@ -1,7 +1,7 @@
 package no.tomlin.api.admin
 
+import no.tomlin.api.admin.dao.AdminDao
 import no.tomlin.api.admin.entity.Log
-import no.tomlin.api.admin.entity.Note
 import no.tomlin.api.admin.entity.Visit
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
@@ -43,19 +43,6 @@ class AdminController {
     @Secured(ADMIN)
     @DeleteMapping("/logs/{id}")
     fun deleteLog(@PathVariable id: Long): Boolean = adminDao.deleteLog(id)
-
-    @Secured(USER, ADMIN)
-    @GetMapping("/notes")
-    fun getNotes(): List<Note> = adminDao.getNotes()
-
-    @Secured(ADMIN)
-    @PostMapping("/notes")
-    fun saveNote(@RequestParam id: Long?, @RequestParam title: String, @RequestParam content: String?): Boolean =
-        adminDao.saveNote(id, title, content)
-
-    @Secured(ADMIN)
-    @DeleteMapping("/notes/{id}")
-    fun deleteNote(@PathVariable id: Long): Boolean = adminDao.deleteNote(id)
 
     @Secured(ADMIN)
     @PostMapping("/backup")

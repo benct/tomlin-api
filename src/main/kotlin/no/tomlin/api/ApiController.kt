@@ -1,6 +1,6 @@
 package no.tomlin.api
 
-import no.tomlin.api.admin.AdminDao
+import no.tomlin.api.admin.dao.AdminDao
 import no.tomlin.api.config.ApiProperties
 import no.tomlin.api.github.GitHubService
 import no.tomlin.api.user.UserDao

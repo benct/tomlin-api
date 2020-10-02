@@ -1,5 +1,6 @@
 package no.tomlin.api.admin
 
+import no.tomlin.api.admin.dao.AdminDao
 import no.tomlin.api.admin.entity.Flight
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
@@ -30,7 +31,7 @@ class FlightController {
 
     @Secured(ADMIN)
     @PostMapping
-    fun save(
+    fun store(
         @RequestParam id: Long?,
         @RequestParam origin: String,
         @RequestParam destination: String,

@@ -1,5 +1,6 @@
 package no.tomlin.api.admin
 
+import no.tomlin.api.admin.dao.AdminDao
 import no.tomlin.api.common.Constants.ADMIN
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.annotation.Secured
@@ -13,13 +14,13 @@ class SettingsController {
     private lateinit var adminDao: AdminDao
 
     @GetMapping
-    fun base(): Map<String, Any?> = adminDao.getSettings()
+    fun get(): Map<String, Any?> = adminDao.getSettings()
 
-    @GetMapping("/get")
-    fun get(@RequestParam key: String): String = adminDao.getSetting(key) ?: throw SettingNotFoundException(key)
+    @GetMapping("/{key}")
+    fun get(@PathVariable key: String): String = adminDao.getSetting(key) ?: throw SettingNotFoundException(key)
 
     @Secured(ADMIN)
-    @PostMapping("/set")
+    @PostMapping
     fun set(@RequestParam key: String, @RequestParam value: String?): Boolean = adminDao.saveSetting(key, value)
 
     internal class SettingNotFoundException(key: String) : RuntimeException("Could not find setting with name $key")
