@@ -1,4 +1,4 @@
-package no.tomlin.api.file.entity
+package no.tomlin.api.admin.entity
 
 import java.io.File
 import java.nio.file.Files

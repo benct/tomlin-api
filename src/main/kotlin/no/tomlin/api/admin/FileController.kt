@@ -1,9 +1,9 @@
-package no.tomlin.api.file
+package no.tomlin.api.admin
 
+import no.tomlin.api.admin.entity.FileModel
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
 import no.tomlin.api.config.ApiProperties
-import no.tomlin.api.file.entity.FileModel
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
@@ -41,7 +41,7 @@ class FileController {
 
         return getFilesFromPath(directory)
             .map { FileModel(it, properties.files.path, extensionIcons.contains(it.extension)) }
-            .sortedBy(::sortByDirAndName)
+            .sortedBy(Companion::sortByDirAndName)
     }
 
     @Secured(ADMIN)
