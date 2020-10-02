@@ -1,8 +1,9 @@
-package no.tomlin.api.user
+package no.tomlin.api.admin
 
+import no.tomlin.api.admin.dao.UserDao
+import no.tomlin.api.admin.entity.User
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
-import no.tomlin.api.user.entity.User
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.annotation.Secured
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -32,7 +33,7 @@ class UserController {
         @RequestParam name: String,
         @RequestParam email: String,
         @RequestParam enabled: Boolean,
-        @RequestParam(required = false) password: String?
+        @RequestParam password: String?
     ): Boolean =
         userDao.storeUser(name, email, enabled, password?.let { encoder.encode(it) })
             .also { userDao.storeRole(email, USER) }

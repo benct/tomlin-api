@@ -1,4 +1,4 @@
-package no.tomlin.api.user.entity
+package no.tomlin.api.admin.entity
 
 import java.sql.ResultSet
 import java.time.LocalDateTime

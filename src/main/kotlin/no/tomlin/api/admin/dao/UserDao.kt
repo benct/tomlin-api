@@ -1,9 +1,9 @@
-package no.tomlin.api.user
+package no.tomlin.api.admin.dao
 
+import no.tomlin.api.admin.entity.User
 import no.tomlin.api.common.Constants.TABLE_ROLE
 import no.tomlin.api.common.Constants.TABLE_USER
 import no.tomlin.api.common.Extensions.checkRowsAffected
-import no.tomlin.api.user.entity.User
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Component

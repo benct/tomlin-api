@@ -3,7 +3,7 @@ package no.tomlin.api
 import no.tomlin.api.admin.dao.AdminDao
 import no.tomlin.api.config.ApiProperties
 import no.tomlin.api.github.GitHubService
-import no.tomlin.api.user.UserDao
+import no.tomlin.api.admin.dao.UserDao
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.GetMapping
