@@ -9,7 +9,7 @@ spring:
     hibernate:
       ddl-auto: none
   datasource:
-    url: jdbc:mysql:///${DB_NAME}?cloudSqlInstance=${INSTANCE_CONNECTION_NAME}&socketFactory=com.google.cloud.sql.mysql.SocketFactory
+    url: jdbc:mysql:///${DB_NAME}?unixSocketPath=/cloudsql/${INSTANCE_CONNECTION_NAME}&cloudSqlInstance=${INSTANCE_CONNECTION_NAME}&socketFactory=com.google.cloud.sql.mysql.SocketFactory
     username: ${DB_USER}
     password: ${DB_PASS}
 
