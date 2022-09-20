@@ -9,9 +9,9 @@ spring:
     hibernate:
       ddl-auto: none
   datasource:
-    url: jdbc:mysql://hostname/database?serverTimezone=Europe/Oslo&useServerPrepStmts=false&rewriteBatchedStatements=true
-    username: xxxxxxxxx
-    password: xxxxxxxxx
+    url: jdbc:mysql:///${DB_NAME}?cloudSqlInstance=${INSTANCE_CONNECTION_NAME}&socketFactory=com.google.cloud.sql.mysql.SocketFactory
+    username: ${DB_USER}
+    password: ${DB_PASS}
 
 server:
   port: 8081
