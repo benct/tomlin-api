@@ -1,6 +1,6 @@
 package no.tomlin.api.media.entity
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategy.SNAKE_CASE
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SNAKE_CASE
 import no.tomlin.api.common.Constants.TABLE_SEASON
 import no.tomlin.api.common.Extensions.nullIfBlank
 import no.tomlin.api.common.JsonUtils.parseJson

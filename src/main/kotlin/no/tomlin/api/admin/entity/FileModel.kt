@@ -30,10 +30,10 @@ data class FileModel(
         computeSize(file.length()),
         computePerms(file),
         computeModified(file),
-        if (file.isDirectory) "dir" else file.extension.toLowerCase(),
+        if (file.isDirectory) "dir" else file.extension.lowercase(),
         file.isDirectory,
         hasIcon || file.isDirectory,
-        findPreviewType(file.extension.toLowerCase()),
+        findPreviewType(file.extension.lowercase()),
         file.listFiles()?.size ?: 0
     )
 
@@ -62,7 +62,7 @@ data class FileModel(
             LocalDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()), ZoneId.systemDefault()).format(DATE_FORMAT)
 
         fun findPreviewType(type: String): String? =
-            Preview.values().find { it.extensions.contains(type.toLowerCase()) }?.name?.toLowerCase()
+            Preview.values().find { it.extensions.contains(type.lowercase()) }?.name?.lowercase()
 
         enum class Preview(val extensions: List<String>) {
             IMAGE(listOf("jpg", "jpeg", "png", "bmp", "gif", "svg", "ico")),

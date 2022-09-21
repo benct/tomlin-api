@@ -1,6 +1,6 @@
 package no.tomlin.api.reddit
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategy.SNAKE_CASE
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SNAKE_CASE
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
 import no.tomlin.api.common.JsonUtils.parseJson

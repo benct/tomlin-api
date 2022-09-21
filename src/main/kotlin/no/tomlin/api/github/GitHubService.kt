@@ -1,6 +1,6 @@
 package no.tomlin.api.github
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategy.SNAKE_CASE
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SNAKE_CASE
 import no.tomlin.api.common.JsonUtils.parseJson
 import no.tomlin.api.github.entity.GitHubRepo
 import no.tomlin.api.github.entity.GitHubUser
@@ -26,7 +26,7 @@ class GitHubService(val fetcher: HttpFetcher = fetcher(BASE_URL)) {
 
         return mapOf(
             "user" to userData,
-            "stars" to repoData.sumBy { it.stargazersCount.toInt() },
+            "stars" to repoData.sumOf { it.stargazersCount.toInt() },
             "top" to repoData.filter { !it.fork }.sortedByDescending { it.stargazersCount }.take(3),
             "featured" to repoData.filter { FEATURED.contains(it.name) }
         )

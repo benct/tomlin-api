@@ -36,15 +36,15 @@ data class Flight(
 
     fun asDaoMap() = mapOf(
         "id" to id,
-        "origin" to origin.toUpperCase(),
-        "destination" to destination.toUpperCase(),
+        "origin" to origin.uppercase(),
+        "destination" to destination.uppercase(),
         "departure" to departure,
         "arrival" to arrival,
-        "carrier" to carrier.toUpperCase(),
+        "carrier" to carrier.uppercase(),
         "number" to number,
         "cabin" to (cabin ?: "economy"),
-        "aircraft" to aircraft?.toUpperCase(),
-        "seat" to seat?.toUpperCase(),
+        "aircraft" to aircraft?.uppercase(),
+        "seat" to seat?.uppercase(),
         "reference" to reference,
         "info" to info
     )
