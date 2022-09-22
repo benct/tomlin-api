@@ -44,17 +44,18 @@ class FinnController(private val fetcher: HttpFetcher = fetcher(FINN_URL)) {
 
     private fun fetchPrice(id: Long): String =
         fetcher.get(queryParams = mapOf(
+            "searchkey" to "SEARCH_ID_REALESTATE_HOMES",
+            "sort" to "PUBLISHED_DESC",
             "vertical" to "realestate",
-            "subvertical" to "homes",
             "q" to id.toString())
         ).let {
             if (it.isSuccessful) {
                 try {
-                    val results = it.body?.string()?.parseJson<FinnResponse>()?.displaySearchResults
+                    val results = it.body?.string()?.parseJson<FinnResponse>()?.docs
                     if (results.isNullOrEmpty()) {
                         "Ad Not Found (404)"
                     } else {
-                        results.first().bodyRow.lastOrNull() ?: "Price Not Found"
+                        results.first().price_suggestion?.amount?.toString() ?: "Price Not Found"
                     }
                 } catch (e: Exception) {
                     "Fatal Parse Error"
@@ -63,20 +64,15 @@ class FinnController(private val fetcher: HttpFetcher = fetcher(FINN_URL)) {
         }
 
     companion object {
-        private const val FINN_URL = "https://www.finn.no/api/search"
+        private const val FINN_URL = "https://www.finn.no/api/search-qf"
     }
 
-    data class FinnResponse(val displaySearchResults: List<SearchResult>)
+    data class FinnResponse(val docs: List<SearchResult>)
 
     data class SearchResult(
-        val adId: Long,
-        val adUrl: String,
-        val imageUrl: String? = null,
-        val topRowCenter: String? = null,
-        val titleRow: String,
-        val bodyRow: List<String>,
-        val bottomRow1: String? = null,
-        val bottomRow2: String? = null,
-        val bottomRow3: String? = null
+        val ad_id: Long,
+        val price_suggestion: Price? = null,
     )
+
+    data class Price(val amount: Long? = null)
 }
