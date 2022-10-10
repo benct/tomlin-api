@@ -39,6 +39,6 @@ class GitHubService(val fetcher: HttpFetcher = fetcher(BASE_URL)) {
         const val USER_PATH = "/users/benct"
         const val REPO_PATH = "/users/benct/repos"
 
-        val FEATURED = listOf("tomlin-web", "iata-utils", "dotfiles")
+        val FEATURED = listOf("tomlin-api", "tomlin-web", "iata-utils")
     }
 }
