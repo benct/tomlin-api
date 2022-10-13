@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse
 @RestController
 class ApiController {
 
+    // TODO: Move all lateinit wiring to constructors
     @Autowired
     private lateinit var properties: ApiProperties
 

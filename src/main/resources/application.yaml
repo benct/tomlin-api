@@ -22,3 +22,7 @@ server:
       enabled: on
       force: on
       charset: UTF-8
+
+api:
+  key: ${API_KEY}
+  tmdbKey: ${TMDB_API_KEY}

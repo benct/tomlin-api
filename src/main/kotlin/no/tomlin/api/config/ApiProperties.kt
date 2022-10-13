@@ -12,11 +12,11 @@ data class ApiProperties(
     var baseUrl: String = "https://tomlin.no",
 
     var key: String = UUID.randomUUID().toString(),
+    var tmdbKey: String = UUID.randomUUID().toString(),
 
     var cdn: CdnProperties = CdnProperties(),
     var files: FileProperties = FileProperties(),
     var backup: BackupProperties = BackupProperties(),
-    var tmdb: TmdbProperties = TmdbProperties()
 ) {
     data class CdnProperties(
         var images: String = "$CDN_ROOT/images",
@@ -32,12 +32,6 @@ data class ApiProperties(
     data class BackupProperties(
         var path: String = "/var/api/backup",
         var params: String = "-u user -ppassword database"
-    )
-
-    data class TmdbProperties(
-        var key: String = UUID.randomUUID().toString(),
-        var url: String = "https://api.themoviedb.org/3/",
-        var posterUrl: String = "https://image.tmdb.org/t/p/w200"
     )
 
     private companion object {
