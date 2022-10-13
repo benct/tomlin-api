@@ -99,5 +99,5 @@ open class HttpFetcher private constructor(private val baseUrl: String?, timeout
         RuntimeException("Empty response (${response.code}) from ${response.request.url})")
 
     internal class UnsuccessfulResponseException(response: Response) :
-        RuntimeException("Invalid response (${response.code}) from (${response.request.url}): ${response.message}")
+        RuntimeException("Invalid response (${response.code}) from (${response.request.url}): ${response.body?.string()}")
 }
