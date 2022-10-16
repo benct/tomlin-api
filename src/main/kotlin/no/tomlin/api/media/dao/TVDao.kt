@@ -35,7 +35,7 @@ class TVDao {
             }
 
     fun get(query: String?, sort: String, page: Int): PaginationResponse<Map<String, Any?>> {
-        val where = query?.let { "WHERE title LIKE :query" }.orEmpty()
+        val where = query?.let { "WHERE title LIKE :query OR id LIKE :query" }.orEmpty()
         val start = (page - 1) * PAGE_SIZE
 
         val tv = jdbcTemplate.queryForList(
