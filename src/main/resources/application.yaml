@@ -26,3 +26,5 @@ server:
 api:
   key: ${API_KEY}
   tmdbKey: ${TMDB_API_KEY}
+  cdnRoot: /images
+  fileRoot: /

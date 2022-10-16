@@ -1,5 +1,6 @@
-package no.tomlin.api.admin.entity
+package no.tomlin.api.files
 
+import com.google.cloud.storage.Blob
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.attribute.PosixFilePermissions
@@ -15,26 +16,38 @@ data class FileModel(
     val name: String,
     val short: String,
     val size: String,
-    val perms: String,
-    val date: String,
-    val type: String,
-    val dir: Boolean,
-    val icon: Boolean,
+    val modified: String?,
+    val ext: String,
+    val isDir: Boolean,
     val preview: String?,
-    val files: Int = 0
+    val contentType: String? = null,
+    val perms: String? = null,
+    val files: Int? = null,
 ) {
-    constructor(file: File, root: String, hasIcon: Boolean) : this(
+    constructor(file: File, root: String) : this(
         file.path.replace(root, ""),
         file.name,
         shortName(file.name),
         computeSize(file.length()),
-        computePerms(file),
-        computeModified(file),
+        computeModified(file.lastModified()),
         if (file.isDirectory) "dir" else file.extension.lowercase(),
         file.isDirectory,
-        hasIcon || file.isDirectory,
         findPreviewType(file.extension.lowercase()),
+        null,
+        computePerms(file),
         file.listFiles()?.size ?: 0
+    )
+
+    constructor(file: Blob) : this(
+        file.name,
+        file.name.trim('/').split('/').last(),
+        shortName(file.name.trim('/').split('/').last()),
+        computeSize(file.size),
+        file.updateTime?.let { computeModified(it) },
+        if (file.isDirectory) "dir" else file.name.split('.').last().lowercase(),
+        file.isDirectory,
+        findPreviewType(file.name.split('.').last().lowercase()),
+        file.contentType,
     )
 
     private companion object {
@@ -43,7 +56,7 @@ data class FileModel(
         val DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/YY")
         val NUM_FORMAT = DecimalFormat("#,###.##")
 
-        fun shortName(name: String): String = if (name.length > 25) "${name.take(21)}..${name.takeLast(4)}" else name
+        fun shortName(name: String): String = if (name.length > 25) "${name.take(15)}...${name.takeLast(7)}" else name
 
         fun computeSize(sizeInBytes: Long): String {
             val total = sizeInBytes.toDouble()
@@ -56,13 +69,20 @@ data class FileModel(
             }
         }
 
-        fun computePerms(file: File): String = PosixFilePermissions.toString(Files.getPosixFilePermissions(file.toPath()))
+        fun computeModified(modified: Long): String =
+            LocalDateTime
+                .ofInstant(Instant.ofEpochMilli(modified), ZoneId.systemDefault())
+                .format(DATE_FORMAT)
 
-        fun computeModified(file: File): String =
-            LocalDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()), ZoneId.systemDefault()).format(DATE_FORMAT)
 
-        fun findPreviewType(type: String): String? =
-            Preview.values().find { it.extensions.contains(type.lowercase()) }?.name?.lowercase()
+        fun computePerms(file: File): String =
+            PosixFilePermissions.toString(Files.getPosixFilePermissions(file.toPath()))
+
+        fun findPreviewType(ext: String?, contentType: String? = null): String? =
+            Preview.values()
+                .find { it.extensions.contains(ext?.lowercase()) || contentType?.contains(it.name.lowercase()) == true }
+                ?.name
+                ?.lowercase()
 
         enum class Preview(val extensions: List<String>) {
             IMAGE(listOf("jpg", "jpeg", "png", "bmp", "gif", "svg", "ico")),

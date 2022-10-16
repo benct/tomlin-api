@@ -4,8 +4,6 @@
 !**/src/test/**
 
 backup/
-assets/
-files/
 build/
 out/
 

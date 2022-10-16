@@ -47,10 +47,10 @@ class AdminController {
     @Secured(ADMIN)
     @PostMapping("/backup")
     fun backup(): Boolean {
-        val file = File("${properties.backup.path}/db_${LocalDate.now()}.sql")
+        val file = File("${properties.fileRoot}/backup/db_${LocalDate.now()}.sql")
         file.parentFile.mkdirs()
 
-        val command = "mysqldump ${properties.backup.params} -r ${file.path}"
+        val command = "mysqldump ${properties.backup} -r ${file.path}"
         val runtimeProcess = Runtime.getRuntime().exec(command)
 
         return if (runtimeProcess.waitFor() == 0) true else

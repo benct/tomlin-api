@@ -1,24 +1,26 @@
 package no.tomlin.api.media
 
 import no.tomlin.api.config.ApiProperties
+import no.tomlin.api.files.FileService
 import no.tomlin.api.http.HttpFetcher
 import no.tomlin.api.http.HttpFetcher.Companion.fetcher
 import no.tomlin.api.http.HttpFetcher.Companion.readBody
 import no.tomlin.api.http.HttpFetcher.Companion.useBody
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.http.MediaType.IMAGE_JPEG_VALUE
 import org.springframework.stereotype.Service
 import java.io.File
-import javax.annotation.PostConstruct
 
 @Service
 class TmdbService(
     private val properties: ApiProperties,
-    private val fetcher: HttpFetcher = fetcher(BASE_URL),
-    private val posterFetcher: HttpFetcher = fetcher(POSTER_URL)
+    @Qualifier("GCSService") private val fileService: FileService,
 ) {
+    private val fetcher: HttpFetcher = fetcher(BASE_URL)
+    private val posterFetcher: HttpFetcher = fetcher(POSTER_URL)
 
-    @PostConstruct
-    private fun init() {
-        File(properties.cdn.poster).mkdirs()
+    init {
+        File("${properties.cdnRoot}/images/media").mkdirs()
     }
 
     fun fetchMedia(path: String, page: Int?): String = fetchMedia(path, mapOf("page" to (page ?: 1).toString()))
@@ -33,7 +35,7 @@ class TmdbService(
     fun storePoster(path: String?) {
         if (path != null) {
             posterFetcher.get(path).useBody {
-                File(properties.cdn.poster + path).writeBytes(it.readAllBytes())
+                fileService.store("${properties.cdnRoot}/media${path}", it, IMAGE_JPEG_VALUE)
             }
         }
     }
