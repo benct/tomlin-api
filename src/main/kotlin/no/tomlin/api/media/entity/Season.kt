@@ -8,7 +8,7 @@ import no.tomlin.api.common.JsonUtils.parseJson
 data class Season(
     val id: Long,
     val name: String,
-    val airDate: String,
+    val airDate: String? = null,
     val overview: String? = null,
     val posterPath: String? = null,
     val seasonNumber: Long,
