@@ -1,5 +1,7 @@
 package no.tomlin.api.common
 
+import java.time.Duration
+
 object Extensions {
 
     fun String?.required(field: String): String = this ?: throw IllegalArgumentException("$field cannot be null")
@@ -10,4 +12,7 @@ object Extensions {
 
     fun Int.checkRowsAffected(): Boolean =
         if (this !in 1..2) throw AffectedIncorrectNumberOfRowsException(this) else true
+
+    fun Long.formatDuration(): String =
+        Duration.ofMillis(this).let { "${it.toHoursPart()}h ${it.toMinutesPart()}m ${it.toSecondsPart()}s" }
 }

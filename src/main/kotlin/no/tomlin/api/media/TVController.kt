@@ -2,6 +2,7 @@ package no.tomlin.api.media
 
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
+import no.tomlin.api.common.Extensions.formatDuration
 import no.tomlin.api.common.PaginationResponse
 import no.tomlin.api.logging.LogDao
 import no.tomlin.api.media.MediaController.Companion.parseSort
@@ -28,8 +29,11 @@ class TVController {
 
     @Secured(USER, ADMIN)
     @GetMapping
-    fun get(@RequestParam query: String?, @RequestParam sort: String?, @RequestParam page: Int?): PaginationResponse<Map<String, Any?>> =
-        tvDao.get(query, parseSort(sort), page ?: 1)
+    fun get(
+        @RequestParam query: String?,
+        @RequestParam sort: String?,
+        @RequestParam page: Int?
+    ): PaginationResponse<Map<String, Any?>> = tvDao.get(query, parseSort(sort), page ?: 1)
 
     @Secured(USER, ADMIN)
     @GetMapping("/{id}")
@@ -37,7 +41,7 @@ class TVController {
 
     @Secured(ADMIN)
     @PostMapping("/{id}")
-    fun store(@PathVariable id: String): Boolean =
+    fun store(@PathVariable id: String, log: Boolean = true): Boolean =
         tmdbService.fetchMedia("tv/$id", mapOf("append_to_response" to "external_ids"))
             .parseTV()
             .let { tv ->
@@ -53,10 +57,9 @@ class TVController {
                             tvDao.store(season.insertStatement(false), season.toDaoMap(tv.id))
                         }
                 }
-                tvDao.store(tv.insertStatement(), tv.toDaoMap())
-
-                logger.info("TV", "Saved/updated ${tv.id} (${tv.name})")
-                true
+                tvDao.store(tv.insertStatement(), tv.toDaoMap()).also {
+                    if (log) logger.info("TV", "Saved/updated ${tv.id} (${tv.name})")
+                }
             }
 
     @Secured(ADMIN)
@@ -67,7 +70,25 @@ class TVController {
 
     @Secured(ADMIN)
     @PostMapping("/update/{count}")
-    fun batchUpdate(@PathVariable count: Int?): Int = tvDao.getIds(count ?: UPDATE_COUNT).count { store(it.toString()) }
+    fun batchUpdate(@PathVariable count: Int?): Int = tvDao.getIds(count
+        ?: UPDATE_COUNT).count { store(it.toString(), false) }
+
+    @Secured(ADMIN)
+    @PostMapping("/update/all")
+    fun batchUpdateAll(): Int {
+        val start = System.currentTimeMillis()
+        val count = tvDao.getIds().count {
+            try {
+                store(it.toString(), false)
+            } catch (e: Exception) {
+                logger.error(e)
+                false
+            }
+        }
+        val elapsed = System.currentTimeMillis() - start
+        logger.info("Movie", "Updated $count TV shows in ${elapsed.formatDuration()}")
+        return count
+    }
 
     @Secured(ADMIN)
     @PostMapping("/favourite/{id}")
@@ -107,7 +128,8 @@ class TVController {
 
     @Secured(USER, ADMIN)
     @GetMapping("/recommended/{id}", produces = [APPLICATION_JSON_VALUE])
-    fun recommended(@PathVariable id: String, @RequestParam page: Int?) = tmdbService.fetchMedia("tv/$id/recommendations", page)
+    fun recommended(@PathVariable id: String, @RequestParam page: Int?) =
+        tmdbService.fetchMedia("tv/$id/recommendations", page)
 
     companion object {
         const val UPDATE_COUNT = 3

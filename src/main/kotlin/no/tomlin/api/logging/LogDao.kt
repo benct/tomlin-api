@@ -14,11 +14,11 @@ class LogDao {
 
     fun info(key: String, message: String) = log("[$key] $message")
 
-    fun warn(exception: Exception, request: HttpServletRequest) =
-        log("[Warn] ${exception::class.simpleName}", exception.message, request.servletPath)
+    fun warn(exception: Exception, request: HttpServletRequest? = null) =
+        log("[Warn] ${exception::class.simpleName}", exception.message, request?.servletPath)
 
-    fun error(exception: Exception, request: HttpServletRequest) =
-        log("[Error] ${exception::class.simpleName}", exception.message, request.servletPath)
+    fun error(exception: Exception, request: HttpServletRequest? = null) =
+        log("[Error] ${exception::class.simpleName}", exception.message, request?.servletPath)
 
     private fun log(message: String, details: String? = null, path: String? = null): Int =
         jdbcTemplate.update(
