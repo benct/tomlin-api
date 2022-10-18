@@ -15,4 +15,7 @@ object Extensions {
 
     fun Long.formatDuration(): String =
         Duration.ofMillis(this).let { "${it.toHoursPart()}h ${it.toMinutesPart()}m ${it.toSecondsPart()}s" }
+
+    class AffectedIncorrectNumberOfRowsException(actual: Int, min: Int = 1, max: Int = 2) :
+        RuntimeException("SQL update affected $actual rows, not in range [$min, $max]")
 }

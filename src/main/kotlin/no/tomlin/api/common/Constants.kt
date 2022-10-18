@@ -18,7 +18,6 @@ object Constants {
     const val TABLE_NOTE = "${TABLE_PREFIX}note"
     const val TABLE_FLIGHT = "${TABLE_PREFIX}flight"
     const val TABLE_FINN = "${TABLE_PREFIX}finn"
-    const val TABLE_HASS = "${TABLE_PREFIX}home"
     const val TABLE_MOVIE = "${TABLE_PREFIX}movie"
     const val TABLE_TV = "${TABLE_PREFIX}tv"
     const val TABLE_SEASON = "${TABLE_PREFIX}season"

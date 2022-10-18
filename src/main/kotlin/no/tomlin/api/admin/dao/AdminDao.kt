@@ -8,7 +8,6 @@ import no.tomlin.api.common.Constants.PAGE_SIZE
 import no.tomlin.api.common.Constants.TABLE_AIRLINE
 import no.tomlin.api.common.Constants.TABLE_EPISODE
 import no.tomlin.api.common.Constants.TABLE_FLIGHT
-import no.tomlin.api.common.Constants.TABLE_HASS
 import no.tomlin.api.common.Constants.TABLE_LOCATION
 import no.tomlin.api.common.Constants.TABLE_LOG
 import no.tomlin.api.common.Constants.TABLE_MOVIE
@@ -37,7 +36,6 @@ class AdminDao {
         "tv" to countQuery(TABLE_TV),
         "season" to countQuery(TABLE_SEASON),
         "episode" to countQuery(TABLE_EPISODE),
-        "hass" to countQuery(TABLE_HASS),
         "airline" to countQuery(TABLE_AIRLINE),
         "location" to countQuery(TABLE_LOCATION),
         "log" to countQuery(TABLE_LOG)
