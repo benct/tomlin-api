@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.security.Principal
+import java.time.LocalDate.now
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
@@ -50,27 +51,42 @@ class ApiController {
     fun weather() = weatherService.getWeather()
 
     @PostMapping("/authenticate")
-    fun authenticate(@RequestParam referrer: String?, request: HttpServletRequest, principal: Principal?): Map<String, Any?> {
-        adminDao.visit(
-            request.remoteAddr,
-            request.remoteHost,
-            referrer,
-            request.getHeader("User-Agent"),
-            request.getHeader("referer")
-        )
+    fun authenticate(@RequestParam referrer: String?, request: HttpServletRequest, principal: Principal?): AuthResponse =
+        try {
+            adminDao.visit(
+                request.remoteAddr,
+                request.remoteHost,
+                referrer,
+                request.getHeader("User-Agent"),
+                request.getHeader("referer")
+            )
 
-        principal?.let {
-            userDao.updateLastSeen(it.name)
+            principal?.let {
+                userDao.updateLastSeen(it.name)
+            }
+
+            AuthResponse(principal, weatherService.getWeather(), adminDao.getSettings())
+        } catch (_: Exception) {
+            // Database is probably down, return state that is not data dependent...
+            AuthResponse(principal, weatherService.getWeather())
         }
-
-        return mapOf(
-            "authenticated" to (SecurityContextHolder.getContext().authentication?.isAuthenticated ?: false),
-            "settings" to adminDao.getSettings(),
-            "weather" to weatherService.getWeather(),
-            "username" to principal?.name
-        )
-    }
 
     @PostMapping("/login")
     fun login(request: HttpServletRequest, response: HttpServletResponse) = request.authenticate(response)
+
+    data class AuthResponse(
+        val authenticated: Boolean,
+        val database: Boolean,
+        val settings: Map<String, Any?>,
+        val weather: Map<String, Any?>,
+        val username: String?,
+    ) {
+        constructor(principal: Principal?, weather: Map<String, Any?>, settings: Map<String, Any?>? = null) : this(
+            authenticated = SecurityContextHolder.getContext().authentication?.isAuthenticated ?: false,
+            database = settings != null,
+            settings = settings ?: mapOf("countdownTarget" to now().plusDays(15).atStartOfDay()),
+            weather = weather,
+            username = principal?.name,
+        )
+    }
 }
