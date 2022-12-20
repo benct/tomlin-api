@@ -38,7 +38,8 @@ class AdminDao {
         "episode" to countQuery(TABLE_EPISODE),
         "airline" to countQuery(TABLE_AIRLINE),
         "location" to countQuery(TABLE_LOCATION),
-        "log" to countQuery(TABLE_LOG)
+        "log" to countQuery(TABLE_LOG),
+        "visit" to countQuery(TABLE_TRACK)
     )
 
     @Cacheable("settings")

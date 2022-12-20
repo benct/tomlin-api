@@ -5,7 +5,7 @@ object Constants {
     const val USER = "ROLE_USER"
     const val ADMIN = "ROLE_ADMIN"
 
-    // Media
+    // Pagination
     const val PAGE_SIZE = 50
 
     // Database tables
