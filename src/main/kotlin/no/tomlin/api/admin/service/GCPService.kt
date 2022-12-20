@@ -8,6 +8,7 @@ import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.sqladmin.SQLAdmin
 import com.google.api.services.sqladmin.model.DatabaseInstance
 import com.google.api.services.sqladmin.model.Operation
+import com.google.api.services.sqladmin.model.Settings
 import no.tomlin.api.config.ApiProperties
 import no.tomlin.api.http.HttpFetcher
 import no.tomlin.api.http.HttpFetcher.Companion.fetcher
@@ -39,7 +40,7 @@ class GCPService(val fetcher: HttpFetcher = fetcher(GCP_SQL_URL)) {
             sqlAdminService.instances().restart(PROJECT_ID, properties.dbInstance)
         } else {
             val requestBody = DatabaseInstance().apply {
-                settings.activationPolicy = policy.name
+                settings = Settings().apply { activationPolicy = policy.name }
             }
             sqlAdminService.instances().patch(PROJECT_ID, properties.dbInstance, requestBody)
         }
