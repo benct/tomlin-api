@@ -16,6 +16,8 @@ data class ApiProperties(
     var key: String = UUID.randomUUID().toString(),
     var tmdbKey: String = UUID.randomUUID().toString(),
 
+    var dbInstance: String = "some-db-instance",
+
     var cdnRoot: String = "/var/www/html",
     var fileRoot: String = "/var/api/files",
 

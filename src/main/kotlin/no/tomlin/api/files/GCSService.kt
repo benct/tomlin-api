@@ -12,7 +12,6 @@ import java.io.File
 import java.io.InputStream
 import java.nio.file.Paths
 
-
 @Service
 class GCSService(private val properties: ApiProperties) : FileService {
 

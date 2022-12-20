@@ -26,5 +26,6 @@ server:
 api:
   key: ${API_KEY}
   tmdbKey: ${TMDB_API_KEY}
+  dbInstance: ${CLOUD_SQL_CONNECTION_NAME}
   cdnRoot: /images
   fileRoot: /

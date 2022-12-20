@@ -4,6 +4,8 @@ import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.internal.EMPTY_REQUEST
+import org.springframework.http.ResponseEntity
 import java.io.InputStream
 import java.net.MalformedURLException
 import java.time.Duration
@@ -26,28 +28,44 @@ open class HttpFetcher private constructor(private val baseUrl: String?, timeout
     open fun getJson(path: String = "", queryParams: Map<String, String?> = mapOf()) =
         get(path = path, headers = mapOf("Accept" to "application/json"), queryParams = queryParams)
 
-    open fun post(path: String = "", postBody: RequestBody, headers: Map<String, String> = mapOf()) =
-        fetch(path = path, postBody = postBody, headers = headers, queryParams = mapOf())
+    open fun post(path: String = "", body: RequestBody, headers: Map<String, String> = mapOf()) =
+        fetch(method = "POST", path = path, body = body, headers = headers, queryParams = mapOf())
 
     open fun postJson(payload: String): Response {
         val requestBody = payload.toRequestBody("application/json".toMediaType())
-        return post(postBody = requestBody)
+        return post(body = requestBody)
     }
 
+    open fun patch(path: String = "", body: RequestBody, headers: Map<String, String> = mapOf()) =
+        fetch(method = "PATCH", path = path, body = body, headers = headers, queryParams = mapOf())
+
+    open fun patchJson(path: String = "", payload: String): Response {
+        val requestBody = payload.toRequestBody("application/json".toMediaType())
+        return patch(path = path, body = requestBody)
+    }
+
+    open fun delete(path: String = "", body: RequestBody? = null, headers: Map<String, String> = mapOf()) =
+        fetch(method = "DELETE", path = path, body = body, headers = headers, queryParams = mapOf())
+
     private fun fetch(
+        method: String = "GET",
         path: String,
-        postBody: RequestBody? = null,
+        body: RequestBody? = null,
         headers: Map<String, String>,
         queryParams: Map<String, List<String?>>
     ): Response {
-
         val request = Request.Builder().url(createUrl(path, queryParams))
-        postBody?.let {
-            request.post(it)
+
+        when (method) {
+            "POST" -> request.post(body ?: EMPTY_REQUEST)
+            "PATCH" -> request.patch(body ?: EMPTY_REQUEST)
+            "DELETE" -> request.delete(body)
         }
+
         headers.forEach {
             request.addHeader(it.key, it.value)
         }
+
         return client.newCall(request.build()).execute()
     }
 
@@ -83,10 +101,14 @@ open class HttpFetcher private constructor(private val baseUrl: String?, timeout
             } else throw UnsuccessfulResponseException(it)
         }
 
+        fun Response.toResponseEntity(): ResponseEntity<String> = this.use {
+            ResponseEntity.status(it.code).body(it.body?.string())
+        }
+
         private val CONNECTION_TIMEOUT = ofSeconds(5)
         private val REQUEST_TIMEOUT = ofSeconds(10)
         private val CONNECTIONPOOL_KEEPALIVE = ofMinutes(5)
-        private const val MAX_TOTAL_CONNECTIONS = 120
+        private const val MAX_TOTAL_CONNECTIONS = 20
 
         private fun slash(path: String) = if (path.isEmpty() || path[0] == '/') path else "/$path"
         private fun stripSlashes(str: String) = str.replace(Regex("(?<=[^:\\s])(/+/)"), "/")

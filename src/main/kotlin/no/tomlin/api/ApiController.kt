@@ -2,15 +2,14 @@ package no.tomlin.api
 
 import no.tomlin.api.admin.dao.AdminDao
 import no.tomlin.api.admin.dao.UserDao
+import no.tomlin.api.admin.service.GCPService
 import no.tomlin.api.config.ApiProperties
 import no.tomlin.api.github.GitHubService
 import no.tomlin.api.weather.WeatherService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.security.Principal
 import java.time.LocalDate.now
 import javax.servlet.http.HttpServletRequest
@@ -35,7 +34,10 @@ class ApiController {
     @Autowired
     private lateinit var weatherService: WeatherService
 
-    @GetMapping("/")
+    @Autowired
+    private lateinit var gcpService: GCPService
+
+    @GetMapping("/", produces = [APPLICATION_JSON_VALUE])
     fun base() = mapOf("site" to properties.name, "version" to properties.version, "baseUrl" to properties.baseUrl)
 
     @GetMapping("/ping")
@@ -44,13 +46,13 @@ class ApiController {
     @GetMapping("/version")
     fun version() = properties.version
 
-    @GetMapping("/github")
+    @GetMapping("/github", produces = [APPLICATION_JSON_VALUE])
     fun github() = gitHubService.getUserData()
 
-    @GetMapping("/weather")
+    @GetMapping("/weather", produces = [APPLICATION_JSON_VALUE])
     fun weather() = weatherService.getWeather()
 
-    @PostMapping("/authenticate")
+    @PostMapping("/authenticate", produces = [APPLICATION_JSON_VALUE])
     fun authenticate(@RequestParam referrer: String?, request: HttpServletRequest, principal: Principal?): AuthResponse =
         try {
             adminDao.visit(
@@ -73,6 +75,9 @@ class ApiController {
 
     @PostMapping("/login")
     fun login(request: HttpServletRequest, response: HttpServletResponse) = request.authenticate(response)
+
+    @GetMapping("/database/{action}", produces = [APPLICATION_JSON_VALUE])
+    fun gcpDatabase(@PathVariable action: String) = gcpService.handleDatabaseStartStop(action)
 
     data class AuthResponse(
         val authenticated: Boolean,
