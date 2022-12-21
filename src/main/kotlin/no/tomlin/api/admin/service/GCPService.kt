@@ -7,6 +7,7 @@ import com.google.api.client.json.JsonFactory
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.sqladmin.SQLAdmin
 import com.google.api.services.sqladmin.model.DatabaseInstance
+import com.google.api.services.sqladmin.model.IpConfiguration
 import com.google.api.services.sqladmin.model.Operation
 import com.google.api.services.sqladmin.model.Settings
 import no.tomlin.api.config.ApiProperties
@@ -35,7 +36,12 @@ class GCPService {
             sqlAdminService.instances().restart(PROJECT_ID, properties.dbInstance)
         } else {
             val requestBody = DatabaseInstance().apply {
-                settings = Settings().apply { activationPolicy = policy.name }
+                settings = Settings().apply {
+                    activationPolicy = policy.name
+                    ipConfiguration = IpConfiguration().apply {
+                        ipv4Enabled = (policy == ActivationPolicy.ALWAYS)
+                    }
+                }
             }
             sqlAdminService.instances().patch(PROJECT_ID, properties.dbInstance, requestBody)
         }
