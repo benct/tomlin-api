@@ -5,6 +5,7 @@ import com.google.zxing.client.j2se.MatrixToImageWriter
 import com.google.zxing.qrcode.QRCodeWriter
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
+import no.tomlin.api.common.Extensions.nullIfBlank
 import no.tomlin.api.files.FileService
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.MediaType
@@ -52,7 +53,7 @@ class QratorController(
         @RequestParam author: String?,
         @RequestParam value: Int?,
         @RequestParam description: String?,
-    ): Boolean = qratorDao.update(id, title, author, value, description)
+    ): Boolean = qratorDao.update(id, title.nullIfBlank(), author.nullIfBlank(), value, description.nullIfBlank())
 
     @Secured(USER, ADMIN)
     @DeleteMapping("/{id}")
