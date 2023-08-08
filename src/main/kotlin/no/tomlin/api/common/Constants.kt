@@ -18,6 +18,7 @@ object Constants {
     const val TABLE_NOTE = "${TABLE_PREFIX}note"
     const val TABLE_FLIGHT = "${TABLE_PREFIX}flight"
     const val TABLE_FINN = "${TABLE_PREFIX}finn"
+    const val TABLE_QRATOR = "${TABLE_PREFIX}qrator"
     const val TABLE_RATING = "${TABLE_PREFIX}rating"
     const val TABLE_RATING_ITEM = "${TABLE_PREFIX}rating_item"
     const val TABLE_RATING_SCORE = "${TABLE_PREFIX}rating_score"
