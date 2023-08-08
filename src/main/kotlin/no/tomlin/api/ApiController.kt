@@ -1,5 +1,8 @@
 package no.tomlin.api
 
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.client.j2se.MatrixToImageWriter
+import com.google.zxing.qrcode.QRCodeWriter
 import no.tomlin.api.admin.dao.AdminDao
 import no.tomlin.api.admin.dao.UserDao
 import no.tomlin.api.admin.service.GCPService
@@ -8,8 +11,10 @@ import no.tomlin.api.github.GitHubService
 import no.tomlin.api.weather.WeatherService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
+import org.springframework.http.MediaType.IMAGE_PNG_VALUE
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
+import java.awt.image.BufferedImage
 import java.security.Principal
 import java.time.LocalDate.now
 import javax.servlet.http.HttpServletRequest
@@ -53,7 +58,11 @@ class ApiController {
     fun weather() = weatherService.getWeather()
 
     @PostMapping("/authenticate", produces = [APPLICATION_JSON_VALUE])
-    fun authenticate(@RequestParam referrer: String?, request: HttpServletRequest, principal: Principal?): AuthResponse =
+    fun authenticate(
+        @RequestParam referrer: String?,
+        request: HttpServletRequest,
+        principal: Principal?
+    ): AuthResponse =
         try {
             adminDao.visit(
                 request.remoteAddr,
@@ -78,6 +87,12 @@ class ApiController {
 
     @PostMapping("/database/{action}", produces = [APPLICATION_JSON_VALUE])
     fun gcpDatabase(@PathVariable action: String) = gcpService.handleDatabaseAction(action)
+
+    @GetMapping("/qr", produces = [IMAGE_PNG_VALUE])
+    fun qrCode(@RequestParam content: String?): BufferedImage? {
+        val bitMatrix = QRCodeWriter().encode(content ?: properties.baseUrl, BarcodeFormat.QR_CODE, 256, 256)
+        return MatrixToImageWriter.toBufferedImage(bitMatrix)
+    }
 
     data class AuthResponse(
         val authenticated: Boolean,

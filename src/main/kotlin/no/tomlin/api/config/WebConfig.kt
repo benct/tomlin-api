@@ -1,8 +1,12 @@
 package no.tomlin.api.config
 
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.converter.BufferedImageHttpMessageConverter
+import org.springframework.http.converter.HttpMessageConverter
 import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+import java.awt.image.BufferedImage
 
 @Configuration
 class WebConfig : WebMvcConfigurer {
@@ -13,4 +17,7 @@ class WebConfig : WebMvcConfigurer {
             .allowedOrigins("https://tomlin.no", "https://dev.tomlin.no", "http://localhost:8080")
             .maxAge(36000)
     }
+
+    @Bean
+    fun imageHttpMessageConverter(): HttpMessageConverter<BufferedImage> = BufferedImageHttpMessageConverter()
 }
