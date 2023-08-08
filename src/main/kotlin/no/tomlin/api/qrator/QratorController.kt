@@ -22,11 +22,9 @@ class QratorController(
     @Qualifier("GCSService") private val fileService: FileService
 ) {
 
-    @Secured(USER, ADMIN)
     @GetMapping
-    fun all(@RequestParam content: String): List<Map<String, Any?>> = qratorDao.get()
+    fun all(): List<Map<String, Any?>> = qratorDao.get()
 
-    @Secured(USER, ADMIN)
     @GetMapping("/{id}")
     fun get(@PathVariable id: Long): Map<String, Any?> = qratorDao.get(id)
 
