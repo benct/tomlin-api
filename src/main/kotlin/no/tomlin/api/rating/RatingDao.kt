@@ -74,12 +74,12 @@ class RatingDao {
         .update(score.insertStatement(), score.asDaoMap())
         .checkRowsAffected()
 
-    @CacheEvict("active, activeItems", allEntries = true)
+    @CacheEvict(value = ["active", "activeItems"], allEntries = true)
     fun save(rating: RatingSurvey): Boolean = jdbcTemplate
         .update(rating.insertStatement(), rating.asDaoMap())
         .checkRowsAffected()
 
-    @CacheEvict("active, activeItems", allEntries = true)
+    @CacheEvict(value = ["active", "activeItems"], allEntries = true)
     fun delete(id: Long): Boolean = jdbcTemplate
         .update("DELETE FROM $TABLE_RATING WHERE id = :id", mapOf("id" to id)) > 0
 
