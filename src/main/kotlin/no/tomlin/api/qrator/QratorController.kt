@@ -8,7 +8,7 @@ import no.tomlin.api.common.Constants.USER
 import no.tomlin.api.common.Extensions.nullIfBlank
 import no.tomlin.api.files.FileService
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.http.MediaType
+import org.springframework.http.MediaType.IMAGE_PNG_VALUE
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
@@ -38,7 +38,7 @@ class QratorController(
                 val stored = fileService.store("$ART_PATH/$id.${fileExtension}", it.inputStream, it.contentType)
                 if (stored) {
                     val qrCodeImage = generateQRCode(QR_BASE_URL + id)
-                    fileService.store("$QR_PATH/$id.png", qrCodeImage, QR_CONTENT_TYPE)
+                    fileService.store("$QR_PATH/$id.png", qrCodeImage, IMAGE_PNG_VALUE)
                 } else {
                     qratorDao.delete(id)
                 }
@@ -61,7 +61,6 @@ class QratorController(
 
     private companion object {
         const val QR_BASE_URL = "https://tomlin.no/qrator"
-        const val QR_CONTENT_TYPE = MediaType.IMAGE_PNG_VALUE
         const val ART_PATH = "/qrator/art"
         const val QR_PATH = "/qrator/qr"
 
@@ -71,7 +70,7 @@ class QratorController(
         fun generateQRCode(content: String): InputStream {
             val bitMatrix = QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, 150, 150)
             val outputStream = ByteArrayOutputStream()
-            MatrixToImageWriter.writeToStream(bitMatrix, QR_CONTENT_TYPE, outputStream)
+            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream)
             return ByteArrayInputStream(outputStream.toByteArray())
         }
     }
