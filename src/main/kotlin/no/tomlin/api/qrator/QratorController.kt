@@ -37,7 +37,7 @@ class QratorController(
             qratorDao.create(fileExtension)?.let { id ->
                 val stored = fileService.store("$ART_PATH/$id.${fileExtension}", it.inputStream, it.contentType)
                 if (stored) {
-                    val qrCodeImage = generateQRCode(QR_BASE_URL + id)
+                    val qrCodeImage = generateQRCode("$QR_BASE_URL/$id")
                     fileService.store("$QR_PATH/$id.png", qrCodeImage, IMAGE_PNG_VALUE)
                 } else {
                     qratorDao.delete(id)
