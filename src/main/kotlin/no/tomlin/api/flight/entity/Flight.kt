@@ -1,4 +1,4 @@
-package no.tomlin.api.admin.entity
+package no.tomlin.api.flight.entity
 
 import no.tomlin.api.common.Constants.TABLE_FLIGHT
 import java.sql.ResultSet

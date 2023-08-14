@@ -1,17 +1,13 @@
 package no.tomlin.api.admin.dao
 
-import no.tomlin.api.admin.entity.Flight
 import no.tomlin.api.admin.entity.Log
-import no.tomlin.api.admin.entity.Note
 import no.tomlin.api.admin.entity.Visit
 import no.tomlin.api.common.Constants.PAGE_SIZE
 import no.tomlin.api.common.Constants.TABLE_AIRLINE
 import no.tomlin.api.common.Constants.TABLE_EPISODE
-import no.tomlin.api.common.Constants.TABLE_FLIGHT
 import no.tomlin.api.common.Constants.TABLE_LOCATION
 import no.tomlin.api.common.Constants.TABLE_LOG
 import no.tomlin.api.common.Constants.TABLE_MOVIE
-import no.tomlin.api.common.Constants.TABLE_NOTE
 import no.tomlin.api.common.Constants.TABLE_SEASON
 import no.tomlin.api.common.Constants.TABLE_SETTINGS
 import no.tomlin.api.common.Constants.TABLE_TRACK
@@ -44,12 +40,19 @@ class AdminDao {
 
     @Cacheable("settings")
     fun getSettings(): Map<String, Any?> =
-        jdbcTemplate.query("SELECT `key`, `value` FROM $TABLE_SETTINGS", EmptySqlParameterSource.INSTANCE) { resultSet, _ ->
+        jdbcTemplate.query(
+            "SELECT `key`, `value` FROM $TABLE_SETTINGS",
+            EmptySqlParameterSource.INSTANCE
+        ) { resultSet, _ ->
             resultSet.getString("key") to resultSet.getObject("value")
         }.toMap()
 
     fun getSetting(key: String): String? =
-        jdbcTemplate.queryForObject("SELECT `value` FROM $TABLE_SETTINGS WHERE `key` = :key", mapOf("key" to key), String::class.java)
+        jdbcTemplate.queryForObject(
+            "SELECT `value` FROM $TABLE_SETTINGS WHERE `key` = :key",
+            mapOf("key" to key),
+            String::class.java
+        )
 
     @CacheEvict("settings", allEntries = true)
     fun saveSetting(key: String, value: String?): Boolean =
@@ -66,7 +69,8 @@ class AdminDao {
         ) { resultSet, _ -> Log(resultSet) }
 
         val total = jdbcTemplate.queryForObject(
-            "SELECT COUNT(id) total FROM $TABLE_LOG", EmptySqlParameterSource.INSTANCE, Int::class.java) ?: 1
+            "SELECT COUNT(id) total FROM $TABLE_LOG", EmptySqlParameterSource.INSTANCE, Int::class.java
+        ) ?: 1
 
         return PaginationResponse(page, total, logs)
     }
@@ -85,7 +89,8 @@ class AdminDao {
         ) { resultSet, _ -> Visit(resultSet) }
 
         val total = jdbcTemplate.queryForObject(
-            "SELECT COUNT(id) total FROM $TABLE_TRACK", EmptySqlParameterSource.INSTANCE, Int::class.java) ?: 1
+            "SELECT COUNT(id) total FROM $TABLE_TRACK", EmptySqlParameterSource.INSTANCE, Int::class.java
+        ) ?: 1
 
         return PaginationResponse(page, total, visits)
     }
@@ -101,32 +106,8 @@ class AdminDao {
                 "referrer" to referrer,
                 "agent" to agent,
                 "page" to page
-            ))
-
-    fun getNotes(): List<Note> =
-        jdbcTemplate.query("SELECT * FROM $TABLE_NOTE ORDER BY updated DESC") { resultSet, _ -> Note(resultSet) }
-
-    fun saveNote(id: Long?, title: String, content: String?): Boolean =
-        jdbcTemplate.update(
-            "INSERT INTO $TABLE_NOTE (id, title, content) VALUES (:id, :title, :content) " +
-                "ON DUPLICATE KEY UPDATE title = :title, content = :content",
-            mapOf("id" to id, "title" to title, "content" to content)
-        ).checkRowsAffected()
-
-    fun deleteNote(id: Long): Boolean = jdbcTemplate
-        .update("DELETE FROM $TABLE_NOTE WHERE id = :id", mapOf("id" to id))
-        .checkRowsAffected()
-
-    fun getFlights(): List<Flight> =
-        jdbcTemplate.query("SELECT * FROM $TABLE_FLIGHT ORDER BY departure ASC") { resultSet, _ -> Flight(resultSet) }
-
-    fun saveFlight(flight: Flight): Boolean = jdbcTemplate
-        .update(flight.insertStatement(), flight.asDaoMap())
-        .checkRowsAffected()
-
-    fun deleteFlight(id: Long): Boolean = jdbcTemplate
-        .update("DELETE FROM $TABLE_FLIGHT WHERE id = :id", mapOf("id" to id))
-        .checkRowsAffected()
+            )
+        )
 
     private fun countQuery(table: String): Int? =
         jdbcTemplate.queryForObject("SELECT COUNT(id) FROM $table", EmptySqlParameterSource.INSTANCE, Int::class.java)

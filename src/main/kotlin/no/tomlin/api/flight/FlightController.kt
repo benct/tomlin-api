@@ -1,9 +1,8 @@
-package no.tomlin.api.admin
+package no.tomlin.api.flight
 
-import no.tomlin.api.admin.dao.AdminDao
-import no.tomlin.api.admin.entity.Flight
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
+import no.tomlin.api.flight.entity.Flight
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
@@ -13,14 +12,14 @@ import org.springframework.web.bind.annotation.*
 class FlightController {
 
     @Autowired
-    private lateinit var adminDao: AdminDao
+    private lateinit var flightDao: FlightDao
 
     @Secured(USER, ADMIN)
     @GetMapping
     fun get(): List<List<Flight>> {
         val grouped = mutableMapOf<String, MutableList<Flight>>()
 
-        adminDao.getFlights().forEach {
+        flightDao.getFlights().forEach {
             grouped.putIfAbsent(it.reference, mutableListOf(it))?.add(it)
         }
 
@@ -45,11 +44,11 @@ class FlightController {
         @RequestParam reference: String,
         @RequestParam info: String?
     ): Boolean =
-        adminDao.saveFlight(
+        flightDao.saveFlight(
             Flight(id, origin, destination, departure, arrival, carrier, number, cabin, aircraft, seat, reference, info)
         )
 
     @Secured(ADMIN)
     @DeleteMapping("/{id}")
-    fun delete(@PathVariable id: Long): Boolean = adminDao.deleteFlight(id)
+    fun delete(@PathVariable id: Long): Boolean = flightDao.deleteFlight(id)
 }
