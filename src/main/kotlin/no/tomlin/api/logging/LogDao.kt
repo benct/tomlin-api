@@ -1,16 +1,12 @@
 package no.tomlin.api.logging
 
 import no.tomlin.api.common.Constants
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import javax.servlet.http.HttpServletRequest
 
 @Repository
-class LogDao {
-
-    @Autowired
-    private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
+class LogDao(private val jdbcTemplate: NamedParameterJdbcTemplate) {
 
     fun info(key: String, message: String) = log("[$key] $message")
 

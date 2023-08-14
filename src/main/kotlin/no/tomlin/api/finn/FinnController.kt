@@ -4,17 +4,13 @@ import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.JsonUtils.parseJson
 import no.tomlin.api.http.HttpFetcher
 import no.tomlin.api.http.HttpFetcher.Companion.fetcher
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/finn")
-class FinnController(private val fetcher: HttpFetcher = fetcher(FINN_URL)) {
-
-    @Autowired
-    private lateinit var finnDao: FinnDao
+class FinnController(private val finnDao: FinnDao, private val fetcher: HttpFetcher = fetcher(FINN_URL)) {
 
     @GetMapping
     fun list(): Map<String, List<Map<String, Any>>> = finnDao.get()
@@ -43,11 +39,13 @@ class FinnController(private val fetcher: HttpFetcher = fetcher(FINN_URL)) {
     fun trackAllPrices(): Boolean = finnDao.getUniqueIds().map { track(it) }.all { it }
 
     private fun fetchPrice(id: Long): String =
-        fetcher.get(queryParams = mapOf(
-            "searchkey" to "SEARCH_ID_REALESTATE_HOMES",
-            "sort" to "PUBLISHED_DESC",
-            "vertical" to "realestate",
-            "q" to id.toString())
+        fetcher.get(
+            queryParams = mapOf(
+                "searchkey" to "SEARCH_ID_REALESTATE_HOMES",
+                "sort" to "PUBLISHED_DESC",
+                "vertical" to "realestate",
+                "q" to id.toString()
+            )
         ).let {
             if (it.isSuccessful) {
                 try {

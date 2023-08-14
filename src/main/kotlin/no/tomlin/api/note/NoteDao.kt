@@ -3,15 +3,11 @@ package no.tomlin.api.note
 import no.tomlin.api.common.Constants.TABLE_NOTE
 import no.tomlin.api.common.Extensions.checkRowsAffected
 import no.tomlin.api.note.entity.Note
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 
 @Repository
-class NoteDao {
-
-    @Autowired
-    private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
+class NoteDao(private val jdbcTemplate: NamedParameterJdbcTemplate) {
 
     fun getNotes(): List<Note> =
         jdbcTemplate.query("SELECT * FROM $TABLE_NOTE ORDER BY updated DESC") { resultSet, _ -> Note(resultSet) }

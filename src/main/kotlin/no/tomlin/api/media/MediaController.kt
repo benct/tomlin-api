@@ -5,7 +5,6 @@ import no.tomlin.api.common.Constants.USER
 import no.tomlin.api.common.PaginationResponse
 import no.tomlin.api.media.dao.MovieDao
 import no.tomlin.api.media.dao.TVDao
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.GetMapping
@@ -15,16 +14,11 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/media")
-class MediaController {
-
-    @Autowired
-    private lateinit var tmdbService: TmdbService
-
-    @Autowired
-    private lateinit var movieDao: MovieDao
-
-    @Autowired
-    private lateinit var tvDao: TVDao
+class MediaController(
+    private val tmdbService: TmdbService,
+    private val movieDao: MovieDao,
+    private val tvDao: TVDao
+) {
 
     @GetMapping
     fun stats() = mapOf(

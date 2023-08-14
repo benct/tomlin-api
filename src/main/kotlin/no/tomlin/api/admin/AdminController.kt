@@ -7,7 +7,6 @@ import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
 import no.tomlin.api.common.PaginationResponse
 import no.tomlin.api.config.ApiProperties
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
 import java.io.BufferedReader
@@ -16,13 +15,7 @@ import java.time.LocalDate
 
 @RestController
 @RequestMapping("/admin")
-class AdminController {
-
-    @Autowired
-    private lateinit var properties: ApiProperties
-
-    @Autowired
-    private lateinit var adminDao: AdminDao
+class AdminController(private val properties: ApiProperties, private val adminDao: AdminDao) {
 
     @Secured(USER, ADMIN)
     @GetMapping("/stats")

@@ -3,16 +3,12 @@ package no.tomlin.api.note
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
 import no.tomlin.api.note.entity.Note
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/note")
-class NoteController {
-
-    @Autowired
-    private lateinit var noteDao: NoteDao
+class NoteController(private val noteDao: NoteDao) {
 
     @Secured(USER, ADMIN)
     @GetMapping

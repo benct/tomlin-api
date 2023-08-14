@@ -2,7 +2,6 @@ package no.tomlin.api.qrator
 
 import no.tomlin.api.common.Constants.TABLE_QRATOR
 import no.tomlin.api.common.Extensions.checkRowsAffected
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -11,13 +10,7 @@ import org.springframework.stereotype.Repository
 import java.sql.Statement
 
 @Repository
-class QratorDao {
-
-    @Autowired
-    private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
-
-    @Autowired
-    private lateinit var insertTemplate: JdbcTemplate
+class QratorDao(private val jdbcTemplate: NamedParameterJdbcTemplate, private val insertTemplate: JdbcTemplate) {
 
     fun get(): List<Map<String, Any>> =
         jdbcTemplate.queryForList("SELECT * FROM $TABLE_QRATOR", EmptySqlParameterSource.INSTANCE)

@@ -4,15 +4,11 @@ import no.tomlin.api.admin.entity.User
 import no.tomlin.api.common.Constants.TABLE_ROLE
 import no.tomlin.api.common.Constants.TABLE_USER
 import no.tomlin.api.common.Extensions.checkRowsAffected
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 
 @Repository
-class UserDao {
-
-    @Autowired
-    private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
+class UserDao(private val jdbcTemplate: NamedParameterJdbcTemplate) {
 
     fun updateLastSeen(email: String) =
         jdbcTemplate.update(

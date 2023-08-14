@@ -8,23 +8,17 @@ import no.tomlin.api.logging.LogDao
 import no.tomlin.api.media.MediaController.Companion.parseSort
 import no.tomlin.api.media.dao.MovieDao
 import no.tomlin.api.media.entity.Movie.Companion.parseMovie
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/media/movie")
-class MovieController {
-
-    @Autowired
-    private lateinit var tmdbService: TmdbService
-
-    @Autowired
-    private lateinit var movieDao: MovieDao
-
-    @Autowired
-    private lateinit var logger: LogDao
+class MovieController(
+    private val tmdbService: TmdbService,
+    private val movieDao: MovieDao,
+    private val logger: LogDao
+) {
 
     @Secured(USER, ADMIN)
     @GetMapping

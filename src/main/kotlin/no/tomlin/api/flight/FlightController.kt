@@ -3,16 +3,12 @@ package no.tomlin.api.flight
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
 import no.tomlin.api.flight.entity.Flight
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/flight")
-class FlightController {
-
-    @Autowired
-    private lateinit var flightDao: FlightDao
+class FlightController(private val flightDao: FlightDao) {
 
     @Secured(USER, ADMIN)
     @GetMapping

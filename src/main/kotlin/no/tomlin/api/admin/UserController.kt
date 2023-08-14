@@ -4,7 +4,6 @@ import no.tomlin.api.admin.dao.UserDao
 import no.tomlin.api.admin.entity.User
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.USER
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.annotation.Secured
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.web.bind.annotation.*
@@ -12,13 +11,7 @@ import java.security.Principal
 
 @RestController
 @RequestMapping("/user")
-class UserController {
-
-    @Autowired
-    private lateinit var userDao: UserDao
-
-    @Autowired
-    private lateinit var encoder: BCryptPasswordEncoder
+class UserController(private val userDao: UserDao, private val encoder: BCryptPasswordEncoder) {
 
     @GetMapping("/me")
     fun getLoggedInUser(principal: Principal?): User? = principal?.name?.let { userDao.getUser(it) }

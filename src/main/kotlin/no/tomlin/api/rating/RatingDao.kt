@@ -7,7 +7,6 @@ import no.tomlin.api.common.Extensions.checkRowsAffected
 import no.tomlin.api.rating.entity.RatingItem
 import no.tomlin.api.rating.entity.RatingScore
 import no.tomlin.api.rating.entity.RatingSurvey
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
@@ -15,10 +14,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 
 @Repository
-class RatingDao {
-
-    @Autowired
-    private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
+class RatingDao(private val jdbcTemplate: NamedParameterJdbcTemplate) {
 
     @Cacheable("active")
     fun getActive(): RatingSurvey? = jdbcTemplate.queryForObject(

@@ -3,15 +3,11 @@ package no.tomlin.api.flight
 import no.tomlin.api.common.Constants.TABLE_FLIGHT
 import no.tomlin.api.common.Extensions.checkRowsAffected
 import no.tomlin.api.flight.entity.Flight
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 
 @Repository
-class FlightDao {
-
-    @Autowired
-    private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
+class FlightDao(private val jdbcTemplate: NamedParameterJdbcTemplate) {
 
     fun getFlights(): List<Flight> =
         jdbcTemplate.query("SELECT * FROM $TABLE_FLIGHT ORDER BY departure ASC") { resultSet, _ -> Flight(resultSet) }

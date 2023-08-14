@@ -6,7 +6,6 @@ import no.tomlin.api.common.Constants.TABLE_SEASON
 import no.tomlin.api.common.Constants.TABLE_TV
 import no.tomlin.api.common.Extensions.checkRowsAffected
 import no.tomlin.api.common.PaginationResponse
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
@@ -14,10 +13,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 
 @Repository
-class TVDao {
-
-    @Autowired
-    private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
+class TVDao(private val jdbcTemplate: NamedParameterJdbcTemplate) {
 
     fun get(id: String): Map<String, Any?> =
         jdbcTemplate.queryForMap("SELECT *, 'tv' AS `type` FROM $TABLE_TV WHERE `id` = :id", mapOf("id" to id))

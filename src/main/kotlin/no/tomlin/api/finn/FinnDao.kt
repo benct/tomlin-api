@@ -2,7 +2,6 @@ package no.tomlin.api.finn
 
 import no.tomlin.api.common.Constants.TABLE_FINN
 import no.tomlin.api.common.Extensions.checkRowsAffected
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
@@ -10,10 +9,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 
 @Repository
-class FinnDao {
-
-    @Autowired
-    private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
+class FinnDao(private val jdbcTemplate: NamedParameterJdbcTemplate) {
 
     @Cacheable("finn")
     fun get(): List<Map<String, Any>> = jdbcTemplate.queryForList(

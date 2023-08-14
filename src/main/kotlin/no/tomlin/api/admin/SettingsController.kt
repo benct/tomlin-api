@@ -2,16 +2,12 @@ package no.tomlin.api.admin
 
 import no.tomlin.api.admin.dao.AdminDao
 import no.tomlin.api.common.Constants.ADMIN
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/settings")
-class SettingsController {
-
-    @Autowired
-    private lateinit var adminDao: AdminDao
+class SettingsController(private val adminDao: AdminDao) {
 
     @GetMapping
     fun get(): Map<String, Any?> = adminDao.getSettings()

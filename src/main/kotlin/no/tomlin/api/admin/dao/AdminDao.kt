@@ -14,7 +14,6 @@ import no.tomlin.api.common.Constants.TABLE_TRACK
 import no.tomlin.api.common.Constants.TABLE_TV
 import no.tomlin.api.common.Extensions.checkRowsAffected
 import no.tomlin.api.common.PaginationResponse
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
@@ -22,10 +21,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 
 @Repository
-class AdminDao {
-
-    @Autowired
-    private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
+class AdminDao(private val jdbcTemplate: NamedParameterJdbcTemplate) {
 
     fun getStats(): Map<String, Int?> = mapOf(
         "movie" to countQuery(TABLE_MOVIE),

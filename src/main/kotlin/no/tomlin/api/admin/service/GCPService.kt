@@ -11,14 +11,10 @@ import com.google.api.services.sqladmin.model.IpConfiguration
 import com.google.api.services.sqladmin.model.Operation
 import com.google.api.services.sqladmin.model.Settings
 import no.tomlin.api.config.ApiProperties
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 @Service
-class GCPService {
-
-    @Autowired
-    private lateinit var properties: ApiProperties
+class GCPService(private val properties: ApiProperties) {
 
     fun handleDatabaseAction(action: String): Operation {
         val response = when (action) {

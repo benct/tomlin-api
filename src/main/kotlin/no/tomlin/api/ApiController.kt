@@ -9,7 +9,6 @@ import no.tomlin.api.admin.service.GCPService
 import no.tomlin.api.config.ApiProperties
 import no.tomlin.api.github.GitHubService
 import no.tomlin.api.weather.WeatherService
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.MediaType.IMAGE_PNG_VALUE
 import org.springframework.security.core.context.SecurityContextHolder
@@ -21,26 +20,14 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 @RestController
-class ApiController {
-
-    // TODO: Move all lateinit wiring to constructors
-    @Autowired
-    private lateinit var properties: ApiProperties
-
-    @Autowired
-    private lateinit var adminDao: AdminDao
-
-    @Autowired
-    private lateinit var userDao: UserDao
-
-    @Autowired
-    private lateinit var gitHubService: GitHubService
-
-    @Autowired
-    private lateinit var weatherService: WeatherService
-
-    @Autowired
-    private lateinit var gcpService: GCPService
+class ApiController(
+    private val properties: ApiProperties,
+    private val adminDao: AdminDao,
+    private val userDao: UserDao,
+    private val gitHubService: GitHubService,
+    private val weatherService: WeatherService,
+    private val gcpService: GCPService,
+) {
 
     @GetMapping("/", produces = [APPLICATION_JSON_VALUE])
     fun base() = mapOf("site" to properties.name, "version" to properties.version, "baseUrl" to properties.baseUrl)

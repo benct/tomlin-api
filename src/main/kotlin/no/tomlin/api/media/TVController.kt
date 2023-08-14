@@ -9,23 +9,17 @@ import no.tomlin.api.media.MediaController.Companion.parseSort
 import no.tomlin.api.media.dao.TVDao
 import no.tomlin.api.media.entity.Season.Companion.parseSeason
 import no.tomlin.api.media.entity.TV.Companion.parseTV
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/media/tv")
-class TVController {
-
-    @Autowired
-    private lateinit var tmdbService: TmdbService
-
-    @Autowired
-    private lateinit var tvDao: TVDao
-
-    @Autowired
-    private lateinit var logger: LogDao
+class TVController(
+    private val tmdbService: TmdbService,
+    private val tvDao: TVDao,
+    private val logger: LogDao
+) {
 
     @Secured(USER, ADMIN)
     @GetMapping
@@ -70,8 +64,10 @@ class TVController {
 
     @Secured(ADMIN)
     @PostMapping("/update/{count}")
-    fun batchUpdate(@PathVariable count: Int?): Int = tvDao.getIds(count
-        ?: UPDATE_COUNT).count { store(it.toString(), false) }
+    fun batchUpdate(@PathVariable count: Int?): Int = tvDao.getIds(
+        count
+            ?: UPDATE_COUNT
+    ).count { store(it.toString(), false) }
 
     @Secured(ADMIN)
     @PostMapping("/update/all")

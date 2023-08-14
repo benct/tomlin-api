@@ -2,7 +2,6 @@ package no.tomlin.api
 
 import no.tomlin.api.admin.SettingsController.SettingNotFoundException
 import no.tomlin.api.logging.LogDao
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.dao.IncorrectResultSizeDataAccessException
 import org.springframework.dao.NonTransientDataAccessResourceException
@@ -17,15 +16,13 @@ import java.time.LocalDateTime.now
 import javax.servlet.http.HttpServletRequest
 
 @RestControllerAdvice
-class ExceptionController {
-
-    @Autowired
-    lateinit var logger: LogDao
+class ExceptionController(private val logger: LogDao) {
 
     @ExceptionHandler(
         EmptyResultDataAccessException::class,
         IncorrectResultSizeDataAccessException::class,
-        SettingNotFoundException::class)
+        SettingNotFoundException::class
+    )
     fun handleNotFound(exception: Exception, request: HttpServletRequest): ResponseEntity<Any> {
         logger.warn(exception, request)
         return ResponseEntity(ErrorResponse(NOT_FOUND, exception, request), NOT_FOUND)

@@ -4,16 +4,12 @@ import no.tomlin.api.common.Constants.TABLE_AIRLINE
 import no.tomlin.api.common.Constants.TABLE_LOCATION
 import no.tomlin.api.iata.entity.Airline
 import no.tomlin.api.iata.entity.Location
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 
 @Repository
-class IataDao {
-
-    @Autowired
-    private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
+class IataDao(private val jdbcTemplate: NamedParameterJdbcTemplate) {
 
     fun getAirlines(code: String): List<Airline> =
         jdbcTemplate.query(

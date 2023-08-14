@@ -8,7 +8,6 @@ import no.tomlin.api.http.HttpFetcher.Companion.readBody
 import no.tomlin.api.iata.entity.Airline
 import no.tomlin.api.iata.entity.Location
 import no.tomlin.api.logging.LogDao
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
@@ -16,13 +15,11 @@ import javax.servlet.http.HttpServletResponse
 
 @RestController
 @RequestMapping("/iata")
-class IataController(val fetcher: HttpFetcher = fetcher(OPTD_URL)) {
-
-    @Autowired
-    private lateinit var iataDao: IataDao
-
-    @Autowired
-    private lateinit var logger: LogDao
+class IataController(
+    private val iataDao: IataDao,
+    private val logger: LogDao,
+    private val fetcher: HttpFetcher = fetcher(OPTD_URL)
+) {
 
     @CrossOrigin("https://benct.github.io")
     @GetMapping("/search/{query}")
@@ -66,7 +63,8 @@ class IataController(val fetcher: HttpFetcher = fetcher(OPTD_URL)) {
         }
 
     companion object {
-        private const val OPTD_URL = "https://raw.githubusercontent.com/opentraveldata/opentraveldata/master/opentraveldata"
+        private const val OPTD_URL =
+            "https://raw.githubusercontent.com/opentraveldata/opentraveldata/master/opentraveldata"
         private const val AIRLINE_PATH = "/optd_airline_best_known_so_far.csv"
         private const val LOCATION_PATH = "/optd_por_public.csv"
 
