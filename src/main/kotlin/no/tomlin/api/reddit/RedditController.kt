@@ -2,7 +2,7 @@ package no.tomlin.api.reddit
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SNAKE_CASE
 import no.tomlin.api.common.Constants.ADMIN
-import no.tomlin.api.common.Constants.USER
+import no.tomlin.api.common.Constants.PRIVATE
 import no.tomlin.api.common.JsonUtils.parseJson
 import no.tomlin.api.http.HttpFetcher
 import no.tomlin.api.http.HttpFetcher.Companion.fetcher
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/reddit")
 class RedditController(private val fetcher: HttpFetcher = fetcher("https://www.reddit.com")) {
 
-    @Secured(USER, ADMIN)
+    @Secured(ADMIN, PRIVATE)
     @GetMapping("/r/{sub}", "/r/{sub}/{after}")
     fun sub(@PathVariable sub: String, @PathVariable after: String?): Map<String, Any?> {
         val response = fetcher.getJson("/r/${sub}.json", mapOf("raw_json" to "1").plus("after" to after))

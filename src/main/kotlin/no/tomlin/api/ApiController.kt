@@ -83,17 +83,20 @@ class ApiController(
 
     data class AuthResponse(
         val authenticated: Boolean,
-        val database: Boolean,
-        val settings: Map<String, Any?>,
-        val weather: Map<String, Any?>,
+        val roles: List<String>,
         val username: String?,
+        val settings: Map<String, Any?>,
+        val database: Boolean,
+        val weather: Map<String, Any?>,
     ) {
         constructor(principal: Principal?, weather: Map<String, Any?>, settings: Map<String, Any?>? = null) : this(
             authenticated = SecurityContextHolder.getContext().authentication?.isAuthenticated ?: false,
-            database = settings != null,
-            settings = settings ?: mapOf("countdownTarget" to now().plusDays(15).atStartOfDay()),
-            weather = weather,
+            roles = SecurityContextHolder.getContext().authentication?.authorities.orEmpty()
+                .map { it.authority.split("_").last() },
             username = principal?.name,
+            settings = settings ?: mapOf("countdownTarget" to now().plusDays(15).atStartOfDay()),
+            database = settings != null,
+            weather = weather,
         )
     }
 }

@@ -4,7 +4,6 @@ import no.tomlin.api.admin.dao.AdminDao
 import no.tomlin.api.admin.entity.Log
 import no.tomlin.api.admin.entity.Visit
 import no.tomlin.api.common.Constants.ADMIN
-import no.tomlin.api.common.Constants.USER
 import no.tomlin.api.common.PaginationResponse
 import no.tomlin.api.config.ApiProperties
 import org.springframework.security.access.annotation.Secured
@@ -17,15 +16,15 @@ import java.time.LocalDate
 @RequestMapping("/admin")
 class AdminController(private val properties: ApiProperties, private val adminDao: AdminDao) {
 
-    @Secured(USER, ADMIN)
+    @Secured(ADMIN)
     @GetMapping("/stats")
     fun getStats(): Map<String, Int?> = adminDao.getStats()
 
-    @Secured(USER, ADMIN)
+    @Secured(ADMIN)
     @GetMapping("/visits", "/visits/{page}")
     fun getVisits(@PathVariable page: Int?): PaginationResponse<Visit> = adminDao.getVisits(page ?: 1)
 
-    @Secured(USER, ADMIN)
+    @Secured(ADMIN)
     @GetMapping("/logs", "/logs/{page}")
     fun getLogs(@PathVariable page: Int?): PaginationResponse<Log> = adminDao.getLogs(page ?: 1)
 

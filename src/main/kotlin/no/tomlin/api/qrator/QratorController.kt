@@ -4,7 +4,7 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.client.j2se.MatrixToImageWriter
 import com.google.zxing.qrcode.QRCodeWriter
 import no.tomlin.api.common.Constants.ADMIN
-import no.tomlin.api.common.Constants.USER
+import no.tomlin.api.common.Constants.QRATOR
 import no.tomlin.api.common.Extensions.nullIfBlank
 import no.tomlin.api.files.FileService
 import org.springframework.beans.factory.annotation.Qualifier
@@ -29,7 +29,7 @@ class QratorController(
     @GetMapping("/{id}")
     fun get(@PathVariable id: Long): Map<String, Any?> = qratorDao.get(id)
 
-    @Secured(USER, ADMIN)
+    @Secured(ADMIN, QRATOR)
     @PostMapping("/upload")
     fun upload(@RequestParam files: Array<MultipartFile>): Int =
         files.count {
@@ -45,7 +45,7 @@ class QratorController(
             } ?: false
         }
 
-    @Secured(USER, ADMIN)
+    @Secured(ADMIN, QRATOR)
     @PostMapping("/{id}")
     fun update(
         @PathVariable id: Long,
@@ -55,7 +55,7 @@ class QratorController(
         @RequestParam description: String?,
     ): Boolean = qratorDao.update(id, title.nullIfBlank(), author.nullIfBlank(), value, description.nullIfBlank())
 
-    @Secured(USER, ADMIN)
+    @Secured(ADMIN, QRATOR)
     @DeleteMapping("/{id}")
     fun delete(@PathVariable id: Long): Boolean = qratorDao.delete(id)
 

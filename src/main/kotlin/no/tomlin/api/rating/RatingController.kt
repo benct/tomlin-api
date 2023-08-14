@@ -1,6 +1,7 @@
 package no.tomlin.api.rating
 
 import no.tomlin.api.common.Constants.ADMIN
+import no.tomlin.api.common.Constants.RATING
 import no.tomlin.api.rating.entity.RatingItem
 import no.tomlin.api.rating.entity.RatingScore
 import no.tomlin.api.rating.entity.RatingSurvey
@@ -44,31 +45,31 @@ class RatingController(private val ratingDao: RatingDao) {
     ): Boolean =
         ratingDao.saveScore(RatingScore(id, user, cat1, cat2, cat3, cat4))
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, RATING)
     @PostMapping("/next")
     fun nextStep(): Boolean = ratingDao.nextStep()
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, RATING)
     @PostMapping("/prev")
     fun prevStep(): Boolean = ratingDao.prevStep()
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, RATING)
     @GetMapping("/all")
     fun list(): List<RatingSurvey> = ratingDao.getAll()
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, RATING)
     @GetMapping("/{id}")
     fun get(@PathVariable id: Long): RatingSurvey? = ratingDao.get(id)
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, RATING)
     @GetMapping("/items/{id}")
     fun items(@PathVariable id: Long): List<RatingItem> = ratingDao.getItems(id)
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, RATING)
     @GetMapping("/result/{id}")
     fun getResults(@PathVariable id: Long): Any? = ratingDao.results(id)
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, RATING)
     @PostMapping
     fun save(
         @RequestParam id: Long?,
@@ -83,11 +84,11 @@ class RatingController(private val ratingDao: RatingDao) {
     ): Boolean =
         ratingDao.save(RatingSurvey(id, title, active ?: true, blind ?: false, step ?: 0, cat1, cat2, cat3, cat4))
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, RATING)
     @DeleteMapping("/{id}")
     fun delete(@PathVariable id: Long): Boolean = ratingDao.delete(id)
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, RATING)
     @PostMapping("/item")
     fun saveItem(
         @RequestParam id: Long?,
@@ -97,7 +98,7 @@ class RatingController(private val ratingDao: RatingDao) {
     ): Boolean =
         ratingDao.saveItem(RatingItem(id, ratingId, title, subtitle))
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, RATING)
     @DeleteMapping("/item/{id}")
     fun deleteItem(@PathVariable id: Long): Boolean = ratingDao.deleteItem(id)
 }

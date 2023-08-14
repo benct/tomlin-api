@@ -1,7 +1,7 @@
 package no.tomlin.api.files
 
 import no.tomlin.api.common.Constants.ADMIN
-import no.tomlin.api.common.Constants.USER
+import no.tomlin.api.common.Constants.PRIVATE
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
@@ -14,28 +14,28 @@ import javax.servlet.http.HttpServletResponse
 @RequestMapping("/file")
 class FileController(@Qualifier("GCSService") private val fileService: FileService) {
 
-    @Secured(USER, ADMIN)
+    @Secured(ADMIN, PRIVATE)
     @GetMapping("/tree")
     fun getFiles(@RequestParam path: String?): List<FileModel> =
         fileService.get(path).sortedBy(Companion::sortByDirAndName)
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, PRIVATE)
     @PostMapping("/mkdir")
     fun mkdir(@RequestParam path: String): Boolean = fileService.mkdir(path)
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, PRIVATE)
     @PostMapping("/rmdir")
     fun rmdir(@RequestParam path: String): Boolean = fileService.rmdir(path)
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, PRIVATE)
     @PostMapping("/remove")
     fun remove(@RequestParam path: String): Boolean = fileService.remove(path)
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, PRIVATE)
     @PostMapping("/rename")
     fun rename(@RequestParam old: String, @RequestParam new: String): Boolean = fileService.rename(old, new)
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, PRIVATE)
     @PostMapping("/download")
     fun download(@RequestParam path: String, @RequestHeader referer: String?, response: HttpServletResponse) {
         if (referer.isNullOrEmpty()) {
@@ -54,7 +54,7 @@ class FileController(@Qualifier("GCSService") private val fileService: FileServi
         response.outputStream.flush()
     }
 
-    @Secured(USER, ADMIN)
+    @Secured(ADMIN, PRIVATE)
     @PostMapping("/upload")
     fun upload(@RequestParam path: String, @RequestParam files: Array<MultipartFile>): Int =
         fileService.upload(path, files)

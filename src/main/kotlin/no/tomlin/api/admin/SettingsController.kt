@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/settings")
 class SettingsController(private val adminDao: AdminDao) {
 
+    @Secured(ADMIN)
     @GetMapping
     fun get(): Map<String, Any?> = adminDao.getSettings()
 
+    @Secured(ADMIN)
     @GetMapping("/{key}")
     fun get(@PathVariable key: String): String = adminDao.getSetting(key) ?: throw SettingNotFoundException(key)
 

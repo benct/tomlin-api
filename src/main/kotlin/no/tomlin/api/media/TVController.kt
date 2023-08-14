@@ -1,7 +1,7 @@
 package no.tomlin.api.media
 
 import no.tomlin.api.common.Constants.ADMIN
-import no.tomlin.api.common.Constants.USER
+import no.tomlin.api.common.Constants.MEDIA
 import no.tomlin.api.common.Extensions.formatDuration
 import no.tomlin.api.common.PaginationResponse
 import no.tomlin.api.logging.LogDao
@@ -21,7 +21,7 @@ class TVController(
     private val logger: LogDao
 ) {
 
-    @Secured(USER, ADMIN)
+    @Secured(ADMIN, MEDIA)
     @GetMapping
     fun get(
         @RequestParam query: String?,
@@ -29,11 +29,11 @@ class TVController(
         @RequestParam page: Int?
     ): PaginationResponse<Map<String, Any?>> = tvDao.get(query, parseSort(sort), page ?: 1)
 
-    @Secured(USER, ADMIN)
+    @Secured(ADMIN, MEDIA)
     @GetMapping("/{id}")
     fun get(@PathVariable id: String): Map<String, Any?> = tvDao.get(id)
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, MEDIA)
     @PostMapping("/{id}")
     fun store(@PathVariable id: String, log: Boolean = true): Boolean =
         tmdbService.fetchMedia("tv/$id", mapOf("append_to_response" to "external_ids"))
@@ -56,20 +56,20 @@ class TVController(
                 }
             }
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, MEDIA)
     @DeleteMapping("/{id}")
     fun delete(@PathVariable id: String): Boolean = tvDao.delete(id).also {
         if (it) logger.info("TV", "Removed $id")
     }
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, MEDIA)
     @PostMapping("/update/{count}")
     fun batchUpdate(@PathVariable count: Int?): Int = tvDao.getIds(
         count
             ?: UPDATE_COUNT
     ).count { store(it.toString(), false) }
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, MEDIA)
     @PostMapping("/update/all")
     fun batchUpdateAll(): Int {
         val start = System.currentTimeMillis()
@@ -86,43 +86,43 @@ class TVController(
         return count
     }
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, MEDIA)
     @PostMapping("/favourite/{id}")
     fun favourite(@PathVariable id: String, @RequestParam set: Boolean): Boolean = tvDao.favourite(id, set)
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, MEDIA)
     @PostMapping("/seen/{id}")
     fun seen(@PathVariable id: String, @RequestParam set: Boolean): Boolean = tvDao.seen(id, set)
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, MEDIA)
     @PostMapping("/seen/episode/{id}")
     fun seenEpisode(@PathVariable id: String, @RequestParam set: Boolean): Boolean = tvDao.seenEpisode(id, set)
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, MEDIA)
     @PostMapping("/seen/season/{id}")
     fun seenSeason(@PathVariable id: String, @RequestParam set: Boolean): Boolean = tvDao.seenSeason(id, set)
 
-    @Secured(USER, ADMIN)
+    @Secured(ADMIN, MEDIA)
     @GetMapping("/external/{id}", produces = [APPLICATION_JSON_VALUE])
     fun external(@PathVariable id: String) = tmdbService.fetchMedia("tv/$id/external_ids")
 
-    @Secured(USER, ADMIN)
+    @Secured(ADMIN, MEDIA)
     @GetMapping("/popular", produces = [APPLICATION_JSON_VALUE])
     fun popular(@RequestParam page: Int?) = tmdbService.fetchMedia("tv/popular", page)
 
-    @Secured(USER, ADMIN)
+    @Secured(ADMIN, MEDIA)
     @GetMapping("/top", produces = [APPLICATION_JSON_VALUE])
     fun top(@RequestParam page: Int?) = tmdbService.fetchMedia("tv/top_rated", page)
 
-    @Secured(USER, ADMIN)
+    @Secured(ADMIN, MEDIA)
     @GetMapping("/now", produces = [APPLICATION_JSON_VALUE])
     fun now(@RequestParam page: Int?) = tmdbService.fetchMedia("tv/on_the_air", page)
 
-    @Secured(USER, ADMIN)
+    @Secured(ADMIN, MEDIA)
     @GetMapping("/similar/{id}", produces = [APPLICATION_JSON_VALUE])
     fun similar(@PathVariable id: String, @RequestParam page: Int?) = tmdbService.fetchMedia("tv/$id/similar", page)
 
-    @Secured(USER, ADMIN)
+    @Secured(ADMIN, MEDIA)
     @GetMapping("/recommended/{id}", produces = [APPLICATION_JSON_VALUE])
     fun recommended(@PathVariable id: String, @RequestParam page: Int?) =
         tmdbService.fetchMedia("tv/$id/recommendations", page)

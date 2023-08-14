@@ -3,6 +3,7 @@ package no.tomlin.api.admin
 import no.tomlin.api.admin.dao.UserDao
 import no.tomlin.api.admin.entity.User
 import no.tomlin.api.common.Constants.ADMIN
+import no.tomlin.api.common.Constants.ALL_ROLES
 import no.tomlin.api.common.Constants.USER
 import org.springframework.security.access.annotation.Secured
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -13,6 +14,7 @@ import java.security.Principal
 @RequestMapping("/user")
 class UserController(private val userDao: UserDao, private val encoder: BCryptPasswordEncoder) {
 
+    @Secured(ADMIN)
     @GetMapping("/me")
     fun getLoggedInUser(principal: Principal?): User? = principal?.name?.let { userDao.getUser(it) }
 
@@ -37,9 +39,11 @@ class UserController(private val userDao: UserDao, private val encoder: BCryptPa
 
     @Secured(ADMIN)
     @PostMapping("/role")
-    fun addRole(@RequestParam email: String, @RequestParam role: String): Boolean = userDao.storeRole(email, role)
+    fun addRole(@RequestParam email: String, @RequestParam role: String): Boolean =
+        if (ALL_ROLES.contains(role.uppercase())) userDao.storeRole(email, role.uppercase()) else false
 
     @Secured(ADMIN)
     @DeleteMapping("/role")
-    fun removeRole(@RequestParam email: String, @RequestParam role: String): Boolean = userDao.deleteRole(email, role)
+    fun removeRole(@RequestParam email: String, @RequestParam role: String): Boolean =
+        userDao.deleteRole(email, role.uppercase())
 }

@@ -1,7 +1,7 @@
 package no.tomlin.api.flight
 
 import no.tomlin.api.common.Constants.ADMIN
-import no.tomlin.api.common.Constants.USER
+import no.tomlin.api.common.Constants.PRIVATE
 import no.tomlin.api.flight.entity.Flight
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/flight")
 class FlightController(private val flightDao: FlightDao) {
 
-    @Secured(USER, ADMIN)
+    @Secured(ADMIN, PRIVATE)
     @GetMapping
     fun get(): List<List<Flight>> {
         val grouped = mutableMapOf<String, MutableList<Flight>>()
@@ -24,7 +24,7 @@ class FlightController(private val flightDao: FlightDao) {
             .toList()
     }
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, PRIVATE)
     @PostMapping
     fun store(
         @RequestParam id: Long?,
@@ -44,7 +44,7 @@ class FlightController(private val flightDao: FlightDao) {
             Flight(id, origin, destination, departure, arrival, carrier, number, cabin, aircraft, seat, reference, info)
         )
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, PRIVATE)
     @DeleteMapping("/{id}")
     fun delete(@PathVariable id: Long): Boolean = flightDao.deleteFlight(id)
 }

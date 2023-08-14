@@ -1,7 +1,7 @@
 package no.tomlin.api.media
 
 import no.tomlin.api.common.Constants.ADMIN
-import no.tomlin.api.common.Constants.USER
+import no.tomlin.api.common.Constants.MEDIA
 import no.tomlin.api.common.PaginationResponse
 import no.tomlin.api.media.dao.MovieDao
 import no.tomlin.api.media.dao.TVDao
@@ -26,15 +26,15 @@ class MediaController(
         "tv" to tvDao.stats()
     )
 
-    @Secured(USER, ADMIN)
+    @Secured(ADMIN, MEDIA)
     @GetMapping("/watchlist")
     fun watchlist() = PaginationResponse(movieDao.watchlist() + tvDao.watchlist())
 
-    @Secured(USER, ADMIN)
+    @Secured(ADMIN, MEDIA)
     @GetMapping("/search", produces = [APPLICATION_JSON_VALUE])
     fun search(@RequestParam query: String): String = tmdbService.fetchMedia("search/multi", query)
 
-    @Secured(USER, ADMIN)
+    @Secured(ADMIN, MEDIA)
     @GetMapping("/existing")
     fun existing() = mapOf(
         "movie" to movieDao.getIds(),

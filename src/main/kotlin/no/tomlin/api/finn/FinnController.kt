@@ -1,6 +1,7 @@
 package no.tomlin.api.finn
 
 import no.tomlin.api.common.Constants.ADMIN
+import no.tomlin.api.common.Constants.PRIVATE
 import no.tomlin.api.common.JsonUtils.parseJson
 import no.tomlin.api.http.HttpFetcher
 import no.tomlin.api.http.HttpFetcher.Companion.fetcher
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/finn")
 class FinnController(private val finnDao: FinnDao, private val fetcher: HttpFetcher = fetcher(FINN_URL)) {
 
+    @Secured(ADMIN, PRIVATE)
     @GetMapping
     fun list(): Map<String, List<Map<String, Any>>> = finnDao.get()
         .fold(mutableMapOf<String, MutableList<Map<String, Any>>>()) { accumulator, entry ->
@@ -22,16 +24,19 @@ class FinnController(private val finnDao: FinnDao, private val fetcher: HttpFetc
             accumulator
         }
 
+    @Secured(ADMIN, PRIVATE)
     @GetMapping("/{id}")
     fun get(@PathVariable id: Long): List<Map<String, Any?>> = finnDao.get(id)
 
-    @Secured(ADMIN)
+    @Secured(ADMIN, PRIVATE)
     @PostMapping
     fun track(): Boolean = trackAllPrices()
 
+    @Secured(ADMIN, PRIVATE)
     @PostMapping("/{id}")
     fun track(@PathVariable id: Long): Boolean = finnDao.save(id, fetchPrice(id))
 
+    @Secured(ADMIN, PRIVATE)
     @DeleteMapping("/{id}")
     fun delete(@PathVariable id: Long): Boolean = finnDao.delete(id)
 
