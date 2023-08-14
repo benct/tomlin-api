@@ -3,10 +3,10 @@ package no.tomlin.api.logging
 import no.tomlin.api.common.Constants
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Repository
 import javax.servlet.http.HttpServletRequest
 
-@Component
+@Repository
 class LogDao {
 
     @Autowired
@@ -23,5 +23,6 @@ class LogDao {
     private fun log(message: String, details: String? = null, path: String? = null): Int =
         jdbcTemplate.update(
             "INSERT INTO ${Constants.TABLE_LOG} (`message`, `details`, `path`) VALUES (:message, :details, :path)",
-            mapOf("message" to message, "details" to details, "path" to path))
+            mapOf("message" to message, "details" to details, "path" to path)
+        )
 }

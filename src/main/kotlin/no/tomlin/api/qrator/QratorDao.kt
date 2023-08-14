@@ -7,10 +7,10 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.jdbc.support.GeneratedKeyHolder
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Repository
 import java.sql.Statement
 
-@Component
+@Repository
 class QratorDao {
 
     @Autowired

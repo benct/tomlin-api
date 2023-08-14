@@ -11,9 +11,9 @@ import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Repository
 
-@Component
+@Repository
 class TVDao {
 
     @Autowired
@@ -22,8 +22,10 @@ class TVDao {
     fun get(id: String): Map<String, Any?> =
         jdbcTemplate.queryForMap("SELECT *, 'tv' AS `type` FROM $TABLE_TV WHERE `id` = :id", mapOf("id" to id))
             .also { tv ->
-                tv["seasons"] = jdbcTemplate.queryForList("SELECT id, season, title, release_date, overview " +
-                    "FROM $TABLE_SEASON WHERE `tv_id` = :id ORDER BY season", mapOf("id" to id))
+                tv["seasons"] = jdbcTemplate.queryForList(
+                    "SELECT id, season, title, release_date, overview " +
+                        "FROM $TABLE_SEASON WHERE `tv_id` = :id ORDER BY season", mapOf("id" to id)
+                )
                     .map { season ->
                         season["episodes"] = jdbcTemplate.queryForList(
                             "SELECT id, episode, title, release_date, overview, production_code, rating, votes, seen " +
@@ -41,11 +43,14 @@ class TVDao {
         val tv = jdbcTemplate.queryForList(
             "SELECT t.*, (SELECT COUNT(id) FROM $TABLE_EPISODE e WHERE e.seen = 1 AND e.tv_id = t.id) AS seen_episodes " +
                 "FROM $TABLE_TV t $where ORDER BY $sort LIMIT $PAGE_SIZE OFFSET $start",
-            mapOf("query" to "%$query%"))
+            mapOf("query" to "%$query%")
+        )
 
         val total = jdbcTemplate.queryForObject(
             "SELECT COUNT(id) total FROM $TABLE_TV $where",
-            mapOf("query" to "%$query%"), Int::class.java) ?: 1
+            mapOf("query" to "%$query%"),
+            Int::class.java
+        ) ?: 1
 
         return PaginationResponse(page, total, tv)
     }
@@ -53,16 +58,19 @@ class TVDao {
     fun getIds(count: Int? = null): List<Long> = jdbcTemplate.queryForList(
         "SELECT id FROM $TABLE_TV" + count?.let { " ORDER BY `updated` LIMIT $it" }.orEmpty(),
         EmptySqlParameterSource.INSTANCE,
-        Long::class.java)
+        Long::class.java
+    )
 
     fun watchlist(): List<Map<String, Any?>> = jdbcTemplate.queryForList(
         "SELECT t.*, 'tv' AS `type`, " +
             "(SELECT COUNT(id) FROM $TABLE_EPISODE e WHERE e.seen = 1 AND e.tv_id = t.id) AS seen_episodes " +
             "FROM $TABLE_TV t WHERE t.seen = 0 ORDER BY t.release_date ASC",
-        EmptySqlParameterSource.INSTANCE)
+        EmptySqlParameterSource.INSTANCE
+    )
 
     @CacheEvict("tvStats", allEntries = true)
-    fun store(statement: String, data: Map<String, Any?>): Boolean = jdbcTemplate.update(statement, data).checkRowsAffected()
+    fun store(statement: String, data: Map<String, Any?>): Boolean =
+        jdbcTemplate.update(statement, data).checkRowsAffected()
 
     @CacheEvict("tvStats", allEntries = true)
     fun delete(id: String): Boolean {
@@ -84,7 +92,10 @@ class TVDao {
         .checkRowsAffected()
 
     fun seenSeason(seasonId: String, set: Boolean): Boolean = jdbcTemplate
-        .update("UPDATE $TABLE_EPISODE SET `seen` = :set WHERE `season_id` = :id", mapOf("id" to seasonId, "set" to set)) > 0
+        .update(
+            "UPDATE $TABLE_EPISODE SET `seen` = :set WHERE `season_id` = :id",
+            mapOf("id" to seasonId, "set" to set)
+        ) > 0
 
     @Cacheable("tvStats")
     fun stats(): Map<String, Any?> =

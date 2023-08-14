@@ -6,9 +6,9 @@ import no.tomlin.api.common.Constants.TABLE_USER
 import no.tomlin.api.common.Extensions.checkRowsAffected
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Repository
 
-@Component
+@Repository
 class UserDao {
 
     @Autowired

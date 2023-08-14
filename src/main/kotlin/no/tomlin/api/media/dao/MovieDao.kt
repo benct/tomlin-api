@@ -10,9 +10,9 @@ import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Repository
 
-@Component
+@Repository
 class MovieDao {
 
     @Autowired
@@ -27,11 +27,14 @@ class MovieDao {
 
         val movies = jdbcTemplate.queryForList(
             "SELECT * FROM $TABLE_MOVIE $where ORDER BY $sort LIMIT $PAGE_SIZE OFFSET $start",
-            mapOf("query" to "%$query%"))
+            mapOf("query" to "%$query%")
+        )
 
         val total = jdbcTemplate.queryForObject(
             "SELECT COUNT(id) total FROM $TABLE_MOVIE $where",
-            mapOf("query" to "%$query%"), Int::class.java) ?: 1
+            mapOf("query" to "%$query%"),
+            Int::class.java
+        ) ?: 1
 
         return PaginationResponse(page, total, movies)
     }
@@ -39,11 +42,13 @@ class MovieDao {
     fun getIds(count: Int? = null): List<Long> = jdbcTemplate.queryForList(
         "SELECT id FROM $TABLE_MOVIE" + count?.let { " ORDER BY `updated` LIMIT $it" }.orEmpty(),
         EmptySqlParameterSource.INSTANCE,
-        Long::class.java)
+        Long::class.java
+    )
 
     fun watchlist(): List<Map<String, Any?>> = jdbcTemplate.queryForList(
         "SELECT *, 'movie' AS `type` FROM $TABLE_MOVIE WHERE `seen` = false ORDER BY release_date ASC",
-        EmptySqlParameterSource.INSTANCE)
+        EmptySqlParameterSource.INSTANCE
+    )
 
     @CacheEvict("movieStats", allEntries = true)
     fun store(movie: Movie): Boolean = jdbcTemplate
