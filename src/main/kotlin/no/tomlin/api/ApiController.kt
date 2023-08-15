@@ -1,11 +1,9 @@
 package no.tomlin.api
 
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.client.j2se.MatrixToImageWriter
-import com.google.zxing.qrcode.QRCodeWriter
 import no.tomlin.api.admin.dao.AdminDao
 import no.tomlin.api.admin.dao.UserDao
 import no.tomlin.api.admin.service.GCPService
+import no.tomlin.api.common.QRCode.generateQRCodeImage
 import no.tomlin.api.config.ApiProperties
 import no.tomlin.api.github.GitHubService
 import no.tomlin.api.weather.WeatherService
@@ -13,7 +11,6 @@ import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.MediaType.IMAGE_PNG_VALUE
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
-import java.awt.image.BufferedImage
 import java.security.Principal
 import java.time.LocalDate.now
 import javax.servlet.http.HttpServletRequest
@@ -76,10 +73,8 @@ class ApiController(
     fun gcpDatabase(@PathVariable action: String) = gcpService.handleDatabaseAction(action)
 
     @GetMapping("/qr", produces = [IMAGE_PNG_VALUE])
-    fun qrCode(@RequestParam content: String?): BufferedImage? {
-        val bitMatrix = QRCodeWriter().encode(content ?: properties.baseUrl, BarcodeFormat.QR_CODE, 256, 256)
-        return MatrixToImageWriter.toBufferedImage(bitMatrix)
-    }
+    fun qrCode(@RequestParam content: String?, @RequestParam size: Int?) =
+        generateQRCodeImage(content ?: properties.baseUrl, size ?: 256)
 
     data class AuthResponse(
         val authenticated: Boolean,

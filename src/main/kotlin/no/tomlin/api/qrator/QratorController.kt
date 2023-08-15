@@ -1,20 +1,15 @@
 package no.tomlin.api.qrator
 
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.client.j2se.MatrixToImageWriter
-import com.google.zxing.qrcode.QRCodeWriter
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.QRATOR
 import no.tomlin.api.common.Extensions.nullIfBlank
+import no.tomlin.api.common.QRCode.generateQRCodeStream
 import no.tomlin.api.files.FileService
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.MediaType.IMAGE_PNG_VALUE
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.InputStream
 
 @RestController
 @RequestMapping("/qrator")
@@ -37,8 +32,8 @@ class QratorController(
             qratorDao.create(fileExtension)?.let { id ->
                 val stored = fileService.store("$ART_PATH/$id.${fileExtension}", it.inputStream, it.contentType)
                 if (stored) {
-                    val qrCodeImage = generateQRCode("$QR_BASE_URL/$id")
-                    fileService.store("$QR_PATH/$id.png", qrCodeImage, IMAGE_PNG_VALUE)
+                    val qrCode = generateQRCodeStream("$QR_BASE_URL/$id")
+                    fileService.store("$QR_PATH/$id.png", qrCode, IMAGE_PNG_VALUE)
                 } else {
                     qratorDao.delete(id)
                 }
@@ -66,12 +61,5 @@ class QratorController(
 
         fun getExtension(filename: String?): String? =
             filename?.takeIf { it.contains(".") }?.let { it.substring(it.lastIndexOf(".") + 1) }
-
-        fun generateQRCode(content: String): InputStream {
-            val bitMatrix = QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, 150, 150)
-            val outputStream = ByteArrayOutputStream()
-            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream)
-            return ByteArrayInputStream(outputStream.toByteArray())
-        }
     }
 }
