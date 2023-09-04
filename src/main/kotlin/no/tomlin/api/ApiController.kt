@@ -41,12 +41,23 @@ class ApiController(
     @GetMapping("/weather", produces = [APPLICATION_JSON_VALUE])
     fun weather() = weatherService.getWeather()
 
+    @GetMapping("/home", produces = [APPLICATION_JSON_VALUE])
+    fun home(): HomeResponse {
+        val weather = weatherService.getWeather()
+        val settings = try {
+            adminDao.getSettings()
+        } catch (_: Exception) {
+            null
+        }
+        return HomeResponse(weather, settings)
+    }
+
     @PostMapping("/authenticate", produces = [APPLICATION_JSON_VALUE])
     fun authenticate(
         @RequestParam referrer: String?,
         request: HttpServletRequest,
         principal: Principal?
-    ): AuthResponse =
+    ): AuthResponse {
         try {
             adminDao.visit(
                 request.remoteAddr,
@@ -59,12 +70,11 @@ class ApiController(
             principal?.let {
                 userDao.updateLastSeen(it.name)
             }
-
-            AuthResponse(principal, weatherService.getWeather(), adminDao.getSettings())
         } catch (_: Exception) {
-            // Database is probably down, return state that is not data dependent...
-            AuthResponse(principal, weatherService.getWeather())
+            // Database is probably down, ignore...
         }
+        return AuthResponse(principal)
+    }
 
     @PostMapping("/login")
     fun login(request: HttpServletRequest, response: HttpServletResponse) = request.authenticate(response)
@@ -77,21 +87,29 @@ class ApiController(
         generateQRCodeImage(content ?: properties.baseUrl, size ?: 256)
 
     data class AuthResponse(
+        val username: String?,
         val authenticated: Boolean,
         val roles: List<String>,
-        val username: String?,
-        val settings: Map<String, Any?>,
-        val database: Boolean,
-        val weather: Map<String, Any?>,
     ) {
-        constructor(principal: Principal?, weather: Map<String, Any?>, settings: Map<String, Any?>? = null) : this(
+        constructor(principal: Principal?) : this(
+            username = principal?.name,
             authenticated = SecurityContextHolder.getContext().authentication?.isAuthenticated ?: false,
             roles = SecurityContextHolder.getContext().authentication?.authorities.orEmpty()
                 .map { it.authority.split("_").last() },
-            username = principal?.name,
+        )
+    }
+
+    data class HomeResponse(
+        val settings: Map<String, Any?>,
+        val weather: Map<String, Any?>,
+        val database: Boolean,
+        val api: Boolean,
+    ) {
+        constructor(weather: Map<String, Any?>, settings: Map<String, Any?>? = null) : this(
             settings = settings ?: mapOf("countdownTarget" to now().plusDays(15).atStartOfDay()),
-            database = settings != null,
             weather = weather,
+            database = settings != null,
+            api = true,
         )
     }
 }
