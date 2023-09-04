@@ -38,6 +38,10 @@ class UserController(private val userDao: UserDao, private val encoder: BCryptPa
     fun removeUser(@RequestParam email: String): Boolean = userDao.deleteRoles(email).and(userDao.deleteUser(email))
 
     @Secured(ADMIN)
+    @GetMapping("/role")
+    fun getRoles(): List<String> = ALL_ROLES.toList()
+
+    @Secured(ADMIN)
     @PostMapping("/role")
     fun addRole(@RequestParam email: String, @RequestParam role: String): Boolean =
         if (ALL_ROLES.contains(role.uppercase())) userDao.storeRole(email, role.uppercase()) else false
