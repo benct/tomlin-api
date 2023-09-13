@@ -18,7 +18,7 @@ data class Stats(
         resultSet: ResultSet,
         hasEpisodes: Boolean = false
     ) : this(
-        years,
+        years.sortedBy { it.year },
         ratings.sortAndFill(),
         resultSet.getInt("total"),
         resultSet.getInt("seen"),
