@@ -6,6 +6,7 @@ import no.tomlin.api.common.Constants.TABLE_SEASON
 import no.tomlin.api.common.Constants.TABLE_TV
 import no.tomlin.api.common.Extensions.checkRowsAffected
 import no.tomlin.api.common.PaginationResponse
+import no.tomlin.api.media.entity.Stats
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
@@ -94,26 +95,20 @@ class TVDao(private val jdbcTemplate: NamedParameterJdbcTemplate) {
         ) > 0
 
     @Cacheable("tvStats")
-    fun stats(): Map<String, Any?> =
-        mapOf(
-            "years" to jdbcTemplate.queryForList(
-                "SELECT SUBSTRING(release_year, 1, 3) year, COUNT(id) count FROM $TABLE_TV GROUP BY year",
-                EmptySqlParameterSource.INSTANCE
-            ),
-            "ratings" to jdbcTemplate.queryForList(
-                "SELECT FLOOR(rating) score, COUNT(id) count FROM $TABLE_TV GROUP BY score",
-                EmptySqlParameterSource.INSTANCE
-            )
-        ).plus(
-            jdbcTemplate.queryForMap(
-                "SELECT COUNT(id) total, SUM(seen) seen, SUM(favourite) favourite, FORMAT(AVG(rating), 2) rating, " +
-                    "(SELECT COUNT(id) FROM $TABLE_SEASON) seasons FROM $TABLE_TV",
-                EmptySqlParameterSource.INSTANCE
-            )
-        ).plus(
-            jdbcTemplate.queryForMap(
-                "SELECT COUNT(id) episodes, SUM(seen) seen_episodes FROM $TABLE_EPISODE",
-                EmptySqlParameterSource.INSTANCE
-            )
-        )
+    fun stats(): Stats? = jdbcTemplate.queryForObject(
+        "SELECT COUNT(id) total, SUM(seen) seen, SUM(favourite) favourite, AVG(rating) rating, " +
+            "(SELECT COUNT(id) FROM $TABLE_SEASON) seasons, " +
+            "(SELECT COUNT(id) FROM $TABLE_EPISODE) episodes, " +
+            "(SELECT SUM(seen) FROM $TABLE_EPISODE) seen_episodes " +
+            "FROM $TABLE_TV",
+        EmptySqlParameterSource.INSTANCE
+    ) { rs, _ -> Stats(statsReleaseDecade(), statsGroupedRating(), rs, hasEpisodes = true) }
+
+    fun statsReleaseDecade(): List<Stats.YearStat> = jdbcTemplate.query(
+        "SELECT SUBSTRING(release_year, 1, 3) year, COUNT(id) count FROM $TABLE_TV GROUP BY year",
+    ) { rs, _ -> Stats.YearStat(rs) }
+
+    fun statsGroupedRating(): List<Stats.RatingStat> = jdbcTemplate.query(
+        "SELECT FLOOR(rating) score, COUNT(id) count FROM $TABLE_TV GROUP BY score",
+    ) { rs, _ -> Stats.RatingStat(rs) }
 }

@@ -5,6 +5,7 @@ import no.tomlin.api.common.Constants.TABLE_MOVIE
 import no.tomlin.api.common.Extensions.checkRowsAffected
 import no.tomlin.api.common.PaginationResponse
 import no.tomlin.api.media.entity.Movie
+import no.tomlin.api.media.entity.Stats
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
@@ -65,21 +66,16 @@ class MovieDao(private val jdbcTemplate: NamedParameterJdbcTemplate) {
         .checkRowsAffected()
 
     @Cacheable("movieStats")
-    fun stats(): Map<String, Any?> =
-        mapOf(
-            "years" to jdbcTemplate.queryForList(
-                "SELECT SUBSTRING(release_year, 1, 3) year, COUNT(id) count FROM $TABLE_MOVIE GROUP BY year",
-                EmptySqlParameterSource.INSTANCE
-            ),
-            "ratings" to jdbcTemplate.queryForList(
-                "SELECT FLOOR(rating) score, COUNT(id) count FROM $TABLE_MOVIE GROUP BY score",
-                EmptySqlParameterSource.INSTANCE
-            )
-        ).plus(
-            jdbcTemplate.queryForMap(
-                "SELECT COUNT(id) total, SUM(seen) seen, SUM(favourite) favourite, " +
-                    "FORMAT(AVG(rating), 2) rating, FORMAT(AVG(runtime), 2) runtime FROM $TABLE_MOVIE",
-                EmptySqlParameterSource.INSTANCE
-            )
-        )
+    fun stats(): Stats? = jdbcTemplate.queryForObject(
+        "SELECT COUNT(id) total, SUM(seen) seen, SUM(favourite) favourite, AVG(rating) rating FROM $TABLE_MOVIE",
+        EmptySqlParameterSource.INSTANCE
+    ) { rs, _ -> Stats(statsReleaseDecade(), statsGroupedRating(), rs) }
+
+    fun statsReleaseDecade(): List<Stats.YearStat> = jdbcTemplate.query(
+        "SELECT SUBSTRING(release_year, 1, 3) year, COUNT(id) count FROM $TABLE_MOVIE GROUP BY year",
+    ) { rs, _ -> Stats.YearStat(rs) }
+
+    fun statsGroupedRating(): List<Stats.RatingStat> = jdbcTemplate.query(
+        "SELECT FLOOR(rating) score, COUNT(id) count FROM $TABLE_MOVIE GROUP BY score",
+    ) { rs, _ -> Stats.RatingStat(rs) }
 }
