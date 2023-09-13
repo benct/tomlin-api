@@ -5,6 +5,8 @@ import no.tomlin.api.common.Constants.PRIVATE
 import no.tomlin.api.common.JsonUtils.parseJson
 import no.tomlin.api.http.HttpFetcher
 import no.tomlin.api.http.HttpFetcher.Companion.fetcher
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*
 class FinnController(private val finnDao: FinnDao, private val fetcher: HttpFetcher = fetcher(FINN_URL)) {
 
     @Secured(ADMIN, PRIVATE)
+    @Cacheable("finn")
     @GetMapping
     fun list(): Map<String, List<Map<String, Any>>> = finnDao.get()
         .fold(mutableMapOf<String, MutableList<Map<String, Any>>>()) { accumulator, entry ->
@@ -29,14 +32,17 @@ class FinnController(private val finnDao: FinnDao, private val fetcher: HttpFetc
     fun get(@PathVariable id: Long): List<Map<String, Any?>> = finnDao.get(id)
 
     @Secured(ADMIN, PRIVATE)
+    @CacheEvict("finn", allEntries = true)
     @PostMapping
     fun track(): Boolean = trackAllPrices()
 
     @Secured(ADMIN, PRIVATE)
+    @CacheEvict("finn", allEntries = true)
     @PostMapping("/{id}")
     fun track(@PathVariable id: Long): Boolean = finnDao.save(id, fetchPrice(id))
 
     @Secured(ADMIN, PRIVATE)
+    @CacheEvict("finn", allEntries = true)
     @DeleteMapping("/{id}")
     fun delete(@PathVariable id: Long): Boolean = finnDao.delete(id)
 
