@@ -23,6 +23,7 @@ object Constants {
     const val TABLE_TRACK = "${TABLE_PREFIX}track"
     const val TABLE_NOTE = "${TABLE_PREFIX}note"
     const val TABLE_FLIGHT = "${TABLE_PREFIX}flight"
+    const val TABLE_BEEN = "${TABLE_PREFIX}been"
     const val TABLE_FINN = "${TABLE_PREFIX}finn"
     const val TABLE_QRATOR = "${TABLE_PREFIX}qrator"
     const val TABLE_RATING = "${TABLE_PREFIX}rating"
