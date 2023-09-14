@@ -64,10 +64,8 @@ class TVController(
 
     @Secured(ADMIN, MEDIA)
     @PostMapping("/update/{count}")
-    fun batchUpdate(@PathVariable count: Int?): Int = tvDao.getIds(
-        count
-            ?: UPDATE_COUNT
-    ).count { store(it.toString(), false) }
+    fun batchUpdate(@PathVariable count: Int?): Int =
+        tvDao.getIds(count ?: UPDATE_COUNT).count { store(it.toString(), false) }
 
     @Secured(ADMIN, MEDIA)
     @PostMapping("/update/all")

@@ -15,7 +15,7 @@ class BeenController(private val beenDao: BeenDao) {
     @GetMapping("/countries")
     fun allCountries(): List<Map<String, String>> =
         Locale.getISOCountries().map { iso ->
-            Locale.of("", iso).let {
+            Locale("", iso).let {
                 mapOf(
                     "iso2" to it.country,
                     "iso3" to it.isO3Country,
@@ -31,7 +31,7 @@ class BeenController(private val beenDao: BeenDao) {
     @Secured(ADMIN, PRIVATE)
     @CacheEvict("been", allEntries = true)
     @PostMapping("/{country}")
-    fun addCountry(@PathVariable country: String) = beenDao.add(country, Locale.of("", country).displayCountry)
+    fun addCountry(@PathVariable country: String) = beenDao.add(country, Locale("", country).displayCountry)
 
     @Secured(ADMIN, PRIVATE)
     @CacheEvict("been", allEntries = true)
