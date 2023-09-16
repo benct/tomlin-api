@@ -1,81 +1,114 @@
 package no.tomlin.api.media.dao
 
 import no.tomlin.api.common.Constants.PAGE_SIZE
-import no.tomlin.api.common.Constants.TABLE_MOVIE
-import no.tomlin.api.common.Extensions.checkRowsAffected
 import no.tomlin.api.common.PaginationResponse
+import no.tomlin.api.db.*
+import no.tomlin.api.db.Extensions.query
+import no.tomlin.api.db.Extensions.queryForList
+import no.tomlin.api.db.Extensions.queryForMap
+import no.tomlin.api.db.Extensions.queryForObject
+import no.tomlin.api.db.Extensions.update
+import no.tomlin.api.db.Table.TABLE_MOVIE
 import no.tomlin.api.media.entity.Movie
 import no.tomlin.api.media.entity.Stats
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
-import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 
 @Repository
-class MovieDao(private val jdbcTemplate: NamedParameterJdbcTemplate) {
+class MovieDao(private val jdbc: NamedParameterJdbcTemplate) {
 
-    fun get(id: String): Map<String, Any?> =
-        jdbcTemplate.queryForMap("SELECT *, 'movie' AS `type` FROM $TABLE_MOVIE WHERE `id` = :id", mapOf("id" to id))
+    fun get(id: String): Map<String, Any?> = jdbc.queryForMap(
+        Select(columns = "*, 'movie' AS type", from = TABLE_MOVIE, where = Where("id" to id))
+    )
 
-    fun get(query: String?, sort: String, page: Int): PaginationResponse<Map<String, Any?>> {
-        val where = query?.let { "WHERE title LIKE :query OR id LIKE :query" }.orEmpty()
+    fun get(query: String?, sort: OrderBy, page: Int): PaginationResponse<Map<String, Any?>> {
         val start = (page - 1) * PAGE_SIZE
+        val where = query?.let { Where("title" to "%$it%", "id" to "%$it%", separator = "OR", like = true) }
 
-        val movies = jdbcTemplate.queryForList(
-            "SELECT * FROM $TABLE_MOVIE $where ORDER BY $sort LIMIT $PAGE_SIZE OFFSET $start",
-            mapOf("query" to "%$query%")
+        val movies = jdbc.queryForList(
+            Select(
+                from = TABLE_MOVIE,
+                where = where,
+                orderBy = sort,
+                limit = PAGE_SIZE,
+                offset = start,
+            ),
         )
 
-        val total = jdbcTemplate.queryForObject(
-            "SELECT COUNT(id) total FROM $TABLE_MOVIE $where",
-            mapOf("query" to "%$query%"),
+        val total = jdbc.queryForObject(
+            Select(columns = "COUNT(id)", from = TABLE_MOVIE, where = where),
             Int::class.java
         ) ?: 1
 
         return PaginationResponse(page, total, movies)
     }
 
-    fun getIds(count: Int? = null): List<Long> = jdbcTemplate.queryForList(
-        "SELECT id FROM $TABLE_MOVIE" + count?.let { " ORDER BY `updated` LIMIT $it" }.orEmpty(),
-        EmptySqlParameterSource.INSTANCE,
+    fun getIds(count: Int? = null): List<Long> = jdbc.queryForList(
+        Select(columns = "id", from = TABLE_MOVIE, orderBy = OrderBy("updated"), limit = count),
         Long::class.java
     )
 
-    fun watchlist(): List<Map<String, Any?>> = jdbcTemplate.queryForList(
-        "SELECT *, 'movie' AS `type` FROM $TABLE_MOVIE WHERE `seen` = false ORDER BY release_date ASC",
-        EmptySqlParameterSource.INSTANCE
+    fun watchlist(): List<Map<String, Any?>> = jdbc.queryForList(
+        Select(
+            columns = "*, 'movie' AS type",
+            from = TABLE_MOVIE,
+            where = Where("seen" to false),
+            orderBy = OrderBy("release_date")
+        )
     )
 
     @CacheEvict("movieStats", allEntries = true)
-    fun store(movie: Movie): Boolean = jdbcTemplate
-        .update(movie.insertStatement(), movie.toDaoMap())
-        .checkRowsAffected()
+    fun store(movie: Movie): Boolean = jdbc.update(
+        Upsert(TABLE_MOVIE, movie.toDaoMap())
+    )
 
     @CacheEvict("movieStats", allEntries = true)
-    fun delete(id: String): Boolean = jdbcTemplate
-        .update("DELETE FROM $TABLE_MOVIE WHERE `id` = :id", mapOf("id" to id))
-        .checkRowsAffected()
+    fun delete(id: String): Boolean = jdbc.update(
+        Delete(TABLE_MOVIE, Where("id" to id))
+    )
 
-    fun favourite(id: String, set: Boolean): Boolean = jdbcTemplate
-        .update("UPDATE $TABLE_MOVIE SET `favourite` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set))
-        .checkRowsAffected()
+    fun favourite(id: String, set: Boolean): Boolean = jdbc.update(
+        Update(TABLE_MOVIE, mapOf("favourite" to set), Where("id" to id))
+    )
 
-    fun seen(id: String, set: Boolean): Boolean = jdbcTemplate
-        .update("UPDATE $TABLE_MOVIE SET `seen` = :set WHERE `id` = :id", mapOf("id" to id, "set" to set))
-        .checkRowsAffected()
+    fun seen(id: String, set: Boolean): Boolean = jdbc.update(
+        Update(TABLE_MOVIE, mapOf("seen" to set), Where("id" to id))
+    )
 
     @Cacheable("movieStats")
-    fun stats(): Stats? = jdbcTemplate.queryForObject(
-        "SELECT COUNT(id) total, SUM(seen) seen, SUM(favourite) favourite, AVG(rating) rating FROM $TABLE_MOVIE",
-        EmptySqlParameterSource.INSTANCE
-    ) { rs, _ -> Stats(statsReleaseDecade(), statsGroupedRating(), rs) }
+    fun stats(): Stats? = jdbc.queryForObject(
+        Select(
+            columns = "COUNT(id) AS total, SUM(seen) AS seen, SUM(favourite) AS favourite, AVG(rating) AS rating",
+            from = TABLE_MOVIE
+        ),
+    ) { rs, _ ->
+        Stats(
+            statsReleaseDecade(),
+            statsGroupedRating(),
+            rs.getInt("total"),
+            rs.getInt("seen"),
+            rs.getInt("favourite"),
+            rs.getDouble("rating"),
+        )
+    }
 
-    fun statsReleaseDecade(): List<Stats.YearStat> = jdbcTemplate.query(
-        "SELECT SUBSTRING(release_year, 1, 3) year, COUNT(id) count FROM $TABLE_MOVIE GROUP BY year",
-    ) { rs, _ -> Stats.YearStat(rs) }
+    fun statsReleaseDecade(): List<Stats.YearStat> = jdbc.query(
+        Select(
+            columns = "SUBSTRING(release_year, 1, 3) AS year, COUNT(id) AS count",
+            from = TABLE_MOVIE,
+            groupBy = GroupBy("year")
+        ),
+        Stats.YearStat.rowMapper,
+    )
 
-    fun statsGroupedRating(): List<Stats.RatingStat> = jdbcTemplate.query(
-        "SELECT FLOOR(rating) score, COUNT(id) count FROM $TABLE_MOVIE GROUP BY score",
-    ) { rs, _ -> Stats.RatingStat(rs) }
+    fun statsGroupedRating(): List<Stats.RatingStat> = jdbc.query(
+        Select(
+            columns = "FLOOR(rating) AS score, COUNT(id) AS count",
+            from = TABLE_MOVIE,
+            groupBy = GroupBy("score"),
+        ),
+        Stats.RatingStat.rowMapper,
+    )
 }

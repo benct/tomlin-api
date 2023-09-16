@@ -1,6 +1,5 @@
 package no.tomlin.api.media.entity
 
-import no.tomlin.api.common.Constants.TABLE_EPISODE
 import no.tomlin.api.common.Extensions.nullIfBlank
 
 data class Episode(
@@ -15,11 +14,7 @@ data class Episode(
     val episodeNumber: Long,
     val voteAverage: Double,
     val voteCount: Long
-) : Media() {
-
-    override val table = TABLE_EPISODE
-
-    override val keys = toDaoMap(-1).keys
+) {
 
     fun toDaoMap(seasonId: Long) = mapOf(
         "id" to id,

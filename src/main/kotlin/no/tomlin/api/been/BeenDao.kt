@@ -1,16 +1,17 @@
 package no.tomlin.api.been
 
-import no.tomlin.api.common.Constants.TABLE_BEEN
-import no.tomlin.api.common.Extensions.checkRowsAffected
-import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
+import no.tomlin.api.db.*
+import no.tomlin.api.db.Extensions.query
+import no.tomlin.api.db.Extensions.update
+import no.tomlin.api.db.Table.TABLE_BEEN
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 
 @Repository
-class BeenDao(private val jdbcTemplate: NamedParameterJdbcTemplate) {
+class BeenDao(private val jdbc: NamedParameterJdbcTemplate) {
 
-    fun get(): List<Map<String, Any>> = jdbcTemplate.query(
-        "SELECT * FROM $TABLE_BEEN", EmptySqlParameterSource.INSTANCE
+    fun get(): List<Map<String, Any>> = jdbc.query(
+        Select(TABLE_BEEN)
     ) { resultSet, _ ->
         mapOf(
             "country" to resultSet.getString("country"),
@@ -19,23 +20,19 @@ class BeenDao(private val jdbcTemplate: NamedParameterJdbcTemplate) {
         )
     }
 
-    fun add(country: String, name: String): Boolean = jdbcTemplate.update(
-        "INSERT INTO $TABLE_BEEN (`country`, `name`) VALUES (:country, :name)",
-        mapOf("country" to country, "name" to name)
-    ).checkRowsAffected()
+    fun add(country: String, name: String): Boolean = jdbc.update(
+        Insert(TABLE_BEEN, mapOf("country" to country, "name" to name))
+    )
 
-    fun remove(country: String): Boolean = jdbcTemplate.update(
-        "DELETE FROM $TABLE_BEEN WHERE `country` = :country",
-        mapOf("country" to country)
-    ).checkRowsAffected()
+    fun remove(country: String): Boolean = jdbc.update(
+        Delete(TABLE_BEEN, Where("country" to country))
+    )
 
-    fun increment(country: String): Boolean = jdbcTemplate.update(
-        "UPDATE $TABLE_BEEN SET `visited` = `visited` + 1 WHERE `country` = :country",
-        mapOf("country" to country)
-    ).checkRowsAffected()
+    fun increment(country: String): Boolean = jdbc.update(
+        Increment(TABLE_BEEN, column = "visited", Where("country" to country))
+    )
 
-    fun decrement(country: String): Boolean = jdbcTemplate.update(
-        "UPDATE $TABLE_BEEN SET `visited` = `visited` - 1 WHERE `country` = :country",
-        mapOf("country" to country)
-    ).checkRowsAffected()
+    fun decrement(country: String): Boolean = jdbc.update(
+        Decrement(TABLE_BEEN, column = "visited", Where("country" to country))
+    )
 }

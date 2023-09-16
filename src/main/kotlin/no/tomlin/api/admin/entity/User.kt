@@ -1,6 +1,6 @@
 package no.tomlin.api.admin.entity
 
-import java.sql.ResultSet
+import org.springframework.jdbc.core.RowMapper
 import java.time.LocalDateTime
 
 data class User(
@@ -12,13 +12,17 @@ data class User(
     val lastSeen: LocalDateTime? = null,
     val roles: List<String> = emptyList()
 ) {
-    constructor(resultSet: ResultSet) : this(
-        resultSet.getString("name"),
-        resultSet.getString("email"),
-        null, // password should not be shown
-        resultSet.getBoolean("enabled"),
-        resultSet.getTimestamp("created").toLocalDateTime(),
-        resultSet.getTimestamp("last_seen")?.toLocalDateTime(),
-        resultSet.getString("roles").split(",")
-    )
+    companion object {
+        val rowMapper = RowMapper<User> { rs, _ ->
+            User(
+                rs.getString("name"),
+                rs.getString("email"),
+                null, // password should not be shown
+                rs.getBoolean("enabled"),
+                rs.getTimestamp("created").toLocalDateTime(),
+                rs.getTimestamp("last_seen")?.toLocalDateTime(),
+                rs.getString("roles").split(",")
+            )
+        }
+    }
 }

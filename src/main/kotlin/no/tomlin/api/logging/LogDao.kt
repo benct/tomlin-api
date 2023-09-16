@@ -1,12 +1,14 @@
 package no.tomlin.api.logging
 
-import no.tomlin.api.common.Constants
+import no.tomlin.api.db.Extensions.update
+import no.tomlin.api.db.Insert
+import no.tomlin.api.db.Table.TABLE_LOG
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import javax.servlet.http.HttpServletRequest
 
 @Repository
-class LogDao(private val jdbcTemplate: NamedParameterJdbcTemplate) {
+class LogDao(private val jdbc: NamedParameterJdbcTemplate) {
 
     fun info(key: String, message: String) = log("[$key] $message")
 
@@ -16,9 +18,7 @@ class LogDao(private val jdbcTemplate: NamedParameterJdbcTemplate) {
     fun error(exception: Exception, request: HttpServletRequest? = null) =
         log("[Error] ${exception::class.simpleName}", exception.message, request?.servletPath)
 
-    private fun log(message: String, details: String? = null, path: String? = null): Int =
-        jdbcTemplate.update(
-            "INSERT INTO ${Constants.TABLE_LOG} (`message`, `details`, `path`) VALUES (:message, :details, :path)",
-            mapOf("message" to message, "details" to details, "path" to path)
-        )
+    private fun log(message: String, details: String? = null, path: String? = null): Boolean = jdbc.update(
+        Insert(TABLE_LOG, mapOf("message" to message, "details" to details, "path" to path))
+    )
 }

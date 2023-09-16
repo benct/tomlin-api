@@ -46,12 +46,12 @@ class TVController(
                         .parseSeason()
                         .let { season ->
                             season.episodes.forEach { episode ->
-                                tvDao.store(episode.insertStatement(false), episode.toDaoMap(season.id))
+                                tvDao.store(episode, season.id)
                             }
-                            tvDao.store(season.insertStatement(false), season.toDaoMap(tv.id))
+                            tvDao.store(season, tv.id)
                         }
                 }
-                tvDao.store(tv.insertStatement(), tv.toDaoMap()).also {
+                tvDao.store(tv).also {
                     if (log) logger.info("TV", "Saved/updated ${tv.id} (${tv.name})")
                 }
             }

@@ -1,6 +1,6 @@
 package no.tomlin.api.admin.entity
 
-import java.sql.ResultSet
+import org.springframework.jdbc.core.RowMapper
 import java.time.LocalDateTime
 
 data class Log(
@@ -10,11 +10,15 @@ data class Log(
     val path: String?,
     val timestamp: LocalDateTime
 ) {
-    constructor(resultSet: ResultSet) : this(
-        resultSet.getLong("id"),
-        resultSet.getString("message"),
-        resultSet.getString("details"),
-        resultSet.getString("path"),
-        resultSet.getTimestamp("timestamp").toLocalDateTime()
-    )
+    companion object {
+        val rowMapper = RowMapper<Log> { rs, _ ->
+            Log(
+                rs.getLong("id"),
+                rs.getString("message"),
+                rs.getString("details"),
+                rs.getString("path"),
+                rs.getTimestamp("timestamp").toLocalDateTime()
+            )
+        }
+    }
 }

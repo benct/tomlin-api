@@ -18,8 +18,8 @@ class FinnController(private val finnDao: FinnDao, private val fetcher: HttpFetc
     @Secured(ADMIN, PRIVATE)
     @Cacheable("finn")
     @GetMapping
-    fun list(): Map<String, List<Map<String, Any>>> = finnDao.get()
-        .fold(mutableMapOf<String, MutableList<Map<String, Any>>>()) { accumulator, entry ->
+    fun list(): Map<String, List<Map<String, Any?>>> = finnDao.get()
+        .fold(mutableMapOf<String, MutableList<Map<String, Any?>>>()) { accumulator, entry ->
             accumulator.merge(entry["id"].toString(), mutableListOf(entry)) { oldValue, _ ->
                 oldValue.add(entry)
                 oldValue

@@ -1,7 +1,6 @@
 package no.tomlin.api.rating.entity
 
-import no.tomlin.api.common.Constants.TABLE_RATING_ITEM
-import java.sql.ResultSet
+import org.springframework.jdbc.core.RowMapper
 
 data class RatingItem(
     val id: Long?,
@@ -9,14 +8,6 @@ data class RatingItem(
     val title: String,
     val subtitle: String? = null,
 ) {
-    constructor(resultSet: ResultSet) : this(
-        resultSet.getLong("id"),
-        resultSet.getLong("rating_id"),
-        resultSet.getString("title"),
-        resultSet.getString("subtitle"),
-    )
-
-    private val keys = asDaoMap().keys
 
     fun asDaoMap() = mapOf(
         "id" to id,
@@ -25,7 +16,14 @@ data class RatingItem(
         "subtitle" to subtitle,
     )
 
-    fun insertStatement(): String =
-        "INSERT INTO $TABLE_RATING_ITEM (${keys.joinToString { "`${it}`" }}) VALUES (${keys.joinToString { ":$it" }}) " +
-            "ON DUPLICATE KEY UPDATE ${keys.joinToString { "`${it}` = :${it}" }}"
+    companion object {
+        val rowMapper = RowMapper<RatingItem> { rs, _ ->
+            RatingItem(
+                rs.getLong("id"),
+                rs.getLong("rating_id"),
+                rs.getString("title"),
+                rs.getString("subtitle"),
+            )
+        }
+    }
 }

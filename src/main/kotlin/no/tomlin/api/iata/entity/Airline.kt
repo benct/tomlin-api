@@ -1,7 +1,7 @@
 package no.tomlin.api.iata.entity
 
 import no.tomlin.api.common.Extensions.required
-import java.sql.ResultSet
+import org.springframework.jdbc.core.RowMapper
 
 data class Airline(
     val id: String,
@@ -14,17 +14,6 @@ data class Airline(
     val ended: String?,
     val wiki: String?
 ) {
-    constructor(resultSet: ResultSet) : this(
-        resultSet.getString("id"),
-        resultSet.getString("iataCode"),
-        resultSet.getString("icaoCode"),
-        resultSet.getString("name"),
-        resultSet.getString("alias"),
-        resultSet.getString("type"),
-        resultSet.getString("started"),
-        resultSet.getString("ended"),
-        resultSet.getString("wiki")
-    )
 
     constructor(csvLine: List<String?>) : this(
         id = csvLine[0].required("id"),
@@ -60,5 +49,19 @@ data class Airline(
                 "G" -> "GDS (G)"
                 else -> "Unknown ($code)"
             }
+
+        val rowMapper = RowMapper<Airline> { rs, _ ->
+            Airline(
+                rs.getString("id"),
+                rs.getString("iataCode"),
+                rs.getString("icaoCode"),
+                rs.getString("name"),
+                rs.getString("alias"),
+                rs.getString("type"),
+                rs.getString("started"),
+                rs.getString("ended"),
+                rs.getString("wiki")
+            )
+        }
     }
 }

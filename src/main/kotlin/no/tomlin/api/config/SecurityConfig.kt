@@ -1,7 +1,7 @@
 package no.tomlin.api.config
 
-import no.tomlin.api.common.Constants.TABLE_ROLE
-import no.tomlin.api.common.Constants.TABLE_USER
+import no.tomlin.api.db.Table.TABLE_ROLE
+import no.tomlin.api.db.Table.TABLE_USER
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder

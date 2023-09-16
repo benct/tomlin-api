@@ -1,7 +1,6 @@
 package no.tomlin.api.media.entity
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SNAKE_CASE
-import no.tomlin.api.common.Constants.TABLE_MOVIE
 import no.tomlin.api.common.Extensions.nullIfBlank
 import no.tomlin.api.common.JsonUtils.parseJson
 import java.util.*
@@ -24,11 +23,7 @@ data class Movie(
     val genres: List<Genre>,
     val productionCompanies: List<ProductionCompany>,
     val externalIds: ExternalIds
-) : Media() {
-
-    override val table = TABLE_MOVIE
-
-    override val keys = toDaoMap().keys
+) {
 
     fun toDaoMap() = mapOf(
         "id" to id,

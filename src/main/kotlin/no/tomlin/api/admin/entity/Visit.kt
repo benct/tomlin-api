@@ -1,6 +1,6 @@
 package no.tomlin.api.admin.entity
 
-import java.sql.ResultSet
+import org.springframework.jdbc.core.RowMapper
 import java.time.LocalDateTime
 
 data class Visit(
@@ -12,13 +12,17 @@ data class Visit(
     val visits: Int,
     val timestamp: LocalDateTime
 ) {
-    constructor(resultSet: ResultSet) : this(
-        resultSet.getString("ip"),
-        resultSet.getString("host"),
-        resultSet.getString("referer"),
-        resultSet.getString("agent"),
-        resultSet.getString("page"),
-        resultSet.getInt("visits"),
-        resultSet.getTimestamp("timestamp").toLocalDateTime()
-    )
+    companion object {
+        val rowMapper = RowMapper<Visit> { rs, _ ->
+            Visit(
+                rs.getString("ip"),
+                rs.getString("host"),
+                rs.getString("referer"),
+                rs.getString("agent"),
+                rs.getString("page"),
+                rs.getInt("visits"),
+                rs.getTimestamp("timestamp").toLocalDateTime()
+            )
+        }
+    }
 }

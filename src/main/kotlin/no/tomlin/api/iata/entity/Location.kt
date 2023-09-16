@@ -1,7 +1,7 @@
 package no.tomlin.api.iata.entity
 
 import no.tomlin.api.common.Extensions.required
-import java.sql.ResultSet
+import org.springframework.jdbc.core.RowMapper
 import java.time.LocalDate
 
 data class Location(
@@ -23,25 +23,6 @@ data class Location(
     val operational: Boolean,
     val wiki: String?
 ) {
-    constructor(resultSet: ResultSet) : this(
-        resultSet.getString("id"),
-        resultSet.getString("iataCode"),
-        resultSet.getString("icaoCode"),
-        resultSet.getString("cityCode"),
-        resultSet.getString("cityName"),
-        resultSet.getString("name"),
-        resultSet.getString("area"),
-        resultSet.getString("areaCode"),
-        resultSet.getString("country"),
-        resultSet.getString("countryCode"),
-        resultSet.getString("continent"),
-        resultSet.getString("type"),
-        resultSet.getDouble("latitude"),
-        resultSet.getDouble("longitude"),
-        resultSet.getString("timezone"),
-        resultSet.getBoolean("operational"),
-        resultSet.getString("wiki")
-    )
 
     constructor(csvLine: List<String?>) : this(
         id = "${csvLine[0]}_${csvLine[41]}_${csvLine[4]}",
@@ -98,5 +79,27 @@ data class Location(
 
         private fun operational(date: String?): Boolean =
             date.isNullOrBlank() || LocalDate.parse(date).isAfter(LocalDate.now())
+
+        val rowMapper = RowMapper<Location> { rs, _ ->
+            Location(
+                rs.getString("id"),
+                rs.getString("iataCode"),
+                rs.getString("icaoCode"),
+                rs.getString("cityCode"),
+                rs.getString("cityName"),
+                rs.getString("name"),
+                rs.getString("area"),
+                rs.getString("areaCode"),
+                rs.getString("country"),
+                rs.getString("countryCode"),
+                rs.getString("continent"),
+                rs.getString("type"),
+                rs.getDouble("latitude"),
+                rs.getDouble("longitude"),
+                rs.getString("timezone"),
+                rs.getBoolean("operational"),
+                rs.getString("wiki")
+            )
+        }
     }
 }

@@ -1,6 +1,6 @@
 package no.tomlin.api.note.entity
 
-import java.sql.ResultSet
+import org.springframework.jdbc.core.RowMapper
 import java.time.LocalDateTime
 
 data class Note(
@@ -9,10 +9,15 @@ data class Note(
     val content: String?,
     val updated: LocalDateTime
 ) {
-    constructor(resultSet: ResultSet) : this(
-        resultSet.getLong("id"),
-        resultSet.getString("title"),
-        resultSet.getString("content"),
-        resultSet.getTimestamp("updated").toLocalDateTime()
-    )
+
+    companion object {
+        val rowMapper = RowMapper<Note> { rs, _ ->
+            Note(
+                rs.getLong("id"),
+                rs.getString("title"),
+                rs.getString("content"),
+                rs.getTimestamp("updated").toLocalDateTime()
+            )
+        }
+    }
 }

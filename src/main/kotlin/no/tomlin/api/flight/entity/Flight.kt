@@ -1,7 +1,6 @@
 package no.tomlin.api.flight.entity
 
-import no.tomlin.api.common.Constants.TABLE_FLIGHT
-import java.sql.ResultSet
+import org.springframework.jdbc.core.RowMapper
 
 data class Flight(
     val id: Long?,
@@ -17,22 +16,6 @@ data class Flight(
     val reference: String,
     val info: String?
 ) {
-    constructor(resultSet: ResultSet) : this(
-        resultSet.getLong("id"),
-        resultSet.getString("origin"),
-        resultSet.getString("destination"),
-        resultSet.getString("departure"),
-        resultSet.getString("arrival"),
-        resultSet.getString("carrier"),
-        resultSet.getString("number"),
-        resultSet.getString("cabin"),
-        resultSet.getString("aircraft"),
-        resultSet.getString("seat"),
-        resultSet.getString("reference"),
-        resultSet.getString("info")
-    )
-
-    private val keys = asDaoMap().keys
 
     fun asDaoMap() = mapOf(
         "id" to id,
@@ -49,7 +32,22 @@ data class Flight(
         "info" to info
     )
 
-    fun insertStatement(): String =
-        "INSERT INTO $TABLE_FLIGHT (${keys.joinToString { "`${it}`" }}) VALUES (${keys.joinToString { ":$it" }}) " +
-            "ON DUPLICATE KEY UPDATE ${keys.joinToString { "`${it}` = :${it}" }}"
+    companion object {
+        val rowMapper = RowMapper<Flight> { rs, _ ->
+            Flight(
+                rs.getLong("id"),
+                rs.getString("origin"),
+                rs.getString("destination"),
+                rs.getString("departure"),
+                rs.getString("arrival"),
+                rs.getString("carrier"),
+                rs.getString("number"),
+                rs.getString("cabin"),
+                rs.getString("aircraft"),
+                rs.getString("seat"),
+                rs.getString("reference"),
+                rs.getString("info")
+            )
+        }
+    }
 }

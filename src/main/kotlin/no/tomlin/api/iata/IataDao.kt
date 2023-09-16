@@ -1,45 +1,50 @@
 package no.tomlin.api.iata
 
-import no.tomlin.api.common.Constants.TABLE_AIRLINE
-import no.tomlin.api.common.Constants.TABLE_LOCATION
+import no.tomlin.api.db.Delete
+import no.tomlin.api.db.Extensions.query
+import no.tomlin.api.db.Extensions.update
+import no.tomlin.api.db.OrderBy
+import no.tomlin.api.db.Select
+import no.tomlin.api.db.Table.TABLE_IATA_AIRLINE
+import no.tomlin.api.db.Table.TABLE_IATA_LOCATION
+import no.tomlin.api.db.Where
 import no.tomlin.api.iata.entity.Airline
 import no.tomlin.api.iata.entity.Location
-import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 
 @Repository
-class IataDao(private val jdbcTemplate: NamedParameterJdbcTemplate) {
+class IataDao(private val jdbc: NamedParameterJdbcTemplate) {
 
-    fun getAirlines(code: String): List<Airline> =
-        jdbcTemplate.query(
-            "SELECT * FROM $TABLE_AIRLINE WHERE iataCode = :code",
-            mapOf("code" to code)
-        ) { resultSet, _ -> Airline(resultSet) }
+    fun getAirlines(code: String): List<Airline> = jdbc.query(
+        Select(from = TABLE_IATA_AIRLINE, where = Where("iataCode" to code)),
+        Airline.rowMapper,
+    )
 
-    fun getLocations(code: String): List<Location> =
-        jdbcTemplate.query(
-            "SELECT * FROM $TABLE_LOCATION WHERE iataCode = :code OR cityCode = :code ORDER BY `type`",
-            mapOf("code" to code)
-        ) { resultSet, _ -> Location(resultSet) }
+    fun getLocations(code: String): List<Location> = jdbc.query(
+        Select(
+            from = TABLE_IATA_LOCATION,
+            where = Where("iataCode" to code, "cityCode" to code, separator = "OR"),
+            orderBy = OrderBy("type")
+        ),
+        Location.rowMapper,
+    )
 
-    fun batchAirlines(airlines: List<Airline>): IntArray =
-        jdbcTemplate.batchUpdate(
-            "INSERT INTO $TABLE_AIRLINE (id, iataCode, icaoCode, name, alias, type, started, ended, wiki) " +
-                "VALUES (:id, :iataCode, :icaoCode, :name, :alias, :type, :started, :ended, :wiki)",
-            airlines.map { it.asDaoMap() }.toTypedArray()
-        )
+    fun batchAirlines(airlines: List<Airline>): IntArray = jdbc.batchUpdate(
+        "INSERT INTO $TABLE_IATA_AIRLINE (id, iataCode, icaoCode, name, alias, type, started, ended, wiki) " +
+            "VALUES (:id, :iataCode, :icaoCode, :name, :alias, :type, :started, :ended, :wiki)",
+        airlines.map { it.asDaoMap() }.toTypedArray()
+    )
 
-    fun batchLocations(locations: List<Location>): IntArray =
-        jdbcTemplate.batchUpdate(
-            "INSERT INTO $TABLE_LOCATION (id, iataCode, icaoCode, cityCode, cityName, name, area, areaCode, " +
-                "country, countryCode, continent, type, latitude, longitude, timezone, operational, wiki) " +
-                "VALUES (:id, :iataCode, :icaoCode, :cityCode, :cityName, :name, :area, :areaCode, " +
-                ":country, :countryCode, :continent, :type, :latitude, :longitude, :timezone, :operational, :wiki)",
-            locations.map { it.asDaoMap() }.toTypedArray()
-        )
+    fun batchLocations(locations: List<Location>): IntArray = jdbc.batchUpdate(
+        "INSERT INTO $TABLE_IATA_LOCATION (id, iataCode, icaoCode, cityCode, cityName, name, area, areaCode, " +
+            "country, countryCode, continent, type, latitude, longitude, timezone, operational, wiki) " +
+            "VALUES (:id, :iataCode, :icaoCode, :cityCode, :cityName, :name, :area, :areaCode, " +
+            ":country, :countryCode, :continent, :type, :latitude, :longitude, :timezone, :operational, :wiki)",
+        locations.map { it.asDaoMap() }.toTypedArray()
+    )
 
-    fun deleteAirlines(): Int = jdbcTemplate.update("DELETE FROM $TABLE_AIRLINE", EmptySqlParameterSource.INSTANCE)
+    fun deleteAirlines(): Boolean = jdbc.update(Delete(TABLE_IATA_AIRLINE))
 
-    fun deleteLocations(): Int = jdbcTemplate.update("DELETE FROM $TABLE_LOCATION", EmptySqlParameterSource.INSTANCE)
+    fun deleteLocations(): Boolean = jdbc.update(Delete(TABLE_IATA_LOCATION))
 }

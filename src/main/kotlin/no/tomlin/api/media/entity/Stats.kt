@@ -1,10 +1,10 @@
 package no.tomlin.api.media.entity
 
-import java.sql.ResultSet
+import org.springframework.jdbc.core.RowMapper
 
 data class Stats(
-    val years: List<YearStat>,
-    val ratings: List<RatingStat>,
+    var years: List<YearStat>,
+    var ratings: List<RatingStat>,
     val total: Int,
     val seen: Int,
     val favourite: Int,
@@ -12,34 +12,25 @@ data class Stats(
     val episodes: Int? = null,
     val episodesSeen: Int? = null,
 ) {
-    constructor(
-        years: List<YearStat>,
-        ratings: List<RatingStat>,
-        resultSet: ResultSet,
-        hasEpisodes: Boolean = false
-    ) : this(
-        years.sortedBy { it.year },
-        ratings.sortAndFill(),
-        resultSet.getInt("total"),
-        resultSet.getInt("seen"),
-        resultSet.getInt("favourite"),
-        resultSet.getDouble("rating"),
-        if (hasEpisodes) resultSet.getInt("episodes") else null,
-        if (hasEpisodes) resultSet.getInt("seen_episodes") else null,
-    )
+    init {
+        years = years.sortedBy { it.year }
+        ratings = ratings.sortAndFill()
+    }
 
     data class YearStat(val year: Int, val count: Int) {
-        constructor(resultSet: ResultSet) : this(
-            "${resultSet.getString("year")}0".toInt(),
-            resultSet.getInt("count")
-        )
+        companion object {
+            val rowMapper = RowMapper<YearStat> { rs, _ ->
+                YearStat("${rs.getString("year")}0".toInt(), rs.getInt("count"))
+            }
+        }
     }
 
     data class RatingStat(val score: Int, val count: Int) {
-        constructor(resultSet: ResultSet) : this(
-            resultSet.getInt("score"),
-            resultSet.getInt("count")
-        )
+        companion object {
+            val rowMapper = RowMapper<RatingStat> { rs, _ ->
+                RatingStat(rs.getInt("score"), rs.getInt("count"))
+            }
+        }
     }
 
     private companion object {

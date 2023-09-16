@@ -1,7 +1,6 @@
 package no.tomlin.api.rating.entity
 
-import no.tomlin.api.common.Constants.TABLE_RATING
-import java.sql.ResultSet
+import org.springframework.jdbc.core.RowMapper
 import java.time.LocalDateTime
 
 data class RatingSurvey(
@@ -16,20 +15,6 @@ data class RatingSurvey(
     val cat4: String?,
     val updated: LocalDateTime? = null,
 ) {
-    constructor(resultSet: ResultSet) : this(
-        resultSet.getLong("id"),
-        resultSet.getString("title"),
-        resultSet.getBoolean("active"),
-        resultSet.getBoolean("blind"),
-        resultSet.getInt("step"),
-        resultSet.getString("cat1"),
-        resultSet.getString("cat2"),
-        resultSet.getString("cat3"),
-        resultSet.getString("cat4"),
-        resultSet.getTimestamp("updated").toLocalDateTime(),
-    )
-
-    private val keys = asDaoMap().keys
 
     fun asDaoMap() = mapOf(
         "id" to id,
@@ -43,7 +28,20 @@ data class RatingSurvey(
         "cat4" to cat4,
     )
 
-    fun insertStatement(): String =
-        "INSERT INTO $TABLE_RATING (${keys.joinToString { "`${it}`" }}) VALUES (${keys.joinToString { ":$it" }}) " +
-            "ON DUPLICATE KEY UPDATE ${keys.joinToString { "`${it}` = :${it}" }}"
+    companion object {
+        val rowMapper = RowMapper<RatingSurvey> { rs, _ ->
+            RatingSurvey(
+                rs.getLong("id"),
+                rs.getString("title"),
+                rs.getBoolean("active"),
+                rs.getBoolean("blind"),
+                rs.getInt("step"),
+                rs.getString("cat1"),
+                rs.getString("cat2"),
+                rs.getString("cat3"),
+                rs.getString("cat4"),
+                rs.getTimestamp("updated").toLocalDateTime(),
+            )
+        }
+    }
 }

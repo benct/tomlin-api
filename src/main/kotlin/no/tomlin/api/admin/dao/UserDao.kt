@@ -1,62 +1,65 @@
 package no.tomlin.api.admin.dao
 
 import no.tomlin.api.admin.entity.User
-import no.tomlin.api.common.Constants.TABLE_ROLE
-import no.tomlin.api.common.Constants.TABLE_USER
-import no.tomlin.api.common.Extensions.checkRowsAffected
+import no.tomlin.api.db.*
+import no.tomlin.api.db.Extensions.query
+import no.tomlin.api.db.Extensions.queryForObject
+import no.tomlin.api.db.Extensions.update
+import no.tomlin.api.db.Table.TABLE_ROLE
+import no.tomlin.api.db.Table.TABLE_USER
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 
 @Repository
-class UserDao(private val jdbcTemplate: NamedParameterJdbcTemplate) {
+class UserDao(private val jdbc: NamedParameterJdbcTemplate) {
 
-    fun updateLastSeen(email: String) =
-        jdbcTemplate.update(
-            "UPDATE $TABLE_USER SET last_seen = CURRENT_TIMESTAMP() WHERE email = :email",
-            mapOf("email" to email)
-        ).checkRowsAffected()
+    fun updateLastSeen(email: String) = jdbc.update(
+        Update(TABLE_USER, mapOf("last_seen" to "CURRENT_TIMESTAMP()"), Where("email" to email))
+    )
 
-    fun getUser(email: String): User? =
-        jdbcTemplate.query(
-            "SELECT u.name, u.email, u.enabled, u.created, u.last_seen, GROUP_CONCAT(r.role) as roles " +
-                "FROM $TABLE_USER u JOIN $TABLE_ROLE r ON u.email = r.email " +
-                "WHERE u.email = :email",
-            mapOf("email" to email)
-        ) { resultSet, _ -> User(resultSet) }.firstOrNull()
+    fun getUser(email: String): User? = jdbc.queryForObject(
+        Select(
+            columns = "u.name, u.email, u.enabled, u.created, u.last_seen, GROUP_CONCAT(r.role) AS roles",
+            from = TABLE_USER,
+            join = Join(TABLE_ROLE, "u.email" to "r.email"),
+            where = Where("email" to email),
+            groupBy = GroupBy("email")
+        ),
+        User.rowMapper,
+    )
 
-    fun getUsers(): List<User> =
-        jdbcTemplate.query(
-            "SELECT u.name, u.email, u.enabled, u.created, u.last_seen, GROUP_CONCAT(r.role) as roles " +
-                "FROM $TABLE_USER u JOIN $TABLE_ROLE r ON u.email = r.email " +
-                "GROUP BY u.email ORDER BY u.name"
-        ) { resultSet, _ -> User(resultSet) }
+    fun getUsers(): List<User> = jdbc.query(
+        Select(
+            columns = "u.name, u.email, u.enabled, u.created, u.last_seen, GROUP_CONCAT(r.role) AS roles",
+            from = TABLE_USER,
+            join = Join(TABLE_ROLE, "u.email" to "r.email"),
+            groupBy = GroupBy("u.email"),
+            orderBy = OrderBy("u.name"),
+        ),
+        User.rowMapper,
+    )
 
-    fun storeUser(name: String, email: String, enabled: Boolean = true, password: String? = null): Boolean =
-        jdbcTemplate.update(
-            "INSERT INTO $TABLE_USER (name, email, password) VALUES (:name, :email, :password) " +
-                "ON DUPLICATE KEY UPDATE name = :name, email = :email, enabled = :enabled" +
-                password?.let { ", password = :password" }.orEmpty(),
+    fun storeUser(name: String, email: String, enabled: Boolean, password: String? = null): Boolean = jdbc.update(
+        Upsert(
+            TABLE_USER,
             mapOf("name" to name, "email" to email, "enabled" to enabled, "password" to password)
-        ).checkRowsAffected()
+                .filterValues { it != null }
+        )
+    )
 
-    fun deleteUser(email: String): Boolean =
-        jdbcTemplate.update(
-            "DELETE FROM $TABLE_USER WHERE email = :email",
-            mapOf("email" to email)
-        ).checkRowsAffected()
+    fun deleteUser(email: String): Boolean = jdbc.update(
+        Delete(TABLE_USER, Where("email" to email))
+    )
 
-    fun storeRole(email: String, role: String): Boolean =
-        jdbcTemplate.update(
-            "INSERT INTO $TABLE_ROLE (email, role) VALUES (:email, :role) ON DUPLICATE KEY UPDATE email = email",
-            mapOf("email" to email, "role" to role)
-        ).checkRowsAffected()
+    fun storeRole(email: String, role: String): Boolean = jdbc.update(
+        Upsert(TABLE_ROLE, mapOf("email" to email, "role" to role))
+    )
 
-    fun deleteRole(email: String, role: String): Boolean =
-        jdbcTemplate.update(
-            "DELETE FROM $TABLE_ROLE WHERE email = :email AND role = :role",
-            mapOf("email" to email, "role" to role)
-        ).checkRowsAffected()
+    fun deleteRole(email: String, role: String): Boolean = jdbc.update(
+        Delete(TABLE_ROLE, Where("email" to email, "role" to role))
+    )
 
-    fun deleteRoles(email: String): Boolean =
-        jdbcTemplate.update("DELETE FROM $TABLE_ROLE WHERE email = :email", mapOf("email" to email)) > 0
+    fun deleteRoles(email: String): Boolean = jdbc.update(
+        Delete(TABLE_ROLE, Where("email" to email))
+    )
 }

@@ -2,6 +2,7 @@ package no.tomlin.api.rating
 
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.RATING
+import no.tomlin.api.common.Extensions.nullIfBlank
 import no.tomlin.api.rating.entity.RatingItem
 import no.tomlin.api.rating.entity.RatingScore
 import no.tomlin.api.rating.entity.RatingSurvey
@@ -82,7 +83,12 @@ class RatingController(private val ratingDao: RatingDao) {
         @RequestParam cat3: String?,
         @RequestParam cat4: String?,
     ): Boolean =
-        ratingDao.save(RatingSurvey(id, title, active ?: true, blind ?: false, step ?: 0, cat1, cat2, cat3, cat4))
+        ratingDao.save(
+            RatingSurvey(
+                id, title, active ?: true, blind ?: false, step ?: 0,
+                cat1, cat2.nullIfBlank(), cat3.nullIfBlank(), cat4.nullIfBlank()
+            )
+        )
 
     @Secured(ADMIN, RATING)
     @DeleteMapping("/{id}")
@@ -96,7 +102,7 @@ class RatingController(private val ratingDao: RatingDao) {
         @RequestParam title: String,
         @RequestParam subtitle: String?
     ): Boolean =
-        ratingDao.saveItem(RatingItem(id, ratingId, title, subtitle))
+        ratingDao.saveItem(RatingItem(id, ratingId, title, subtitle.nullIfBlank()))
 
     @Secured(ADMIN, RATING)
     @DeleteMapping("/item/{id}")

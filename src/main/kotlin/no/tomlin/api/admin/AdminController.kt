@@ -30,7 +30,7 @@ class AdminController(private val properties: ApiProperties, private val adminDa
 
     @Secured(ADMIN)
     @DeleteMapping("/logs")
-    fun deleteLogs(): Boolean = adminDao.deleteLogs() > 0
+    fun deleteLogs(): Boolean = adminDao.deleteLogs()
 
     @Secured(ADMIN)
     @DeleteMapping("/logs/{id}")

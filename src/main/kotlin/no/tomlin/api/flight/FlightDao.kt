@@ -1,22 +1,26 @@
 package no.tomlin.api.flight
 
-import no.tomlin.api.common.Constants.TABLE_FLIGHT
-import no.tomlin.api.common.Extensions.checkRowsAffected
+import no.tomlin.api.db.*
+import no.tomlin.api.db.Extensions.query
+import no.tomlin.api.db.Extensions.update
+import no.tomlin.api.db.Table.TABLE_FLIGHT
 import no.tomlin.api.flight.entity.Flight
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 
 @Repository
-class FlightDao(private val jdbcTemplate: NamedParameterJdbcTemplate) {
+class FlightDao(private val jdbc: NamedParameterJdbcTemplate) {
 
-    fun getFlights(): List<Flight> =
-        jdbcTemplate.query("SELECT * FROM $TABLE_FLIGHT ORDER BY departure ASC") { resultSet, _ -> Flight(resultSet) }
+    fun getFlights(): List<Flight> = jdbc.query(
+        Select(from = TABLE_FLIGHT, orderBy = OrderBy("departure")),
+        Flight.rowMapper,
+    )
 
-    fun saveFlight(flight: Flight): Boolean = jdbcTemplate
-        .update(flight.insertStatement(), flight.asDaoMap())
-        .checkRowsAffected()
+    fun saveFlight(flight: Flight): Boolean = jdbc.update(
+        Upsert(TABLE_FLIGHT, flight.asDaoMap())
+    )
 
-    fun deleteFlight(id: Long): Boolean = jdbcTemplate
-        .update("DELETE FROM $TABLE_FLIGHT WHERE id = :id", mapOf("id" to id))
-        .checkRowsAffected()
+    fun deleteFlight(id: Long): Boolean = jdbc.update(
+        Delete(TABLE_FLIGHT, Where("id" to id))
+    )
 }

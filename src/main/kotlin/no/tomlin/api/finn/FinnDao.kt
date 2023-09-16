@@ -1,29 +1,33 @@
 package no.tomlin.api.finn
 
-import no.tomlin.api.common.Constants.TABLE_FINN
-import no.tomlin.api.common.Extensions.checkRowsAffected
-import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
+import no.tomlin.api.db.*
+import no.tomlin.api.db.Extensions.queryForList
+import no.tomlin.api.db.Extensions.update
+import no.tomlin.api.db.Table.TABLE_FINN
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 
 @Repository
-class FinnDao(private val jdbcTemplate: NamedParameterJdbcTemplate) {
+class FinnDao(private val jdbc: NamedParameterJdbcTemplate) {
 
-    fun get(): List<Map<String, Any>> = jdbcTemplate.queryForList(
-        "SELECT * FROM $TABLE_FINN ORDER BY `id` DESC, `timestamp` DESC",
-        EmptySqlParameterSource.INSTANCE
+    fun get(): List<Map<String, Any?>> = jdbc.queryForList(
+        Select(from = TABLE_FINN, orderBy = OrderBy("id" to "DESC", "timestamp" to "DESC"))
     )
 
-    fun get(id: Long): List<Map<String, Any?>> = jdbcTemplate
-        .queryForList("SELECT * FROM $TABLE_FINN WHERE `id` = :id ORDER BY `timestamp` DESC", mapOf("id" to id))
+    fun get(id: Long): List<Map<String, Any?>> = jdbc.queryForList(
+        Select(from = TABLE_FINN, where = Where("id" to id), orderBy = OrderBy("timestamp" to "DESC"))
+    )
 
-    fun getUniqueIds(): List<Long> = jdbcTemplate
-        .queryForList("SELECT DISTINCT(`id`) FROM $TABLE_FINN", EmptySqlParameterSource.INSTANCE, Long::class.java)
+    fun getUniqueIds(): List<Long> = jdbc.queryForList(
+        Select(columns = "DISTINCT(id)", from = TABLE_FINN),
+        Long::class.java
+    )
 
-    fun save(id: Long, price: String): Boolean = jdbcTemplate
-        .update("INSERT INTO $TABLE_FINN (id, price) VALUES (:id, :price)", mapOf("id" to id, "price" to price))
-        .checkRowsAffected()
+    fun save(id: Long, price: String): Boolean = jdbc.update(
+        Insert(TABLE_FINN, mapOf("id" to id, "price" to price))
+    )
 
-    fun delete(id: Long): Boolean = jdbcTemplate
-        .update("DELETE FROM $TABLE_FINN WHERE id = :id", mapOf("id" to id)) > 0
+    fun delete(id: Long): Boolean = jdbc.update(
+        Delete(TABLE_FINN, Where("id" to id))
+    )
 }

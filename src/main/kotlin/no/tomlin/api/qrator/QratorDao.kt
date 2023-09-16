@@ -1,27 +1,34 @@
 package no.tomlin.api.qrator
 
-import no.tomlin.api.common.Constants.TABLE_QRATOR
-import no.tomlin.api.common.Extensions.checkRowsAffected
+import no.tomlin.api.db.Delete
+import no.tomlin.api.db.Extensions.queryForList
+import no.tomlin.api.db.Extensions.queryForMap
+import no.tomlin.api.db.Extensions.update
+import no.tomlin.api.db.Select
+import no.tomlin.api.db.Table.TABLE_QRATOR
+import no.tomlin.api.db.Update
+import no.tomlin.api.db.Where
 import org.springframework.jdbc.core.JdbcTemplate
-import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.stereotype.Repository
 import java.sql.Statement
 
 @Repository
-class QratorDao(private val jdbcTemplate: NamedParameterJdbcTemplate, private val insertTemplate: JdbcTemplate) {
+class QratorDao(private val jdbc: NamedParameterJdbcTemplate, private val jdbcInsert: JdbcTemplate) {
 
-    fun get(): List<Map<String, Any>> =
-        jdbcTemplate.queryForList("SELECT * FROM $TABLE_QRATOR", EmptySqlParameterSource.INSTANCE)
+    fun get(): List<Map<String, Any?>> = jdbc.queryForList(
+        Select(TABLE_QRATOR)
+    )
 
-    fun get(id: Long): Map<String, Any?> =
-        jdbcTemplate.queryForMap("SELECT * FROM $TABLE_QRATOR WHERE `id` = :id", mapOf("id" to id))
+    fun get(id: Long): Map<String, Any?> = jdbc.queryForMap(
+        Select(from = TABLE_QRATOR, where = Where("id" to id))
+    )
 
     fun create(extension: String?): Long? {
         val keyHolder = GeneratedKeyHolder()
 
-        insertTemplate.update({ connection ->
+        jdbcInsert.update({ connection ->
             val ps = connection.prepareStatement(
                 "INSERT INTO $TABLE_QRATOR (`ext`) VALUES (?)",
                 Statement.RETURN_GENERATED_KEYS
@@ -33,20 +40,20 @@ class QratorDao(private val jdbcTemplate: NamedParameterJdbcTemplate, private va
         return keyHolder.key?.toLong()
     }
 
-    fun update(id: Long, title: String?, author: String?, value: Int?, description: String?): Boolean =
-        jdbcTemplate.update(
-            "UPDATE $TABLE_QRATOR " +
-                "SET `title` = :title, `author` = :author, `value` = :value, `description` = :description " +
-                "WHERE `id` = :id",
+    fun update(id: Long, title: String?, author: String?, value: Int?, description: String?): Boolean = jdbc.update(
+        Update(
+            TABLE_QRATOR,
             mapOf(
-                "id" to id,
                 "title" to title,
                 "author" to author,
                 "value" to value,
                 "description" to description,
-            )
-        ).checkRowsAffected()
+            ),
+            Where("id" to id),
+        )
+    )
 
-    fun delete(id: Long): Boolean =
-        jdbcTemplate.update("DELETE FROM $TABLE_QRATOR WHERE id = :id", mapOf("id" to id)).checkRowsAffected()
+    fun delete(id: Long): Boolean = jdbc.update(
+        Delete(TABLE_QRATOR, Where("id" to id))
+    )
 }
