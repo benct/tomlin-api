@@ -3,11 +3,9 @@ package no.tomlin.api.iata
 import no.tomlin.api.db.Delete
 import no.tomlin.api.db.Extensions.query
 import no.tomlin.api.db.Extensions.update
-import no.tomlin.api.db.OrderBy
 import no.tomlin.api.db.Select
 import no.tomlin.api.db.Table.TABLE_IATA_AIRLINE
 import no.tomlin.api.db.Table.TABLE_IATA_LOCATION
-import no.tomlin.api.db.Where
 import no.tomlin.api.iata.entity.Airline
 import no.tomlin.api.iata.entity.Location
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -17,16 +15,16 @@ import org.springframework.stereotype.Repository
 class IataDao(private val jdbc: NamedParameterJdbcTemplate) {
 
     fun getAirlines(code: String): List<Airline> = jdbc.query(
-        Select(from = TABLE_IATA_AIRLINE, where = Where("iataCode" to code)),
+        Select(TABLE_IATA_AIRLINE)
+            .where("iataCode").eq(code),
         Airline.rowMapper,
     )
 
     fun getLocations(code: String): List<Location> = jdbc.query(
-        Select(
-            from = TABLE_IATA_LOCATION,
-            where = Where("iataCode" to code, "cityCode" to code, separator = "OR"),
-            orderBy = OrderBy("type")
-        ),
+        Select(TABLE_IATA_LOCATION)
+            .where("iataCode").eq(code)
+            .or("cityCode").eq(code)
+            .orderBy("type"),
         Location.rowMapper,
     )
 

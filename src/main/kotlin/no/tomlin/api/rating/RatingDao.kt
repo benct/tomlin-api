@@ -19,88 +19,92 @@ class RatingDao(private val jdbc: NamedParameterJdbcTemplate) {
 
     @Cacheable("active")
     fun getActive(): RatingSurvey? = jdbc.queryForObject(
-        Select(
-            from = TABLE_RATING,
-            where = Where("active" to true),
-            orderBy = OrderBy("id" to "DESC"),
-        ),
+        Select(TABLE_RATING)
+            .where("active").eq(true)
+            .orderBy("id" to "DESC"),
         RatingSurvey.rowMapper,
     )
 
     @Cacheable("activeItems")
     fun getActiveItems(): List<RatingItem> = jdbc.query(
-        Select(
-            columns = "i.*",
-            from = TABLE_RATING_ITEM,
-            join = Join(TABLE_RATING, "r.id" to "i.rating_id"),
-            where = Where("active" to true),
-            orderBy = OrderBy("i.id"),
-        ),
+        Select(TABLE_RATING_ITEM)
+            .join(TABLE_RATING).on("id", "rating_id")
+            .where("active").eq(true)
+            .orderBy("id"),
         RatingItem.rowMapper,
     )
 
     @CacheEvict("active")
     fun nextStep(): Boolean = jdbc.update(
-        Increment(TABLE_RATING, column = "step", Where("active" to true))
+        Increment(TABLE_RATING)
+            .column("step")
+            .where("active").eq(true)
     )
 
     @CacheEvict("active")
     fun prevStep(): Boolean = jdbc.update(
-        Decrement(TABLE_RATING, column = "step", Where("active" to true))
+        Decrement(TABLE_RATING)
+            .column("step")
+            .where("active").eq(true)
     )
 
     fun getAll(): List<RatingSurvey> = jdbc.query(
-        Select(from = TABLE_RATING, orderBy = OrderBy("id")),
+        Select(TABLE_RATING).orderBy("id"),
         RatingSurvey.rowMapper,
     )
 
     fun get(id: Long): RatingSurvey? = jdbc.queryForObject(
-        Select(from = TABLE_RATING, where = Where("id" to id)),
+        Select(TABLE_RATING).where("id").eq(id),
         RatingSurvey.rowMapper
     )
 
     fun getItems(id: Long): List<RatingItem> = jdbc.query(
-        Select(from = TABLE_RATING_ITEM, where = Where("rating_id" to id), orderBy = OrderBy("id")),
+        Select(TABLE_RATING_ITEM)
+            .where("rating_id").eq(id)
+            .orderBy("id"),
         RatingItem.rowMapper
     )
 
     fun results(id: Long): List<Map<String, Any?>> = jdbc.queryForList(
-        Select(
-            columns = listOf(
-                "i.id", "i.title", "i.subtitle", "COUNT(DISTINCT s.user_id) AS answers",
-                "AVG(s.cat1) AS avg1", "AVG(s.cat2) AS avg2", "AVG(s.cat3) AS avg3", "AVG(s.cat4) AS avg4",
-                "SUM(s.cat1) AS sum1", "SUM(s.cat2) AS sum2", "SUM(s.cat3) AS sum3", "SUM(s.cat4) AS sum4",
-                "SUM(s.cat1 + IFNULL(s.cat2, 0) + IFNULL(s.cat3, 0) + IFNULL(s.cat4, 0)) AS total"
-            ).joinToString(),
-            from = TABLE_RATING_ITEM,
-            join = Join(TABLE_RATING_SCORE, "i.id" to "s.item_id"),
-            where = Where("rating_id" to id),
-            groupBy = GroupBy("i.id"),
-            orderBy = OrderBy("i.id"),
-        )
+        Select(TABLE_RATING_ITEM)
+            .columns("id", "title", "subtitle")
+            .column(TABLE_RATING_SCORE, "user_id").countDistinct("answers")
+            .column(TABLE_RATING_SCORE, "cat1").avg("avg1")
+            .column(TABLE_RATING_SCORE, "cat2").avg("avg2")
+            .column(TABLE_RATING_SCORE, "cat3").avg("avg3")
+            .column(TABLE_RATING_SCORE, "cat4").avg("avg4")
+            .column(TABLE_RATING_SCORE, "cat1").sum("sum1")
+            .column(TABLE_RATING_SCORE, "cat2").sum("sum2")
+            .column(TABLE_RATING_SCORE, "cat3").sum("sum3")
+            .column(TABLE_RATING_SCORE, "cat4").sum("sum4")
+            .column("SUM(cat1 + IFNULL(cat2, 0) + IFNULL(cat3, 0) + IFNULL(cat4, 0))").custom("total")
+            .join(TABLE_RATING_SCORE).on("item_id", "id")
+            .where("rating_id").eq(id)
+            .groupBy("id")
+            .orderBy("id")
     )
 
     fun saveScore(score: RatingScore): Boolean = jdbc.update(
-        Upsert(TABLE_RATING_SCORE, score.asDaoMap())
+        Upsert(TABLE_RATING_SCORE).data(score.asDaoMap())
     )
 
     @CacheEvict(value = ["active", "activeItems"], allEntries = true)
     fun save(rating: RatingSurvey): Boolean = jdbc.update(
-        Upsert(TABLE_RATING, rating.asDaoMap())
+        Upsert(TABLE_RATING).data(rating.asDaoMap())
     )
 
     @CacheEvict(value = ["active", "activeItems"], allEntries = true)
     fun delete(id: Long): Boolean = jdbc.update(
-        Delete(TABLE_RATING, Where("id" to id))
+        Delete(TABLE_RATING).where("id").eq(id)
     )
 
     @CacheEvict("activeItems", allEntries = true)
     fun saveItem(ratingItem: RatingItem): Boolean = jdbc.update(
-        Upsert(TABLE_RATING_ITEM, ratingItem.asDaoMap())
+        Upsert(TABLE_RATING_ITEM).data(ratingItem.asDaoMap())
     )
 
     @CacheEvict("activeItems", allEntries = true)
     fun deleteItem(id: Long): Boolean = jdbc.update(
-        Delete(TABLE_RATING_ITEM, Where("id" to id))
+        Delete(TABLE_RATING_ITEM).where("id").eq(id)
     )
 }

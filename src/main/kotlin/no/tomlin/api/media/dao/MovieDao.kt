@@ -2,13 +2,17 @@ package no.tomlin.api.media.dao
 
 import no.tomlin.api.common.Constants.PAGE_SIZE
 import no.tomlin.api.common.PaginationResponse
-import no.tomlin.api.db.*
+import no.tomlin.api.common.Sort
+import no.tomlin.api.db.Delete
 import no.tomlin.api.db.Extensions.query
 import no.tomlin.api.db.Extensions.queryForList
 import no.tomlin.api.db.Extensions.queryForMap
 import no.tomlin.api.db.Extensions.queryForObject
 import no.tomlin.api.db.Extensions.update
+import no.tomlin.api.db.Select
 import no.tomlin.api.db.Table.TABLE_MOVIE
+import no.tomlin.api.db.Update
+import no.tomlin.api.db.Upsert
 import no.tomlin.api.media.entity.Movie
 import no.tomlin.api.media.entity.Stats
 import org.springframework.cache.annotation.CacheEvict
@@ -20,25 +24,29 @@ import org.springframework.stereotype.Repository
 class MovieDao(private val jdbc: NamedParameterJdbcTemplate) {
 
     fun get(id: String): Map<String, Any?> = jdbc.queryForMap(
-        Select(columns = "*, 'movie' AS type", from = TABLE_MOVIE, where = Where("id" to id))
+        Select(TABLE_MOVIE)
+            .columns("*")
+            .column("'movie'").custom("type")
+            .where("id").eq(id)
     )
 
-    fun get(query: String?, sort: OrderBy, page: Int): PaginationResponse<Map<String, Any?>> {
+    fun get(query: String?, sort: Sort, page: Int): PaginationResponse<Map<String, Any?>> {
         val start = (page - 1) * PAGE_SIZE
-        val where = query?.let { Where("title" to "%$it%", "id" to "%$it%", separator = "OR", like = true) }
+
+        fun Select.optionalWhere(): Select =
+            query?.let { this.where("title").like("%$query%").or("id").like("%$query%") } ?: this
 
         val movies = jdbc.queryForList(
-            Select(
-                from = TABLE_MOVIE,
-                where = where,
-                orderBy = sort,
-                limit = PAGE_SIZE,
-                offset = start,
-            ),
+            Select(TABLE_MOVIE)
+                .optionalWhere()
+                .orderBy(*sort.toPairs())
+                .limit(PAGE_SIZE, offset = start)
         )
 
         val total = jdbc.queryForObject(
-            Select(columns = "COUNT(id)", from = TABLE_MOVIE, where = where),
+            Select(TABLE_MOVIE)
+                .column("id").count()
+                .optionalWhere(),
             Int::class.java
         ) ?: 1
 
@@ -46,43 +54,43 @@ class MovieDao(private val jdbc: NamedParameterJdbcTemplate) {
     }
 
     fun getIds(count: Int? = null): List<Long> = jdbc.queryForList(
-        Select(columns = "id", from = TABLE_MOVIE, orderBy = OrderBy("updated"), limit = count),
+        Select(TABLE_MOVIE).columns("id").orderBy("updated").limit(count),
         Long::class.java
     )
 
     fun watchlist(): List<Map<String, Any?>> = jdbc.queryForList(
-        Select(
-            columns = "*, 'movie' AS type",
-            from = TABLE_MOVIE,
-            where = Where("seen" to false),
-            orderBy = OrderBy("release_date")
-        )
+        Select(TABLE_MOVIE)
+            .columns("*")
+            .column("'movie'").custom("type")
+            .where("seen").eq(false)
+            .orderBy("release_date")
     )
 
     @CacheEvict("movieStats", allEntries = true)
     fun store(movie: Movie): Boolean = jdbc.update(
-        Upsert(TABLE_MOVIE, movie.toDaoMap())
+        Upsert(TABLE_MOVIE).data(movie.toDaoMap())
     )
 
     @CacheEvict("movieStats", allEntries = true)
     fun delete(id: String): Boolean = jdbc.update(
-        Delete(TABLE_MOVIE, Where("id" to id))
+        Delete(TABLE_MOVIE).where("id").eq(id)
     )
 
     fun favourite(id: String, set: Boolean): Boolean = jdbc.update(
-        Update(TABLE_MOVIE, mapOf("favourite" to set), Where("id" to id))
+        Update(TABLE_MOVIE).set("favourite" to set).where("id").eq(id)
     )
 
     fun seen(id: String, set: Boolean): Boolean = jdbc.update(
-        Update(TABLE_MOVIE, mapOf("seen" to set), Where("id" to id))
+        Update(TABLE_MOVIE).set("seen" to set).where("id").eq(id)
     )
 
     @Cacheable("movieStats")
     fun stats(): Stats? = jdbc.queryForObject(
-        Select(
-            columns = "COUNT(id) AS total, SUM(seen) AS seen, SUM(favourite) AS favourite, AVG(rating) AS rating",
-            from = TABLE_MOVIE
-        ),
+        Select(TABLE_MOVIE)
+            .column("id").count("total")
+            .column("seen").sum("seen")
+            .column("favourite").sum("favourite")
+            .column("rating").avg("rating")
     ) { rs, _ ->
         Stats(
             statsReleaseDecade(),
@@ -95,20 +103,18 @@ class MovieDao(private val jdbc: NamedParameterJdbcTemplate) {
     }
 
     fun statsReleaseDecade(): List<Stats.YearStat> = jdbc.query(
-        Select(
-            columns = "SUBSTRING(release_year, 1, 3) AS year, COUNT(id) AS count",
-            from = TABLE_MOVIE,
-            groupBy = GroupBy("year")
-        ),
+        Select(TABLE_MOVIE)
+            .column("release_year").subString(1, 3, "year")
+            .column("id").count("count")
+            .groupByAlias("year"),
         Stats.YearStat.rowMapper,
     )
 
     fun statsGroupedRating(): List<Stats.RatingStat> = jdbc.query(
-        Select(
-            columns = "FLOOR(rating) AS score, COUNT(id) AS count",
-            from = TABLE_MOVIE,
-            groupBy = GroupBy("score"),
-        ),
+        Select(TABLE_MOVIE)
+            .column("rating").floor("score")
+            .column("id").count("count")
+            .groupByAlias("score"),
         Stats.RatingStat.rowMapper,
     )
 }

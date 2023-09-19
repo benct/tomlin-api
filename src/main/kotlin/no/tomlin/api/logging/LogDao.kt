@@ -19,6 +19,6 @@ class LogDao(private val jdbc: NamedParameterJdbcTemplate) {
         log("[Error] ${exception::class.simpleName}", exception.message, request?.servletPath)
 
     private fun log(message: String, details: String? = null, path: String? = null): Boolean = jdbc.update(
-        Insert(TABLE_LOG, mapOf("message" to message, "details" to details, "path" to path))
+        Insert(TABLE_LOG).data("message" to message, "details" to details, "path" to path)
     )
 }

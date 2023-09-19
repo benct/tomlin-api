@@ -21,18 +21,22 @@ class BeenDao(private val jdbc: NamedParameterJdbcTemplate) {
     }
 
     fun add(country: String, name: String): Boolean = jdbc.update(
-        Insert(TABLE_BEEN, mapOf("country" to country, "name" to name))
+        Insert(TABLE_BEEN).data("country" to country, "name" to name)
     )
 
     fun remove(country: String): Boolean = jdbc.update(
-        Delete(TABLE_BEEN, Where("country" to country))
+        Delete(TABLE_BEEN).where("country").eq(country)
     )
 
     fun increment(country: String): Boolean = jdbc.update(
-        Increment(TABLE_BEEN, column = "visited", Where("country" to country))
+        Increment(TABLE_BEEN)
+            .column("visited")
+            .where("country").eq(country)
     )
 
     fun decrement(country: String): Boolean = jdbc.update(
-        Decrement(TABLE_BEEN, column = "visited", Where("country" to country))
+        Decrement(TABLE_BEEN)
+            .column("visited")
+            .where("country").eq(country)
     )
 }

@@ -3,7 +3,7 @@ package no.tomlin.api.media
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.MEDIA
 import no.tomlin.api.common.PaginationResponse
-import no.tomlin.api.db.OrderBy
+import no.tomlin.api.common.Sort
 import no.tomlin.api.media.dao.MovieDao
 import no.tomlin.api.media.dao.TVDao
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
@@ -43,15 +43,15 @@ class MediaController(
     )
 
     companion object {
-        fun parseSort(sort: String?): OrderBy = when (sort) {
-            "rating-asc" -> OrderBy("rating" to "ASC")
-            "rating-desc" -> OrderBy("rating" to "DESC")
-            "release-asc" -> OrderBy("release_date" to "ASC")
-            "release-desc" -> OrderBy("release_date" to "DESC")
-            "title-asc" -> OrderBy("title" to "ASC")
-            "title-desc" -> OrderBy("title" to "DESC")
-            "favourite" -> OrderBy("favourite" to "DESC", "rating" to "DESC")
-            else -> OrderBy("rating" to "DESC")
+        fun parseSort(sort: String?): Sort = when (sort) {
+            "rating-asc" -> Sort("rating", "ASC")
+            "rating-desc" -> Sort("rating", "DESC")
+            "release-asc" -> Sort("release_date", "ASC")
+            "release-desc" -> Sort("release_date", "DESC")
+            "title-asc" -> Sort("title", "ASC")
+            "title-desc" -> Sort("title", "DESC")
+            "favourite" -> Sort("favourite, rating", "DESC")
+            else -> Sort("rating", "DESC")
         }
     }
 }

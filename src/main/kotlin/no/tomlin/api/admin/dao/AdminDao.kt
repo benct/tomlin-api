@@ -4,11 +4,14 @@ import no.tomlin.api.admin.entity.Log
 import no.tomlin.api.admin.entity.Visit
 import no.tomlin.api.common.Constants.PAGE_SIZE
 import no.tomlin.api.common.PaginationResponse
-import no.tomlin.api.db.*
+import no.tomlin.api.db.Delete
 import no.tomlin.api.db.Extensions.query
 import no.tomlin.api.db.Extensions.queryForObject
 import no.tomlin.api.db.Extensions.update
+import no.tomlin.api.db.Select
+import no.tomlin.api.db.Table
 import no.tomlin.api.db.Table.*
+import no.tomlin.api.db.Upsert
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -30,31 +33,33 @@ class AdminDao(private val jdbc: NamedParameterJdbcTemplate) {
 
     @Cacheable("settings")
     fun getSettings(): Map<String, Any?> = jdbc.query(
-        Select(columns = "`key`, `value`", from = TABLE_SETTINGS)
+        Select(TABLE_SETTINGS).columns("key", "value")
     ) { resultSet, _ ->
         resultSet.getString("key") to resultSet.getObject("value")
     }.toMap()
 
     fun getSetting(key: String): String? = jdbc.queryForObject(
-        Select(columns = "`value`", from = TABLE_SETTINGS, where = Where("key" to key)),
+        Select(TABLE_SETTINGS)
+            .columns("value")
+            .where("key").eq(key),
         String::class.java
     )
 
     @CacheEvict("settings", allEntries = true)
     fun saveSetting(key: String, value: String?): Boolean = jdbc.update(
-        Upsert(TABLE_SETTINGS, mapOf("key" to key, "value" to value))
+        Upsert(TABLE_SETTINGS).data("key" to key, "value" to value)
     )
 
     fun getLogs(page: Int): PaginationResponse<Log> {
         val start = (page - 1) * PAGE_SIZE
 
         val logs = jdbc.query(
-            Select(from = TABLE_LOG, orderBy = OrderBy("timestamp" to "DESC"), limit = PAGE_SIZE, offset = start),
+            Select(TABLE_LOG).orderBy("timestamp" to "DESC").limit(PAGE_SIZE, offset = start),
             Log.rowMapper,
         )
 
         val total = jdbc.queryForObject(
-            Select(columns = "COUNT(id)", from = TABLE_LOG),
+            Select(TABLE_LOG).column("id").count(),
             Int::class.java,
         ) ?: 1
 
@@ -63,18 +68,18 @@ class AdminDao(private val jdbc: NamedParameterJdbcTemplate) {
 
     fun deleteLogs(): Boolean = jdbc.update(Delete(TABLE_LOG))
 
-    fun deleteLog(id: Long): Boolean = jdbc.update(Delete(TABLE_LOG, Where("id" to id)))
+    fun deleteLog(id: Long): Boolean = jdbc.update(Delete(TABLE_LOG).where("id").eq(id))
 
     fun getVisits(page: Int): PaginationResponse<Visit> {
         val start = (page - 1) * PAGE_SIZE
 
         val visits = jdbc.query(
-            Select(from = TABLE_TRACK, orderBy = OrderBy("visits" to "DESC"), limit = PAGE_SIZE, offset = start),
+            Select(TABLE_TRACK).orderBy("visits" to "DESC").limit(PAGE_SIZE, offset = start),
             Visit.rowMapper,
         )
 
         val total = jdbc.queryForObject(
-            Select(columns = "COUNT(id)", from = TABLE_TRACK),
+            Select(TABLE_TRACK).column("id").count(),
             Int::class.java,
         ) ?: 1
 
@@ -82,15 +87,13 @@ class AdminDao(private val jdbc: NamedParameterJdbcTemplate) {
     }
 
     fun visit(ip: String, host: String?, referer: String?, agent: String?, page: String?): Boolean = jdbc.update(
-        Upsert(
-            TABLE_TRACK,
-            mapOf("ip" to ip, "host" to host, "referer" to referer, "agent" to agent, "page" to page),
-            incrementOnDuplicate = "visits"
-        )
+        Upsert(TABLE_TRACK)
+            .data("ip" to ip, "host" to host, "referer" to referer, "agent" to agent, "page" to page)
+            .incrementOnUpdate("visits")
     )
 
     private fun countQuery(table: Table): Int? = jdbc.queryForObject(
-        Select(columns = "COUNT(id)", from = table),
+        Select(table).column("id").count(),
         Int::class.java
     )
 }

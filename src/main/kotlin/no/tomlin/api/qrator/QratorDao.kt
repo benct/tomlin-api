@@ -7,7 +7,6 @@ import no.tomlin.api.db.Extensions.update
 import no.tomlin.api.db.Select
 import no.tomlin.api.db.Table.TABLE_QRATOR
 import no.tomlin.api.db.Update
-import no.tomlin.api.db.Where
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.jdbc.support.GeneratedKeyHolder
@@ -22,7 +21,7 @@ class QratorDao(private val jdbc: NamedParameterJdbcTemplate, private val jdbcIn
     )
 
     fun get(id: Long): Map<String, Any?> = jdbc.queryForMap(
-        Select(from = TABLE_QRATOR, where = Where("id" to id))
+        Select(TABLE_QRATOR).where("id").eq(id)
     )
 
     fun create(extension: String?): Long? {
@@ -41,19 +40,17 @@ class QratorDao(private val jdbc: NamedParameterJdbcTemplate, private val jdbcIn
     }
 
     fun update(id: Long, title: String?, author: String?, value: Int?, description: String?): Boolean = jdbc.update(
-        Update(
-            TABLE_QRATOR,
-            mapOf(
+        Update(TABLE_QRATOR)
+            .set(
                 "title" to title,
                 "author" to author,
                 "value" to value,
                 "description" to description,
-            ),
-            Where("id" to id),
-        )
+            )
+            .where("id").eq(id)
     )
 
     fun delete(id: Long): Boolean = jdbc.update(
-        Delete(TABLE_QRATOR, Where("id" to id))
+        Delete(TABLE_QRATOR).where("id").eq(id)
     )
 }
