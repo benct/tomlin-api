@@ -4,6 +4,9 @@ import java.time.Duration
 
 object Extensions {
 
+    fun String.ifNotEmpty(defaultValue: (String) -> String): String =
+        if (isNotEmpty()) defaultValue(this) else this
+
     fun String?.required(field: String): String = this ?: throw IllegalArgumentException("$field cannot be null")
 
     fun String?.nullIfBlank(): String? = this?.let { it.ifBlank { null } }

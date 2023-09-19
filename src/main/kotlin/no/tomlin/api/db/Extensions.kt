@@ -24,23 +24,8 @@ object Extensions {
     fun NamedParameterJdbcTemplate.queryForMap(select: Select): MutableMap<String, Any?> =
         queryForMap(select.statement, select.data)
 
-    fun NamedParameterJdbcTemplate.update(insert: Insert): Boolean =
-        update(insert.statement, insert.data).checkRowsAffected(insert.statement)
-
-    fun NamedParameterJdbcTemplate.update(upsert: Upsert): Boolean =
-        update(upsert.statement, upsert.data).checkRowsAffected(upsert.statement)
-
-    fun NamedParameterJdbcTemplate.update(update: Update): Boolean =
-        update(update.statement, update.data).checkRowsAffected(update.statement)
-
-    fun NamedParameterJdbcTemplate.update(delete: Delete): Boolean =
-        update(delete.statement, delete.data).checkRowsAffected(delete.statement)
-
-    fun NamedParameterJdbcTemplate.update(increment: Increment): Boolean =
-        update(increment.statement, increment.data).checkRowsAffected(increment.statement)
-
-    fun NamedParameterJdbcTemplate.update(decrement: Decrement): Boolean =
-        update(decrement.statement, decrement.data).checkRowsAffected(decrement.statement)
+    fun <T> NamedParameterJdbcTemplate.update(sql: Statement<T>): Boolean =
+        update(sql.statement, sql.data).checkRowsAffected(sql.statement)
 
     private fun Int.checkRowsAffected(sql: String, expected: Int = 1): Boolean =
         if (this < expected) throw JdbcUpdateAffectedIncorrectNumberOfRowsException(sql, expected, this) else true

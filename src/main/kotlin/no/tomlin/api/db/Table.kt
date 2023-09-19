@@ -1,6 +1,6 @@
 package no.tomlin.api.db
 
-enum class Table(private val tableName: String, val alias: String) {
+enum class Table(private val tableName: String) {
     TABLE_SETTINGS("settings"),
     TABLE_USER("user"),
     TABLE_ROLE("role"),
@@ -22,9 +22,7 @@ enum class Table(private val tableName: String, val alias: String) {
     TABLE_IATA_LOCATION("iata_location"),
     ;
 
-    constructor(tableName: String) : this("$TABLE_PREFIX$tableName", tableName.split("_").last().first().toString())
-
-    override fun toString(): String = this.tableName
+    override fun toString(): String = TABLE_PREFIX + this.tableName
 
     private companion object {
         const val TABLE_PREFIX = "tomlin_"
