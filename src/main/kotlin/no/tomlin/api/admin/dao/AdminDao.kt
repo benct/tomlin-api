@@ -4,6 +4,7 @@ import no.tomlin.api.admin.entity.Log
 import no.tomlin.api.admin.entity.Visit
 import no.tomlin.api.common.Constants.PAGE_SIZE
 import no.tomlin.api.common.PaginationResponse
+import no.tomlin.api.common.Sort
 import no.tomlin.api.db.Delete
 import no.tomlin.api.db.Extensions.query
 import no.tomlin.api.db.Extensions.queryForObject
@@ -54,7 +55,9 @@ class AdminDao(private val jdbc: NamedParameterJdbcTemplate) {
         val start = (page - 1) * PAGE_SIZE
 
         val logs = jdbc.query(
-            Select(TABLE_LOG).orderBy("timestamp" to "DESC").limit(PAGE_SIZE, offset = start),
+            Select(TABLE_LOG)
+                .orderBy("timestamp" to "DESC")
+                .limit(PAGE_SIZE, offset = start),
             Log.rowMapper,
         )
 
@@ -70,11 +73,13 @@ class AdminDao(private val jdbc: NamedParameterJdbcTemplate) {
 
     fun deleteLog(id: Long): Boolean = jdbc.update(Delete(TABLE_LOG).where("id").eq(id))
 
-    fun getVisits(page: Int): PaginationResponse<Visit> {
+    fun getVisits(page: Int, sort: Sort): PaginationResponse<Visit> {
         val start = (page - 1) * PAGE_SIZE
 
         val visits = jdbc.query(
-            Select(TABLE_TRACK).orderBy("visits" to "DESC").limit(PAGE_SIZE, offset = start),
+            Select(TABLE_TRACK)
+                .orderBy(*sort.toPairs())
+                .limit(PAGE_SIZE, offset = start),
             Visit.rowMapper,
         )
 

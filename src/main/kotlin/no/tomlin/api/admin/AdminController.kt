@@ -5,6 +5,7 @@ import no.tomlin.api.admin.entity.Log
 import no.tomlin.api.admin.entity.Visit
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.PaginationResponse
+import no.tomlin.api.common.Sort
 import no.tomlin.api.config.ApiProperties
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
@@ -22,7 +23,8 @@ class AdminController(private val properties: ApiProperties, private val adminDa
 
     @Secured(ADMIN)
     @GetMapping("/visits", "/visits/{page}")
-    fun getVisits(@PathVariable page: Int?): PaginationResponse<Visit> = adminDao.getVisits(page ?: 1)
+    fun getVisits(@PathVariable page: Int?, @RequestParam sort: String?): PaginationResponse<Visit> =
+        adminDao.getVisits(page ?: 1, parseSort(sort))
 
     @Secured(ADMIN)
     @GetMapping("/logs", "/logs/{page}")
@@ -47,5 +49,13 @@ class AdminController(private val properties: ApiProperties, private val adminDa
 
         return if (runtimeProcess.waitFor() == 0) true else
             throw RuntimeException(runtimeProcess.errorStream.bufferedReader().use(BufferedReader::readText))
+    }
+
+    companion object {
+        fun parseSort(sort: String?): Sort = when (sort) {
+            "count" -> Sort("visits", "DESC")
+            "date" -> Sort("timestamp", "DESC")
+            else -> Sort("visits", "DESC")
+        }
     }
 }
