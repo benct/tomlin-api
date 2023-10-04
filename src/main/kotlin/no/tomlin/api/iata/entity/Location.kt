@@ -3,6 +3,7 @@ package no.tomlin.api.iata.entity
 import no.tomlin.api.common.Extensions.required
 import org.springframework.jdbc.core.RowMapper
 import java.time.LocalDate
+import kotlin.reflect.full.primaryConstructor
 
 data class Location(
     val id: String,
@@ -16,13 +17,15 @@ data class Location(
     val country: String,
     val countryCode: String,
     val continent: String,
-    val type: String,
+    val type: String?,
     val latitude: Double?,
     val longitude: Double?,
     val timezone: String?,
     val operational: Boolean,
     val wiki: String?
 ) {
+    val typeName: String = parseType(type)
+    val isAirport: Boolean = type?.let { it == "A" || it == "CA" || it == "C" } ?: false
 
     constructor(csvLine: List<String?>) : this(
         id = "${csvLine[0]}_${csvLine[41]}_${csvLine[4]}",
@@ -36,7 +39,7 @@ data class Location(
         country = csvLine[18].required("country"),
         countryCode = csvLine[16].required("countryCode"),
         continent = csvLine[19].required("continent"),
-        type = type(csvLine[41]),
+        type = csvLine[41],
         latitude = csvLine[8]?.toDoubleOrNull(),
         longitude = csvLine[9]?.toDoubleOrNull(),
         timezone = csvLine[31],
@@ -65,7 +68,9 @@ data class Location(
     )
 
     companion object {
-        private fun type(code: String?): String =
+        val keys: List<String> = Location::class.primaryConstructor?.parameters?.mapNotNull { it.name }!!
+
+        private fun parseType(code: String?): String =
             when (code) {
                 "C" -> "Metropolitan Area (C)"
                 "A", "CA" -> "Airport ($code)"

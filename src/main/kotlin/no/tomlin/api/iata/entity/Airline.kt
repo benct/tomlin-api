@@ -2,6 +2,8 @@ package no.tomlin.api.iata.entity
 
 import no.tomlin.api.common.Extensions.required
 import org.springframework.jdbc.core.RowMapper
+import java.time.LocalDate
+import kotlin.reflect.full.primaryConstructor
 
 data class Airline(
     val id: String,
@@ -9,11 +11,14 @@ data class Airline(
     val icaoCode: String?,
     val name: String,
     val alias: String?,
-    val type: String,
+    val type: String?,
     val started: String?,
     val ended: String?,
+    val operational: Boolean,
     val wiki: String?
 ) {
+    val typeName: String = parseType(type, id)
+    val isAirline: Boolean = id.startsWith("air")
 
     constructor(csvLine: List<String?>) : this(
         id = csvLine[0].required("id"),
@@ -21,9 +26,10 @@ data class Airline(
         icaoCode = csvLine[4],
         name = csvLine[7].required("name"),
         alias = csvLine[8],
-        type = type(csvLine[11]),
+        type = csvLine[11],
         started = csvLine[2],
         ended = csvLine[3],
+        operational = operational(csvLine[3]),
         wiki = csvLine[12]
     )
 
@@ -36,19 +42,26 @@ data class Airline(
         "type" to type,
         "started" to started,
         "ended" to ended,
+        "operational" to operational,
         "wiki" to wiki
     )
 
     companion object {
-        private fun type(code: String?): String =
-            when (code) {
-                null -> "Airline"
-                "P", "T" -> "Airline ($code)"
-                "R" -> "Railway (R)"
-                "C" -> "Cargo (C)"
-                "G" -> "GDS (G)"
-                else -> "Unknown ($code)"
+        val keys: List<String> = Airline::class.primaryConstructor?.parameters?.mapNotNull { it.name }!!
+
+        private fun parseType(code: String?, id: String): String =
+            when {
+                id.startsWith("air") -> "Airline" + code?.let { " ($it)" }.orEmpty()
+                id.startsWith("alc") -> "Alliance"
+                id.startsWith("tec") -> "Technology"
+                id.startsWith("bus") -> "Bus"
+                code == "G" -> "GDS"
+                code == "R" -> "Rail"
+                else -> "Unknown" + code?.let { " ($it)" }.orEmpty()
             }
+
+        private fun operational(date: String?): Boolean =
+            date.isNullOrBlank() || LocalDate.parse(date).isAfter(LocalDate.now())
 
         val rowMapper = RowMapper<Airline> { rs, _ ->
             Airline(
@@ -60,6 +73,7 @@ data class Airline(
                 rs.getString("type"),
                 rs.getString("started"),
                 rs.getString("ended"),
+                rs.getBoolean("operational"),
                 rs.getString("wiki")
             )
         }
