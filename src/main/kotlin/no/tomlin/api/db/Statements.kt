@@ -7,6 +7,7 @@ class Select(val from: Table) : WhereStatement<Select>(from) {
     private val cols: MutableList<String> = mutableListOf()
     private val joins: MutableList<String> = mutableListOf()
     private val groupBy: MutableList<String> = mutableListOf()
+    private val having: MutableList<String> = mutableListOf()
     private val orderBy: MutableList<String> = mutableListOf()
     private var limit: Int? = null
     private var offset: Int = 0
@@ -100,6 +101,11 @@ class Select(val from: Table) : WhereStatement<Select>(from) {
         groupBy.addAll(columnAlias.map { "`$it`" })
     }
 
+    fun having(vararg columns: Pair<String, String>) = apply {
+        having.addAll(columns.map { "${it.first} LIKE :${it.first}" })
+        namedParameters.putAll(columns)
+    }
+
     fun orderBy(vararg columns: String): Select = apply {
         orderBy.addAll(columns.map { "$from.`$it`" })
     }
@@ -120,6 +126,7 @@ class Select(val from: Table) : WhereStatement<Select>(from) {
             joins.joinToString(" ").ifNotEmpty { " $it" } +
             where.joinToString(" ").ifNotEmpty { " WHERE $it" } +
             groupBy.joinToString(", ").ifNotEmpty { " GROUP BY $it" } +
+            having.joinToString(" ").ifNotEmpty { " HAVING $it" } +
             orderBy.joinToString(", ").ifNotEmpty { " ORDER BY $it" } +
             limit?.let { " LIMIT $it OFFSET $offset" }.orEmpty()
 
