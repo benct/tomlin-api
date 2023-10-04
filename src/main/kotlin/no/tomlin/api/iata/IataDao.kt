@@ -31,6 +31,24 @@ class IataDao(private val jdbc: NamedParameterJdbcTemplate) {
         Location.rowMapper,
     )
 
+    fun searchAirlines(query: String): List<Airline> = jdbc.query(
+        Select(TABLE_IATA_AIRLINE)
+            .columns("*")
+            .column("CONCAT_WS(' ', iataCode, icaoCode, name, alias)").custom("search")
+            .having("search" to "%${query.split(" ").joinToString("%")}%")
+            .orderBy("iataCode", "operational"),
+        Airline.rowMapper,
+    )
+
+    fun searchLocations(query: String): List<Location> = jdbc.query(
+        Select(TABLE_IATA_LOCATION)
+            .columns("*")
+            .column("CONCAT_WS(' ', iataCode, icaoCode, cityCode, name, cityName, country, countryCode)").custom("search")
+            .having("search" to "%${query.split(" ").joinToString("%")}%")
+            .orderBy("cityCode"),
+        Location.rowMapper,
+    )
+
     fun batchAirlines(airlines: List<Airline>): IntArray = jdbc.batchUpdate(
         "INSERT INTO $TABLE_IATA_AIRLINE (${Airline.keys.joinToString { "`$it`" }}) " +
             "VALUES (${Airline.keys.joinToString { ":$it" }})",
