@@ -29,7 +29,7 @@ class RatingDao(private val jdbc: NamedParameterJdbcTemplate) {
     fun getActiveItems(): List<RatingItem> = jdbc.query(
         Select(TABLE_RATING_ITEM)
             .join(TABLE_RATING).on("id", "rating_id")
-            .where("active").eq(true)
+            .where(TABLE_RATING, "active").eq(true)
             .orderBy("id"),
         RatingItem.rowMapper,
     )
