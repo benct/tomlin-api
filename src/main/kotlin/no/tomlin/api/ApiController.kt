@@ -3,13 +3,14 @@ package no.tomlin.api
 import no.tomlin.api.admin.dao.AdminDao
 import no.tomlin.api.admin.dao.UserDao
 import no.tomlin.api.admin.service.GCPService
+import no.tomlin.api.common.AuthUtils.getUserRoles
+import no.tomlin.api.common.AuthUtils.isLoggedIn
 import no.tomlin.api.common.QRCode.generateQRCodeImage
 import no.tomlin.api.config.ApiProperties
 import no.tomlin.api.github.GitHubService
 import no.tomlin.api.weather.WeatherService
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.MediaType.IMAGE_PNG_VALUE
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 import java.security.Principal
 import java.time.LocalDate.now
@@ -93,9 +94,8 @@ class ApiController(
     ) {
         constructor(principal: Principal?) : this(
             username = principal?.name,
-            authenticated = SecurityContextHolder.getContext().authentication?.isAuthenticated ?: false,
-            roles = SecurityContextHolder.getContext().authentication?.authorities.orEmpty()
-                .map { it.authority.split("_").last() },
+            authenticated = isLoggedIn(),
+            roles = getUserRoles().map { it.split("_").last() },
         )
     }
 
