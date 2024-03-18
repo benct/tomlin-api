@@ -1,11 +1,11 @@
 package no.tomlin.api.logging
 
+import jakarta.servlet.http.HttpServletRequest
 import no.tomlin.api.db.Extensions.update
 import no.tomlin.api.db.Insert
 import no.tomlin.api.db.Table.TABLE_LOG
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
-import javax.servlet.http.HttpServletRequest
 
 @Repository
 class LogDao(private val jdbc: NamedParameterJdbcTemplate) {

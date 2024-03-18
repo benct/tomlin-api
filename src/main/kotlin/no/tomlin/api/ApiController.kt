@@ -1,5 +1,7 @@
 package no.tomlin.api
 
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import no.tomlin.api.admin.dao.AdminDao
 import no.tomlin.api.admin.dao.UserDao
 import no.tomlin.api.admin.service.GCPService
@@ -11,11 +13,10 @@ import no.tomlin.api.github.GitHubService
 import no.tomlin.api.weather.WeatherService
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.MediaType.IMAGE_PNG_VALUE
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.security.Principal
 import java.time.LocalDate.now
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 @RestController
 class ApiController(
@@ -52,6 +53,9 @@ class ApiController(
         }
         return HomeResponse(weather, settings)
     }
+
+    @GetMapping("/authenticate", produces = [APPLICATION_JSON_VALUE])
+    fun authenticate(): ResponseEntity<String> = ResponseEntity.notFound().build()
 
     @PostMapping("/authenticate", produces = [APPLICATION_JSON_VALUE])
     fun authenticate(

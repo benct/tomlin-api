@@ -4,7 +4,8 @@ import no.tomlin.api.db.Table.TABLE_ROLE
 import no.tomlin.api.db.Table.TABLE_USER
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
+import org.springframework.security.config.Customizer.withDefaults
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -16,7 +17,7 @@ import javax.sql.DataSource
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(securedEnabled = true)
+@EnableMethodSecurity(securedEnabled = true)
 class SecurityConfig(private val dataSource: DataSource) {
 
     @Bean
@@ -29,14 +30,12 @@ class SecurityConfig(private val dataSource: DataSource) {
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain =
         http
-            .csrf().disable()
-            .formLogin().disable()
-            .logout().disable()
-            .anonymous().disable()
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-            .httpBasic()
-            .and()
+            .csrf { it.disable() }
+            .formLogin { it.disable() }
+            .logout { it.disable() }
+            .anonymous { it.disable() }
+            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .httpBasic(withDefaults())
             .build()
 
     @Bean

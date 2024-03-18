@@ -1,5 +1,6 @@
 package no.tomlin.api.files
 
+import jakarta.servlet.http.HttpServletResponse
 import no.tomlin.api.common.Constants.ADMIN
 import no.tomlin.api.common.Constants.PRIVATE
 import org.springframework.beans.factory.annotation.Qualifier
@@ -8,7 +9,6 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import java.nio.file.Files
 import java.nio.file.Paths
-import javax.servlet.http.HttpServletResponse
 
 @RestController
 @RequestMapping("/file")

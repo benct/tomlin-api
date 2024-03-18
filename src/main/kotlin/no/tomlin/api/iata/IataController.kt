@@ -14,7 +14,6 @@ import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
-import javax.servlet.http.HttpServletResponse
 
 @RestController
 @RequestMapping("/iata")
@@ -27,7 +26,7 @@ class IataController(
     @CrossOrigin("https://benct.github.io")
     @Cacheable("iataSearch")
     @GetMapping("/search/{query}")
-    fun search(@PathVariable query: String, response: HttpServletResponse): List<Any> {
+    fun search(@PathVariable query: String): ResponseEntity<List<Any>> {
         val value = query.trim().uppercase()
 
         val results = when (value.length) {
@@ -37,9 +36,9 @@ class IataController(
         }
 
         if (results.isEmpty()) {
-            response.status = NO_CONTENT.value()
+            return ResponseEntity.status(NO_CONTENT).body(results)
         }
-        return results
+        return ResponseEntity.ok(results)
     }
 
     @Cacheable("iataAirlineSearch")

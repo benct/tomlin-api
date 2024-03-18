@@ -1,5 +1,6 @@
 package no.tomlin.api
 
+import jakarta.servlet.http.HttpServletRequest
 import no.tomlin.api.admin.SettingsController.SettingNotFoundException
 import no.tomlin.api.logging.LogDao
 import org.springframework.dao.EmptyResultDataAccessException
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now
-import javax.servlet.http.HttpServletRequest
 
 @RestControllerAdvice
 class ExceptionController(private val logger: LogDao) {
