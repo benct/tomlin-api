@@ -24,7 +24,7 @@ data class Airline(
         id = csvLine[0].required("id"),
         iataCode = csvLine[5] ?: "??",
         icaoCode = csvLine[4],
-        name = csvLine[7].required("name"),
+        name = csvLine[7] ?: "Unknown airline name",
         alias = csvLine[8],
         type = csvLine[11],
         started = csvLine[2],
