@@ -7,7 +7,6 @@ import no.tomlin.api.http.HttpFetcher.Companion.fetcher
 import no.tomlin.api.http.HttpFetcher.Companion.readBody
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
 class WeatherService(val fetcher: HttpFetcher = fetcher(BASE_URL)) {

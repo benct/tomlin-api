@@ -65,11 +65,11 @@ class ApiController(
     ): AuthResponse {
         try {
             adminDao.visit(
-                request.remoteAddr,
-                request.remoteHost,
-                referrer,
-                request.getHeader("User-Agent"),
-                request.getHeader("referer")
+                ip = request.remoteAddr,
+                host = request.remoteHost,
+                referer = referrer,
+                agent = request.getHeader("User-Agent"),
+                page = request.getHeader("referer")
             )
 
             principal?.let {
