@@ -6,18 +6,24 @@ enum class Table(private val tableName: String) {
     TABLE_ROLE("role"),
     TABLE_LOG("log"),
     TABLE_TRACK("track"),
-    TABLE_NOTE("note"),
-    TABLE_FLIGHT("flight"),
+
     TABLE_BEEN("been"),
+    TABLE_LINK("link"),
+    TABLE_FLIGHT("flight"),
     TABLE_FINN("finn"),
+    TABLE_NOTE("note"),
     TABLE_QRATOR("qrator"),
+    TABLE_TODO("todo"),
+
     TABLE_RATING("rating"),
     TABLE_RATING_ITEM("rating_item"),
     TABLE_RATING_SCORE("rating_score"),
+
     TABLE_MOVIE("movie"),
     TABLE_TV("tv"),
     TABLE_SEASON("season"),
     TABLE_EPISODE("episode"),
+
     TABLE_IATA_AIRLINE("iata_airline"),
     TABLE_IATA_LOCATION("iata_location"),
     ;

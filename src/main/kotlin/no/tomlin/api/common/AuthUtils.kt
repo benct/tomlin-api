@@ -9,4 +9,7 @@ object AuthUtils {
 
     fun getUserRoles(): List<String> =
         SecurityContextHolder.getContext().authentication?.authorities.orEmpty().map { it.authority }
+
+    fun hasRole(vararg roles: String): Boolean =
+        getUserRoles().any { roles.contains(it) }
 }
