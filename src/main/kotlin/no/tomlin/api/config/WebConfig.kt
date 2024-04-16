@@ -20,7 +20,7 @@ class WebConfig(private val clientIdInterceptor: ClientIdInterceptor) : WebMvcCo
     }
 
     override fun addInterceptors(registry: InterceptorRegistry) {
-        registry.addInterceptor(clientIdInterceptor)
+        registry.addInterceptor(clientIdInterceptor).excludePathPatterns("/", "/ping", "/version", "/iata/search/*")
     }
 
     @Bean
