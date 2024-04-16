@@ -19,7 +19,7 @@ class ClientIdInterceptor(private val logger: LogDao) : HandlerInterceptor {
                 message = clientId.nullIfBlank()?.let { "Unknown client-id '$clientId'" } ?: "Missing client-id",
                 details = "IP: ${request.remoteAddr}, Host: ${request.remoteHost}, " +
                     "Agent: ${request.getHeader("User-Agent")}, Referer: ${request.getHeader("referer")}",
-                path = request.servletPath + request.queryString.nullIfBlank()?.let { "?$it" },
+                path = request.servletPath + request.queryString?.let { "?$it" }.orEmpty(),
             )
 
             response.sendError(SC_BAD_REQUEST, "Missing or invalid header [$CLIENT_ID].")
