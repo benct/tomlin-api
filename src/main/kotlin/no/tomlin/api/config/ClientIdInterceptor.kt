@@ -2,8 +2,9 @@ package no.tomlin.api.config
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST
+import no.tomlin.api.common.Extensions.nullIfBlank
 import no.tomlin.api.logging.LogDao
-import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.stereotype.Component
 import org.springframework.web.servlet.HandlerInterceptor
 
@@ -15,9 +16,14 @@ class ClientIdInterceptor(private val logger: LogDao) : HandlerInterceptor {
         if (!validClientIds.contains(clientId)) {
             val requestInfo = "IP: ${request.remoteAddr}, Host: ${request.remoteHost}, " +
                 "Agent: ${request.getHeader("User-Agent")}, Referer: ${request.getHeader("referer")}"
-            logger.info("Interceptor", "Unknown client: $clientId ($requestInfo)")
+            logger.info(
+                "Interceptor",
+                clientId.nullIfBlank()
+                    ?.let { "Unknown client-id '$clientId' ($requestInfo)" }
+                    ?: "Missing client-id ($requestInfo)"
+            )
 
-            response.sendError(BAD_REQUEST.value(), "Missing required header [$CLIENT_ID].")
+            response.sendError(SC_BAD_REQUEST, "Missing or invalid header [$CLIENT_ID].")
             return false
         }
         return true
