@@ -10,7 +10,8 @@ import org.springframework.stereotype.Repository
 @Repository
 class LogDao(private val jdbc: NamedParameterJdbcTemplate) {
 
-    fun info(key: String, message: String) = log("[$key] $message")
+    fun info(key: String, message: String, details: String? = null, path: String? = null) =
+        log("[$key] $message", details, path)
 
     fun warn(exception: Exception, request: HttpServletRequest? = null) =
         log("[Warn] ${exception::class.simpleName}", exception.message, request?.servletPath)

@@ -14,13 +14,12 @@ class ClientIdInterceptor(private val logger: LogDao) : HandlerInterceptor {
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
         val clientId: String? = request.getHeader(CLIENT_ID) ?: request.getParameter("clientId")
         if (!validClientIds.contains(clientId)) {
-            val requestInfo = "IP: ${request.remoteAddr}, Host: ${request.remoteHost}, " +
-                "Agent: ${request.getHeader("User-Agent")}, Referer: ${request.getHeader("referer")}"
             logger.info(
-                "Interceptor",
-                clientId.nullIfBlank()
-                    ?.let { "Unknown client-id '$clientId' ($requestInfo)" }
-                    ?: "Missing client-id ($requestInfo)"
+                key = "Interceptor",
+                message = clientId.nullIfBlank()?.let { "Unknown client-id '$clientId'" } ?: "Missing client-id",
+                details = "IP: ${request.remoteAddr}, Host: ${request.remoteHost}, " +
+                    "Agent: ${request.getHeader("User-Agent")}, Referer: ${request.getHeader("referer")}",
+                path = request.servletPath + request.queryString.nullIfBlank()?.let { "?$it" },
             )
 
             response.sendError(SC_BAD_REQUEST, "Missing or invalid header [$CLIENT_ID].")
