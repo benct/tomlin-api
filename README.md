@@ -1,6 +1,6 @@
 # Tomlin.no API
 
-Backend API for homepage (http://tomlin.no) and possible other projects.
+Backend API for homepage (https://tomlin.no) and possible other projects.
 
 [![Website](https://img.shields.io/website-up-down-green-red/https/api.tomlin.no.svg?label=api)](https://api.tomlin.no)
 [![GitHub last commit](https://img.shields.io/github/last-commit/benct/tomlin-api.svg)](https://github.com/benct/tomlin-api)
@@ -30,6 +30,7 @@ java -jar build/libs/tomlin-api-1.0.0.jar --spring.profiles.active=prod
 ### Services
 Move files under `service` directory to `/etc/systemd/system/`
 ```bash
+sudo mv tomlin-api* /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable tomlin-api && sudo systemctl start tomlin-api
 ```
@@ -69,4 +70,22 @@ location / {
 sudo apt install mariadb-server
 mysql_secure_installation
 mysql -u root -p
+```
+
+
+### GCE
+```bash
+sudo apt update
+sudo apt uprgade
+
+sudo apt install openjdk-17-jdk
+
+sudo apt install mariadb-server
+sudo mariadb-secure-installation
+mysql -u root -p
+mysql -u root -p database_name < backup.sql
+
+sudo apt install nginx
+
+chmod +x tomlin-api-1.0.0.jar
 ```
