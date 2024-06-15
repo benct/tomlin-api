@@ -21,7 +21,7 @@ class WebConfig(private val clientIdInterceptor: ClientIdInterceptor) : WebMvcCo
 
     override fun addInterceptors(registry: InterceptorRegistry) {
         registry.addInterceptor(clientIdInterceptor)
-            .excludePathPatterns("/", "/ping", "/version", "/error", "/favicon.ico", "/iata/search/*")
+            .excludePathPatterns("/", "/ping", "/version", "/error", "/favicon.ico", "/robots.txt", "/iata/search/*")
     }
 
     @Bean
