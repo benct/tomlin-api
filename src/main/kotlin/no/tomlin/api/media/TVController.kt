@@ -63,6 +63,16 @@ class TVController(
     }
 
     @Secured(ADMIN, MEDIA)
+    @DeleteMapping("/season/{id}")
+    fun deleteSeason(@PathVariable id: String): Boolean =
+        tvDao.deleteSeason(id)
+
+    @Secured(ADMIN, MEDIA)
+    @DeleteMapping("/episode/{id}")
+    fun deleteEpisode(@PathVariable id: String): Boolean =
+        tvDao.deleteEpisode(id)
+
+    @Secured(ADMIN, MEDIA)
     @PostMapping("/update/{count}")
     fun batchUpdate(@PathVariable count: Int?): Int =
         tvDao.getIds(count ?: UPDATE_COUNT).count { store(it.toString(), false) }

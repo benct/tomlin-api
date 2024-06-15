@@ -110,6 +110,14 @@ class TVDao(private val jdbc: NamedParameterJdbcTemplate) {
         return jdbc.update(Delete(TABLE_TV).where("id").eq(id))
     }
 
+    @CacheEvict("tvStats", allEntries = true)
+    fun deleteSeason(seasonId: String): Boolean =
+        jdbc.update(Delete(TABLE_SEASON).where("id").eq(seasonId))
+
+    @CacheEvict("tvStats", allEntries = true)
+    fun deleteEpisode(episodeId: String): Boolean =
+        jdbc.update(Delete(TABLE_EPISODE).where("id").eq(episodeId))
+
     fun favourite(id: String, set: Boolean): Boolean = jdbc.update(
         Update(TABLE_TV)
             .set("favourite" to set)
