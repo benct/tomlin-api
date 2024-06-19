@@ -63,7 +63,7 @@ class ApiController(
     @PostMapping("/authenticate", produces = [APPLICATION_JSON_VALUE])
     fun authenticate(
         @RequestParam referrer: String?,
-        @RequestHeader headers: Map<String, String>,
+        @RequestHeader headers: Map<String, String>?,
         request: HttpServletRequest,
         principal: Principal?
     ): AuthResponse {
@@ -80,10 +80,10 @@ class ApiController(
                 userDao.updateLastSeen(it.name)
             }
 
-            logger.info("Headers", headers.toJson())
         } catch (_: Exception) {
             // Database is probably down, ignore...
         }
+        logger.info("Headers", headers?.toJson() ?: "null")
         return AuthResponse(principal)
     }
 
