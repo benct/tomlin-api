@@ -7,9 +7,11 @@ import no.tomlin.api.admin.dao.UserDao
 import no.tomlin.api.admin.service.GCPService
 import no.tomlin.api.common.AuthUtils.getUserRoles
 import no.tomlin.api.common.AuthUtils.isLoggedIn
+import no.tomlin.api.common.JsonUtils.toJson
 import no.tomlin.api.common.QRCode.generateQRCodeImage
 import no.tomlin.api.config.ApiProperties
 import no.tomlin.api.github.GitHubService
+import no.tomlin.api.logging.LogDao
 import no.tomlin.api.weather.WeatherService
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.MediaType.IMAGE_PNG_VALUE
@@ -26,6 +28,7 @@ class ApiController(
     private val gitHubService: GitHubService,
     private val weatherService: WeatherService,
     private val gcpService: GCPService,
+    private val logger: LogDao,
 ) {
 
     @GetMapping("/", produces = [APPLICATION_JSON_VALUE])
@@ -60,6 +63,7 @@ class ApiController(
     @PostMapping("/authenticate", produces = [APPLICATION_JSON_VALUE])
     fun authenticate(
         @RequestParam referrer: String?,
+        @RequestHeader headers: Map<String, String>,
         request: HttpServletRequest,
         principal: Principal?
     ): AuthResponse {
@@ -75,6 +79,8 @@ class ApiController(
             principal?.let {
                 userDao.updateLastSeen(it.name)
             }
+
+            logger.info("Headers", headers.toJson())
         } catch (_: Exception) {
             // Database is probably down, ignore...
         }
