@@ -10,7 +10,6 @@ import no.tomlin.api.common.AuthUtils.isLoggedIn
 import no.tomlin.api.common.QRCode.generateQRCodeImage
 import no.tomlin.api.config.ApiProperties
 import no.tomlin.api.github.GitHubService
-import no.tomlin.api.logging.LogDao
 import no.tomlin.api.weather.WeatherService
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.MediaType.IMAGE_PNG_VALUE
@@ -27,7 +26,6 @@ class ApiController(
     private val gitHubService: GitHubService,
     private val weatherService: WeatherService,
     private val gcpService: GCPService,
-    private val logger: LogDao,
 ) {
 
     @GetMapping("/", produces = [APPLICATION_JSON_VALUE])
@@ -86,10 +84,7 @@ class ApiController(
     }
 
     @PostMapping("/login")
-    fun login(request: HttpServletRequest, response: HttpServletResponse): Boolean =
-        request.authenticate(response).also {
-            if (!it) logger.info("Login", "Incorrect credentials", request.getHeader("x-forwarded-for"))
-        }
+    fun login(request: HttpServletRequest, response: HttpServletResponse): Boolean = request.authenticate(response)
 
     @PostMapping("/database/{action}", produces = [APPLICATION_JSON_VALUE])
     fun gcpDatabase(@PathVariable action: String) = gcpService.handleDatabaseAction(action)
