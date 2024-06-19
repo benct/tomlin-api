@@ -88,7 +88,10 @@ class ApiController(
     }
 
     @PostMapping("/login")
-    fun login(request: HttpServletRequest, response: HttpServletResponse) = request.authenticate(response)
+    fun login(request: HttpServletRequest, response: HttpServletResponse): Boolean =
+        request.authenticate(response).also {
+            if (!it) logger.info("Login", "Incorrect credentials", request.remoteAddr)
+        }
 
     @PostMapping("/database/{action}", produces = [APPLICATION_JSON_VALUE])
     fun gcpDatabase(@PathVariable action: String) = gcpService.handleDatabaseAction(action)
