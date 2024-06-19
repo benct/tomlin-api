@@ -47,9 +47,12 @@ class MovieController(
 
     @Secured(ADMIN, MEDIA)
     @DeleteMapping("/{id}")
-    fun delete(@PathVariable id: String): Boolean = movieDao.delete(id).also {
-        if (it) logger.info("Movie", "Removed $id")
-    }
+    fun delete(@PathVariable id: String): Boolean =
+        movieDao.getTitle(id).let { title ->
+            movieDao.delete(id).also {
+                if (it) logger.info("Movie", "Removed $id ($title)")
+            }
+        }
 
     @Secured(ADMIN, MEDIA)
     @PostMapping("/update/{count}")

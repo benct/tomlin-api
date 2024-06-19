@@ -81,6 +81,11 @@ class TVDao(private val jdbc: NamedParameterJdbcTemplate) {
         Long::class.java
     )
 
+    fun getTitle(id: String): String? = jdbc.queryForObject(
+        Select(TABLE_TV).columns("title").where("id").eq(id),
+        String::class.java
+    )
+
     fun watchlist(): List<Map<String, Any?>> = jdbc.queryForList(
         Select(TABLE_TV)
             .columns("*")

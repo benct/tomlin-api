@@ -58,9 +58,12 @@ class TVController(
 
     @Secured(ADMIN, MEDIA)
     @DeleteMapping("/{id}")
-    fun delete(@PathVariable id: String): Boolean = tvDao.delete(id).also {
-        if (it) logger.info("TV", "Removed $id")
-    }
+    fun delete(@PathVariable id: String): Boolean =
+        tvDao.getTitle(id).let { title ->
+            tvDao.delete(id).also {
+                if (it) logger.info("TV", "Removed $id ($title)")
+            }
+        }
 
     @Secured(ADMIN, MEDIA)
     @DeleteMapping("/season/{id}")
