@@ -7,7 +7,6 @@ import no.tomlin.api.admin.dao.UserDao
 import no.tomlin.api.admin.service.GCPService
 import no.tomlin.api.common.AuthUtils.getUserRoles
 import no.tomlin.api.common.AuthUtils.isLoggedIn
-import no.tomlin.api.common.JsonUtils.toJson
 import no.tomlin.api.common.QRCode.generateQRCodeImage
 import no.tomlin.api.config.ApiProperties
 import no.tomlin.api.github.GitHubService
@@ -63,16 +62,16 @@ class ApiController(
     @PostMapping("/authenticate", produces = [APPLICATION_JSON_VALUE])
     fun authenticate(
         @RequestParam referrer: String?,
-        @RequestHeader headers: Map<String, String>?,
         request: HttpServletRequest,
         principal: Principal?
     ): AuthResponse {
         try {
             adminDao.visit(
-                ip = request.remoteAddr,
+                // GCP provides remote address through header x-forwarded-for
+                ip = request.getHeader("x-forwarded-for"), // request.remoteAddr,
                 host = request.remoteHost,
                 referer = referrer,
-                agent = request.getHeader("User-Agent"),
+                agent = request.getHeader("user-agent"),
                 page = request.getHeader("referer")
             )
 
@@ -83,14 +82,13 @@ class ApiController(
         } catch (_: Exception) {
             // Database is probably down, ignore...
         }
-        logger.info("Headers", headers?.toJson() ?: "null")
         return AuthResponse(principal)
     }
 
     @PostMapping("/login")
     fun login(request: HttpServletRequest, response: HttpServletResponse): Boolean =
         request.authenticate(response).also {
-            if (!it) logger.info("Login", "Incorrect credentials", request.remoteAddr)
+            if (!it) logger.info("Login", "Incorrect credentials", request.getHeader("x-forwarded-for"))
         }
 
     @PostMapping("/database/{action}", produces = [APPLICATION_JSON_VALUE])
