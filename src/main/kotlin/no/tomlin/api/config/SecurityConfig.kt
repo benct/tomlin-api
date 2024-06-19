@@ -5,7 +5,6 @@ import no.tomlin.api.db.Table.TABLE_USER
 import no.tomlin.api.logging.LogDao
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.HttpStatus
 import org.springframework.security.config.Customizer.withDefaults
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -38,13 +37,6 @@ class SecurityConfig(private val dataSource: DataSource, private val logger: Log
             .anonymous { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .httpBasic(withDefaults())
-            .exceptionHandling {
-                it.authenticationEntryPoint { _, response, authException ->
-                    logger.info("Login", "Incorrect credentials", authException.message)
-                    response.status = HttpStatus.UNAUTHORIZED.value()
-                    throw authException
-                }
-            }
             .build()
 
     @Bean
