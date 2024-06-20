@@ -2,7 +2,6 @@ package no.tomlin.api.config
 
 import no.tomlin.api.db.Table.TABLE_ROLE
 import no.tomlin.api.db.Table.TABLE_USER
-import no.tomlin.api.logging.LogDao
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.Customizer.withDefaults
@@ -19,7 +18,7 @@ import javax.sql.DataSource
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true)
-class SecurityConfig(private val dataSource: DataSource, private val logger: LogDao) {
+class SecurityConfig(private val dataSource: DataSource) {
 
     @Bean
     fun userDetailsManager(): UserDetailsManager =

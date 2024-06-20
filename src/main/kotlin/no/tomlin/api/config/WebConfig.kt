@@ -21,9 +21,17 @@ class WebConfig(private val clientIdInterceptor: ClientIdInterceptor) : WebMvcCo
 
     override fun addInterceptors(registry: InterceptorRegistry) {
         registry.addInterceptor(clientIdInterceptor)
-            .excludePathPatterns("/", "/ping", "/version", "/error", "/favicon.ico", "/robots.txt", "/iata/search/*")
+            .addPathPatterns(interceptorPaths)
+            .excludePathPatterns("/iata/search/*")
     }
 
     @Bean
     fun imageHttpMessageConverter(): HttpMessageConverter<BufferedImage> = BufferedImageHttpMessageConverter()
+
+    private companion object {
+        val interceptorPaths = listOf(
+            "admin", "authenticate", "been", "database", "file", "finn", "flight", "github", "home", "iata", "link",
+            "login", "media", "note", "presence", "qr", "qrator", "rating", "reddit", "settings", "todo", "user", "weather"
+        ).map { "/$it/**" }
+    }
 }

@@ -17,8 +17,8 @@ class ClientIdInterceptor(private val logger: LogDao) : HandlerInterceptor {
             logger.info(
                 key = "Interceptor",
                 message = clientId.nullIfBlank()?.let { "Unknown client-id '$clientId'" } ?: "Missing client-id",
-                details = "IP: ${request.remoteAddr}, Host: ${request.remoteHost}, " +
-                    "Agent: ${request.getHeader("User-Agent")}, Referer: ${request.getHeader("referer")}",
+                details = "IP: ${request.getHeader("x-forwarded-for")}, Host: ${request.remoteHost}, " +
+                    "Agent: ${request.getHeader("user-agent")}${request.getHeader("referer")?.let { ", Referer: $it" }.orEmpty()}",
                 path = request.servletPath + request.queryString?.let { "?$it" }.orEmpty(),
             )
 
