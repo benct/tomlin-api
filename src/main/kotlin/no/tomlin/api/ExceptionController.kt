@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.servlet.resource.NoResourceFoundException
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now
 
@@ -26,6 +27,12 @@ class ExceptionController(private val logger: LogDao) {
     fun handleNotFound(exception: Exception, request: HttpServletRequest): ResponseEntity<Any> {
         logger.warn(exception, request)
         return ResponseEntity(ErrorResponse(NOT_FOUND, exception, request), NOT_FOUND)
+    }
+
+    @ExceptionHandler(NoResourceFoundException::class)
+    fun handleNoResourceFound(exception: Exception, request: HttpServletRequest): ResponseEntity<Any> {
+        // thrown on any request that does not match valid file or path, ignore...
+        throw exception
     }
 
     @ExceptionHandler(NonTransientDataAccessResourceException::class)
