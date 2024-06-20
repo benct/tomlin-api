@@ -66,7 +66,7 @@ class ApiController(
         try {
             adminDao.visit(
                 // GCP provides remote address through header x-forwarded-for
-                ip = request.getHeader("x-forwarded-for"), // request.remoteAddr,
+                ip = request.getHeader("x-forwarded-for") ?: request.remoteAddr,
                 host = request.remoteHost,
                 referer = referrer,
                 agent = request.getHeader("user-agent"),
