@@ -13,16 +13,17 @@ import java.awt.image.BufferedImage
 class WebConfig(private val clientIdInterceptor: ClientIdInterceptor) : WebMvcConfigurer {
 
     override fun addCorsMappings(registry: CorsRegistry) {
-        registry.addMapping("/**")
+        registry
+            .addMapping("/**")
             .allowedMethods("GET", "POST", "DELETE", "OPTIONS")
             .allowedOrigins("https://tomlin.no", "https://dev.tomlin.no", "http://localhost:8080")
             .maxAge(36000)
     }
 
     override fun addInterceptors(registry: InterceptorRegistry) {
-        registry.addInterceptor(clientIdInterceptor)
+        registry
+            .addInterceptor(clientIdInterceptor)
             .addPathPatterns(interceptorPaths)
-            .excludePathPatterns("/iata/search/*")
     }
 
     @Bean
