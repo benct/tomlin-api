@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.RowMapper
 import java.time.LocalDateTime
 
 data class Visit(
+    val id: Long,
     val ip: String,
     val host: String,
     val referrer: String?,
@@ -15,6 +16,7 @@ data class Visit(
     companion object {
         val rowMapper = RowMapper<Visit> { rs, _ ->
             Visit(
+                rs.getLong("id"),
                 rs.getString("ip"),
                 rs.getString("host"),
                 rs.getString("referer"),
