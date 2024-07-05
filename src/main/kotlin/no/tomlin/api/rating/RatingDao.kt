@@ -34,6 +34,11 @@ class RatingDao(private val jdbc: NamedParameterJdbcTemplate) {
         RatingItem.rowMapper,
     )
 
+    fun getUsersScored(itemId: Long): List<String> = jdbc.queryForList(
+        Select(TABLE_RATING_SCORE).columns("user_id").where("item_id").eq(itemId),
+        String::class.java,
+    )
+
     @CacheEvict("active")
     fun nextStep(): Boolean = jdbc.update(
         Increment(TABLE_RATING)

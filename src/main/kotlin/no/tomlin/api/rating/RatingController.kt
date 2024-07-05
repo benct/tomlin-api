@@ -16,11 +16,13 @@ class RatingController(private val ratingDao: RatingDao) {
     @GetMapping
     fun active(): Map<String, Any?> =
         ratingDao.getActive()?.let {
-            val current = ratingDao.getActiveItems().getOrNull(it.step - 1)
+            val items = ratingDao.getActiveItems()
+            val current = items.getOrNull(it.step - 1)
             mapOf(
                 "title" to it.title,
                 "blind" to it.blind,
                 "step" to it.step,
+                "total" to items.size,
                 "cat1" to it.cat1,
                 "cat2" to it.cat2,
                 "cat3" to it.cat3,
@@ -30,6 +32,7 @@ class RatingController(private val ratingDao: RatingDao) {
                         "id" to item.id,
                         "title" to if (it.blind) "Item ${it.step}" else item.title,
                         "subtitle" to item.subtitle,
+                        "scored" to ratingDao.getUsersScored(item.id!!)
                     )
                 }
             )
